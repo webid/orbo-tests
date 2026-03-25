@@ -500,7 +500,7 @@ export default function App() {
                   </div>
                </div>
                
-               <div className="p-4 grid grid-cols-4 gap-3">
+               <div className="p-2 sm:p-3 grid grid-cols-4 gap-1.5 sm:gap-2">
                   {slots.map((slot, idx) => {
                      const isAssigned = !!slot.creatureKey;
                      const c = isAssigned ? creaturesDict[slot.creatureKey!] : null;
@@ -511,27 +511,27 @@ export default function App() {
                         <div key={idx} className="bg-[#0a0a0a] border border-[#222] rounded-md flex flex-col relative group overflow-hidden hover:border-[#444] transition-colors">
                            {isAssigned ? (
                               <>
-                                 <button onClick={() => removeSlot(idx)} className="absolute top-1.5 right-1.5 bg-black/60 backdrop-blur border border-[#333] text-[#888] rounded-md p-0.5 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity z-10 w-5 h-5 flex justify-center items-center">
-                                    <X className="w-3 h-3" />
+                                 <button onClick={() => removeSlot(idx)} className="absolute top-1 right-1 bg-black/60 backdrop-blur border border-[#333] text-[#888] rounded p-0.5 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity z-10 w-4 h-4 flex justify-center items-center">
+                                    <X className="w-2.5 h-2.5" />
                                  </button>
-                                 <div onClick={() => setModalTarget(idx)} className="w-full aspect-square bg-[#111] overflow-hidden cursor-pointer relative transition-opacity group-hover:opacity-90 flex items-center justify-center p-2 pb-6">
+                                 <div onClick={() => setModalTarget(idx)} className="w-full aspect-square bg-[#111] overflow-hidden cursor-pointer relative transition-opacity group-hover:opacity-90 flex items-center justify-center p-1.5 pb-4">
                                     <img src={`https://orbo.tnkrshd.com/creatures/${c.key}/${c.image}`} alt={c.name} className="w-full h-full object-contain" />
-                                    <div className="absolute bottom-0 inset-x-0 h-1/3 bg-gradient-to-t from-black/80 to-transparent pointer-events-none" />
-                                    <div className="absolute bottom-1.5 left-2 flex items-center space-x-1">
-                                       <span className="text-[9px] uppercase tracking-wider text-[#a1a1aa] font-bold drop-shadow-md">Lv</span>
+                                    <div className="absolute bottom-0 inset-x-0 h-1/2 bg-gradient-to-t from-black/90 to-transparent pointer-events-none" />
+                                    <div className="absolute bottom-1 left-1.5 flex items-center space-x-1">
+                                       <span className="text-[7px] uppercase tracking-wider text-[#a1a1aa] font-bold drop-shadow-md">Lv</span>
                                        <input 
                                           type="number" 
                                           value={slot.level || ''} 
                                           onChange={e => updateSlotLevel(idx, parseInt(e.target.value) || 1)}
                                           min={1} max={maxLevel}
-                                          className="w-10 bg-black/50 border border-[#333] backdrop-blur text-[10px] font-mono text-center text-white focus:outline-none focus:border-[#555] rounded-sm py-0.5"
+                                          className="w-7 bg-black/50 border border-[#333] backdrop-blur text-[9px] font-mono text-center text-white focus:outline-none focus:border-[#555] rounded-sm py-px"
                                           onClick={e => e.stopPropagation()}
                                        />
                                     </div>
                                  </div>
-                                 <div className="w-full p-2 flex flex-col border-t border-[#222]">
-                                    <p className="text-[11px] font-medium truncate text-[#ededed] w-full" title={c.name}>{c.name}</p>
-                                    <p className="text-[10px] text-[#888] font-mono mt-0.5">
+                                 <div className="w-full p-1.5 flex flex-col border-t border-[#222]">
+                                    <p className="text-[9px] font-medium truncate text-[#ededed] w-full" title={c.name}>{c.name}</p>
+                                    <p className="text-[8.5px] text-[#888] font-mono mt-0.5 truncate leading-tight">
                                       {dps.toLocaleString(undefined, { maximumFractionDigits: 1 })} DPS
                                     </p>
                                  </div>
@@ -539,11 +539,11 @@ export default function App() {
                            ) : (
                               <>
                                  <button onClick={() => setModalTarget(idx)} className="w-full aspect-square bg-[#0a0a0a] hover:bg-[#111] flex flex-col items-center justify-center text-[#555] transition-colors cursor-pointer">
-                                    <Plus className="w-5 h-5 mb-1" />
+                                    <Plus className="w-4 h-4 mb-0.5" />
                                  </button>
-                                 <div className="w-full p-2 flex flex-col border-t border-[#222]">
-                                    <p className="text-[11px] font-medium text-[#444] w-full">Empty Unit</p>
-                                    <p className="text-[10px] text-transparent font-mono mt-0.5">0 DPS</p>
+                                 <div className="w-full p-1.5 flex flex-col border-t border-[#222]">
+                                    <p className="text-[9px] font-medium text-[#444] w-full truncate">Empty Unit</p>
+                                    <p className="text-[8.5px] text-transparent font-mono mt-0.5 leading-tight">0 DPS</p>
                                  </div>
                               </>
                            )}
