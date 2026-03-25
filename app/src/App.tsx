@@ -51,6 +51,39 @@ export default function App() {
   const [copied, setCopied] = useState(false);
   const [search, setSearch] = useState('');
 
+  // Version Check Poller
+  useEffect(() => {
+    let currentHash: string | null = null;
+    let isChecking = false;
+    
+    const checkVersion = async () => {
+      if (isChecking) return;
+      isChecking = true;
+      try {
+        const res = await fetch(import.meta.env.BASE_URL + 'index.html?t=' + Date.now(), { cache: 'no-store' });
+        const html = await res.text();
+        const scriptMatch = html.match(/src="([^"]+)"/);
+        const newHash = scriptMatch ? scriptMatch[1] : html; 
+
+        if (currentHash === null) {
+          currentHash = newHash;
+        } else if (currentHash !== newHash) {
+          if (window.confirm("A new version of Orbo Army Optimizer is available! Click OK to reload and apply the update.")) {
+            window.location.reload();
+          }
+        }
+      } catch (err) {
+        console.error("Version check failed", err);
+      } finally {
+        isChecking = false;
+      }
+    };
+
+    const interval = setInterval(checkVersion, 60000); // Check every 60 seconds
+    setTimeout(checkVersion, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
   // Persistence
   useEffect(() => {
     localStorage.setItem('orbo_config', JSON.stringify(config));
@@ -431,14 +464,10 @@ export default function App() {
                       <ChevronRight className="w-4 h-4 text-[#444] group-hover:text-[#888] transition-colors" />
                    </button>
                 </div>
-                <div className="col-span-2 h-px bg-[#222] my-1" />
-                <div className="col-span-2">
-                   <InputRow label="Duration (s)" name="battleDuration" value={config.battleDuration} onChange={handleConfigChange} />
-                </div>
-                <div className="col-span-2 h-px bg-[#222] my-1" />
-                <InputRow label="Click DPS (%)" name="clickPercentForm" value={config.clickPercent * 100} onChange={handleConfigChange} />
-                <InputRow label="Max Clicks" name="maxClicks" value={config.maxClicks} onChange={handleConfigChange} />
-                <div className="col-span-2">
+                <div className="col-span-2 h-px bg-[#222] mt-1 mb-2" />
+                <div className="col-span-2 grid grid-cols-3 gap-3">
+                   <InputRow label="Click DPS (%)" name="clickPercentForm" value={config.clickPercent * 100} onChange={handleConfigChange} />
+                   <InputRow label="Max Clicks" name="maxClicks" value={config.maxClicks} onChange={handleConfigChange} />
                    <InputRow 
                       label="Total Click Power" 
                       name="totalClickPower" 
