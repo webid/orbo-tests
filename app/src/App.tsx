@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Calculator, Sword, Zap, TrendingUp, Skull, Users, Search, X, Plus, DownloadCloud, Copy, Upload, Target, ChevronRight } from 'lucide-react';
+import { Calculator, Sword, Zap, TrendingUp, Skull, Users, Search, X, Plus, DownloadCloud, Copy, Upload, Target, ChevronRight, ChevronDown } from 'lucide-react';
 import creaturesData from './orbo-creatures.json';
 import bossesData from './orbo-bosses.json';
 
@@ -51,6 +51,11 @@ export default function App() {
   const [copied, setCopied] = useState(false);
   const [search, setSearch] = useState('');
   const [updateAvailable, setUpdateAvailable] = useState(false);
+  const [expandedSteps, setExpandedSteps] = useState<Record<number, boolean>>({});
+
+  const toggleStep = (idx: number) => {
+    setExpandedSteps(prev => ({ ...prev, [idx]: !prev[idx] }));
+  };
 
   // Version Check Poller
   useEffect(() => {
@@ -146,7 +151,15 @@ export default function App() {
     let simulatedSlots = slots.map(s => ({ ...s }));
     let totalCost = 0;
     
-    type UpgradeHistory = { slotIndex: number; creatureKey: string; startLevel: number; endLevel: number; totalCost: number; totalDpsGain: number };
+    type UpgradeHistory = { 
+      slotIndex: number; 
+      creatureKey: string; 
+      startLevel: number; 
+      endLevel: number; 
+      totalCost: number; 
+      totalDpsGain: number;
+      details: { level: number; cost: number }[];
+    };
     const history: UpgradeHistory[] = [];
 
     let canUpgrade = true;
@@ -166,7 +179,11 @@ export default function App() {
 
         if (!nextData) continue;
 
-        const cost = currentData.foodCost;
+        let cost = currentData.foodCost;
+        if (nextData.stage && currentData.stage && nextData.stage > currentData.stage) {
+          cost = currentData.foodCost * nextData.stage;
+        }
+
         if (cost <= 0) continue;
 
         const dpsGain = nextData.dps - currentData.dps;
@@ -191,6 +208,7 @@ export default function App() {
         existing.endLevel = chosenSlot.level + 1;
         existing.totalCost += bestCost;
         existing.totalDpsGain += bestDpsGain;
+        existing.details.push({ level: chosenSlot.level, cost: bestCost });
       } else {
         history.push({
           slotIndex: bestSlotIdx,
@@ -198,7 +216,8 @@ export default function App() {
           startLevel: chosenSlot.level,
           endLevel: chosenSlot.level + 1,
           totalCost: bestCost,
-          totalDpsGain: bestDpsGain
+          totalDpsGain: bestDpsGain,
+          details: [{ level: chosenSlot.level, cost: bestCost }]
         });
       }
 
@@ -644,26 +663,51 @@ export default function App() {
                            {results.upgradePlan.map((step, idx) => {
                               const c = creaturesDict[step.creatureKey];
                               return (
-                                 <div key={idx} className="bg-[#0a0a0a] border border-[#222] p-2.5 rounded-md flex items-center relative">
-                                    <div className="absolute top-1/2 -translate-y-1/2 -left-[35px] w-6 h-6 rounded-full bg-[#111] border border-[#444] flex items-center justify-center text-[10px] font-bold text-[#ededed] shadow-sm z-10">
-                                       {idx + 1}
-                                    </div>
-                                    <div className="w-8 h-8 rounded shrink-0 overflow-hidden border border-[#222] bg-[#1a1a1a]">
-                                       <img src={`https://orbo.tnkrshd.com/creatures/${c.key}/${c.image}`} alt={c.name} className="w-full h-full object-cover scale-110" />
-                                   </div>
-                                   <div className="ml-3 flex-1">
-                                      <p className="text-xs font-medium text-[#ededed]">
-                                         {c.name} <span className="text-[#666] font-normal ml-1">Slot {step.slotIndex + 1}</span>
-                                      </p>
-                                      <p className="text-[10px] text-[#888] font-mono mt-0.5">
-                                         Lv {step.startLevel} → Lv {step.endLevel}
-                                      </p>
-                                   </div>
-                                   <div className="text-right ml-3">
-                                      <p className="text-[9px] uppercase tracking-wider text-[#666] mb-0.5">Cost</p>
-                                      <p className="text-xs font-mono text-[#ededed]">{step.totalCost.toLocaleString()}</p>
-                                   </div>
-                                </div>
+                                  <div key={idx} className="bg-[#0a0a0a] border border-[#222] rounded-md relative flex flex-col transition-colors hover:border-[#333]">
+                                     <div onClick={() => toggleStep(idx)} className="p-2.5 flex items-center cursor-pointer transition-colors rounded-md relative">
+                                        <div className="absolute top-1/2 -translate-y-1/2 -left-[35px] w-6 h-6 rounded-full bg-[#111] border border-[#444] flex items-center justify-center text-[10px] font-bold text-[#ededed] shadow-sm z-10">
+                                           {idx + 1}
+                                        </div>
+                                        <div className="w-8 h-8 rounded shrink-0 overflow-hidden border border-[#222] bg-[#1a1a1a]">
+                                           <img src={`https://orbo.tnkrshd.com/creatures/${c.key}/${c.image}`} alt={c.name} className="w-full h-full object-cover scale-110" />
+                                        </div>
+                                        <div className="ml-3 flex-1">
+                                           <p className="text-xs font-medium text-[#ededed]">
+                                              {c.name} <span className="text-[#666] font-normal ml-1">Slot {step.slotIndex + 1}</span>
+                                           </p>
+                                           <div className="flex items-center mt-0.5 space-x-1.5">
+                                              <p className="text-[10px] text-[#888] font-mono">
+                                                 Lv {step.startLevel} → Lv {step.endLevel}
+                                              </p>
+                                              <div className="bg-[#222] h-3 px-1 rounded flex items-center justify-center border border-[#333]">
+                                                <ChevronDown className={`w-2.5 h-2.5 text-[#888] transition-transform duration-200 ${expandedSteps[idx] ? 'rotate-180' : ''}`} />
+                                              </div>
+                                           </div>
+                                        </div>
+                                        <div className="text-right ml-3">
+                                           <p className="text-[9px] uppercase tracking-wider text-[#666] mb-0.5">Cost</p>
+                                           <p className="text-xs font-mono text-[#ededed]">{step.totalCost.toLocaleString()}</p>
+                                        </div>
+                                     </div>
+                                     
+                                     {expandedSteps[idx] && (
+                                        <div className="border-t border-[#222] bg-[#0c0c0c] rounded-b-md p-3 space-y-1.5 overflow-hidden animate-in fade-in slide-in-from-top-1 duration-200">
+                                           <div className="flex items-center justify-between text-[8px] uppercase tracking-wider text-[#555] mb-2 border-b border-[#222] pb-1.5">
+                                              <span>Step Breakdown</span>
+                                              <span>Food Cost</span>
+                                           </div>
+                                           {step.details.map((d, dIdx) => (
+                                              <div key={dIdx} className="flex items-center justify-between text-[10px] font-mono">
+                                                 <div className="flex items-center space-x-2">
+                                                    <div className="w-1 h-1 rounded-full bg-[#333]" />
+                                                    <span className="text-[#888]">Lv {d.level} → {d.level + 1}</span>
+                                                 </div>
+                                                 <span className="text-[#ededed]">{d.cost.toLocaleString()}</span>
+                                              </div>
+                                           ))}
+                                        </div>
+                                     )}
+                                  </div>
                              )
                           })}
                        </div>
