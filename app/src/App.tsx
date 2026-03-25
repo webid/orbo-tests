@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Calculator, Sword, Zap, TrendingUp, Skull, Users, Search, X, Plus, DownloadCloud, Copy, Upload, Target, ChevronRight, ChevronDown } from 'lucide-react';
+import { Calculator, Sword, Zap, TrendingUp, Skull, Users, Search, X, Plus, DownloadCloud, Copy, Upload, Target, ChevronRight, ChevronDown, Star } from 'lucide-react';
 import creaturesData from './orbo-creatures.json';
 import bossesData from './orbo-bosses.json';
 
@@ -23,14 +23,26 @@ const loadState = (key: string, fallback: any) => {
 };
 
 export default function App() {
-  const [config, setConfig] = useState(() => loadState('orbo_config', {
-    clickPercent: 0.35,
-    clickFixed: 57,
-    bossEnergy: 2550000,
-    battleDuration: 30,
-    maxClicks: 82,
-    bossNumber: 11
-  }));
+  const [config, setConfig] = useState(() => {
+    let saved = loadState('orbo_config', null);
+    if (!saved) {
+      return {
+        clickPercent: "35",
+        clickFixed: 57,
+        bossEnergy: 2550000,
+        battleDuration: 30,
+        maxClicks: 82,
+        bossNumber: 11,
+        selectedBoss: null
+      };
+    }
+    if (typeof saved.clickPercent === 'number' && saved.clickPercent <= 1) {
+      saved.clickPercent = (saved.clickPercent * 100).toString();
+    } else if (typeof saved.clickPercent === 'number') {
+      saved.clickPercent = saved.clickPercent.toString();
+    }
+    return saved;
+  });
 
   const [slots, setSlots] = useState<ArmySlotInfo[]>(() => loadState('orbo_army', Array(8).fill({ creatureKey: null, level: 1 })));
   
@@ -104,11 +116,17 @@ export default function App() {
   }, [slots]);
 
   const exportData = () => {
-    return btoa(JSON.stringify({ config, slots }));
+    try {
+      return btoa(encodeURIComponent(JSON.stringify({ config, slots })));
+    } catch (e) {
+      return "";
+    }
   };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(exportData());
+    const data = exportData();
+    if (!data) return;
+    navigator.clipboard.writeText(data);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -116,7 +134,13 @@ export default function App() {
   const handleImport = () => {
     if (!syncInput.trim()) return;
     try {
-      const decoded = JSON.parse(atob(syncInput.trim()));
+      let decodedString = atob(syncInput.trim());
+      try {
+        decodedString = decodeURIComponent(decodedString);
+      } catch (e) {
+        // Fallback for legacy codes
+      }
+      const decoded = JSON.parse(decodedString);
       if (decoded.config && decoded.slots) {
         setConfig(decoded.config);
         setSlots(decoded.slots);
@@ -138,13 +162,15 @@ export default function App() {
       return total + c.levels[slot.level - 1].dps;
     }, 0);
 
+    const clickPctNum = (parseFloat(config.clickPercent) || 0) / 100;
+    
     const targetTotalDps = config.bossEnergy / config.battleDuration;
     
     const requiredArmyDps = (config.bossEnergy - (config.clickFixed * config.maxClicks)) / 
-                            (config.battleDuration + (config.clickPercent * config.maxClicks));
+                            (config.battleDuration + (clickPctNum * config.maxClicks));
     
     const gap = requiredArmyDps - currentArmyDps;
-    const currentClickDps = (currentArmyDps * config.clickPercent) + config.clickFixed;
+    const currentClickDps = (currentArmyDps * clickPctNum) + config.clickFixed;
     const currentTotalDps = currentArmyDps + (currentClickDps * config.maxClicks / config.battleDuration);
 
     let remainingGap = gap;
@@ -243,7 +269,7 @@ export default function App() {
   const handleConfigChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     if (name === 'clickPercentForm') {
-      setConfig((prev: any) => ({ ...prev, clickPercent: parseFloat(value) / 100 }));
+      setConfig((prev: any) => ({ ...prev, clickPercent: value }));
     } else {
       setConfig((prev: any) => ({ ...prev, [name]: parseFloat(value) || 0 }));
     }
@@ -502,16 +528,16 @@ export default function App() {
                 </div>
                 <div className="col-span-2 h-px bg-[#222] mt-1 mb-2" />
                 <div className="col-span-2 grid grid-cols-3 gap-3">
-                   <InputRow label="Click DPS (%)" name="clickPercentForm" value={config.clickPercent * 100} onChange={handleConfigChange} />
+                   <InputRow label="Click DPS (%)" name="clickPercentForm" value={config.clickPercent} onChange={handleConfigChange} />
                    <InputRow label="Max Clicks" name="maxClicks" value={config.maxClicks} onChange={handleConfigChange} />
                    <InputRow 
                       label="Total Click Power" 
                       name="totalClickPower" 
-                      value={Math.round(results.currentArmyDps * config.clickPercent + config.clickFixed)} 
+                      value={Math.round(results.currentArmyDps * ((parseFloat(config.clickPercent) || 0) / 100) + config.clickFixed)} 
                       onChange={(e: any) => {
                          const val = parseFloat(e.target.value);
                          const totalPower = isNaN(val) ? 0 : val;
-                         const fixed = totalPower - (results.currentArmyDps * config.clickPercent);
+                         const fixed = totalPower - (results.currentArmyDps * ((parseFloat(config.clickPercent) || 0) / 100));
                          setConfig((prev: any) => ({ ...prev, clickFixed: fixed }));
                       }} 
                    />
@@ -542,6 +568,29 @@ export default function App() {
                      const c = isAssigned ? creaturesDict[slot.creatureKey!] : null;
                      const dps = c?.levels[slot.level - 1]?.dps || 0;
                      const maxLevel = c?.levels.length || 1;
+                     
+                     const stageIndex = c?.levels[slot.level - 1]?.stage || 1;
+                     const starsCount = stageIndex - 1;
+                     const relativeLevel = slot.level <= 20 ? slot.level : ((slot.level - 1) % 20) + 1;
+
+                     const cycleStage = (e: React.MouseEvent) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        let nextStage = stageIndex + 1;
+                        if (nextStage > 4) nextStage = 1;
+
+                        // Ensure they have the necessary absolute level logic
+                        let absolute = (nextStage - 1) * 20 + relativeLevel;
+                        
+                        // If cycling to Stage 4 but max level is only 60, bump them back to Stage 1. 
+                        if ((nextStage - 1) * 20 + 1 > maxLevel) {
+                           absolute = relativeLevel;
+                        } else if (absolute > maxLevel) {
+                           absolute = maxLevel;
+                        }
+                        
+                        updateSlotLevel(idx, absolute);
+                     };
 
                      return (
                         <div key={idx} className="bg-[#0a0a0a] border border-[#222] rounded-md flex flex-col relative group overflow-hidden hover:border-[#444] transition-colors">
@@ -550,18 +599,30 @@ export default function App() {
                                  <button onClick={() => removeSlot(idx)} className="absolute top-1 right-1 bg-black/60 backdrop-blur border border-[#333] text-[#888] rounded p-0.5 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity z-10 w-4 h-4 flex justify-center items-center">
                                     <X className="w-2.5 h-2.5" />
                                  </button>
-                                 <div onClick={() => setModalTarget(idx)} className="w-full aspect-square bg-[#111] overflow-hidden cursor-pointer relative transition-opacity group-hover:opacity-90 flex items-center justify-center p-1.5 pb-4">
+                                 <div className="w-full aspect-square bg-[#111] overflow-hidden relative flex items-center justify-center p-1.5 pb-4">
                                     <img src={`https://orbo.tnkrshd.com/creatures/${c.key}/${c.image}`} alt={c.name} className="w-full h-full object-contain" />
                                     <div className="absolute bottom-0 inset-x-0 h-1/2 bg-gradient-to-t from-black/90 to-transparent pointer-events-none" />
+                                    
+                                    <button 
+                                       onClick={cycleStage}
+                                       className="absolute top-1 left-1.5 flex space-x-0.5 z-10 p-0.5 hover:bg-black/50 rounded transition-colors"
+                                       title="Cycle Stage"
+                                    >
+                                       {starsCount === 0 ? (
+                                          <Star className="w-2.5 h-2.5 text-[#444] opacity-80" />
+                                       ) : (
+                                          Array.from({ length: starsCount }).map((_, i) => (
+                                             <Star key={i} className="w-2.5 h-2.5 fill-yellow-400 text-yellow-500 drop-shadow-md" />
+                                          ))
+                                       )}
+                                    </button>
+
                                     <div className="absolute bottom-1 left-1.5 flex items-center space-x-1">
-                                       <span className="text-[7px] uppercase tracking-wider text-[#a1a1aa] font-bold drop-shadow-md">Lv</span>
-                                       <input 
-                                          type="number" 
-                                          value={slot.level || ''} 
-                                          onChange={e => updateSlotLevel(idx, parseInt(e.target.value) || 1)}
-                                          min={1} max={maxLevel}
-                                          className="w-7 bg-black/50 border border-[#333] backdrop-blur text-[9px] font-mono text-center text-white focus:outline-none focus:border-[#555] rounded-sm py-px"
-                                          onClick={e => e.stopPropagation()}
+                                       <span className="text-[7px] uppercase tracking-wider text-yellow-400 font-bold drop-shadow-md z-10 pointer-events-none">lv.</span>
+                                       <LevelInput 
+                                          absoluteLevel={slot.level || 1} 
+                                          maxLevel={maxLevel} 
+                                          onChange={(val: number) => updateSlotLevel(idx, val)} 
                                        />
                                     </div>
                                  </div>
@@ -730,6 +791,39 @@ const SettingsIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+const LevelInput = ({ absoluteLevel, maxLevel, onChange }: any) => {
+  const [isFocused, setIsFocused] = useState(false);
+  const [tempVal, setTempVal] = useState(absoluteLevel.toString());
+
+  useEffect(() => {
+    if (!isFocused) setTempVal(absoluteLevel.toString());
+  }, [absoluteLevel, isFocused]);
+
+  const relativeLevel = absoluteLevel <= 20 ? absoluteLevel : ((absoluteLevel - 1) % 20) + 1;
+  const displayVal = isFocused ? tempVal : relativeLevel;
+
+  return (
+    <input 
+      type="number" 
+      value={displayVal} 
+      onFocus={() => setIsFocused(true)}
+      onBlur={(e) => {
+        setIsFocused(false);
+        let val = parseInt(e.target.value) || 1;
+        if (val < 1) val = 1;
+        if (val > maxLevel) val = maxLevel;
+        onChange(val);
+      }}
+      onChange={(e) => setTempVal(e.target.value)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') e.currentTarget.blur();
+      }}
+      className={`bg-black/50 border border-[#333] backdrop-blur text-[9px] font-mono text-center text-yellow-500 focus:outline-none focus:border-yellow-500/50 transition-all rounded-sm py-px [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${isFocused ? 'w-9 absolute left-3 z-30 shadow-xl' : 'w-7'}`}
+      onClick={e => e.stopPropagation()}
+    />
+  );
+};
+
 const InputRow = ({ label, name, value, onChange }: any) => (
   <div className="flex flex-col space-y-1.5">
     <label className="text-[10px] font-semibold uppercase tracking-wider text-[#666]">{label}</label>
@@ -738,7 +832,7 @@ const InputRow = ({ label, name, value, onChange }: any) => (
       name={name}
       value={value}
       onChange={onChange}
-      className="w-full bg-[#0a0a0a] border border-[#222] rounded-md py-1.5 px-3 font-mono text-sm text-[#ededed] focus:outline-none focus:border-[#444] transition-colors"
+      className="w-full bg-[#0a0a0a] border border-[#222] rounded-md py-1.5 px-3 font-mono text-sm text-[#ededed] focus:outline-none focus:border-[#444] transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
     />
   </div>
 );
