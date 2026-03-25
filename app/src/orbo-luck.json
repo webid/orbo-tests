@@ -1,0 +1,1685 @@
+[
+  {
+    "level": 1,
+    "cost": 0,
+    "spawnRates": {
+      "common": 100,
+      "uncommon": 0,
+      "scarce": 0,
+      "rare": 0,
+      "esoteric": 0,
+      "mythic": 0,
+      "relic": 0,
+      "untouched": 0,
+      "phaseBound": 0,
+      "lightSworn": 0,
+      "voidBorn": 0
+    }
+  },
+  {
+    "level": 2,
+    "cost": 60,
+    "spawnRates": {
+      "common": 90,
+      "uncommon": 10,
+      "scarce": 0,
+      "rare": 0,
+      "esoteric": 0,
+      "mythic": 0,
+      "relic": 0,
+      "untouched": 0,
+      "phaseBound": 0,
+      "lightSworn": 0,
+      "voidBorn": 0
+    }
+  },
+  {
+    "level": 3,
+    "cost": 100,
+    "spawnRates": {
+      "common": 86,
+      "uncommon": 11,
+      "scarce": 3,
+      "rare": 0,
+      "esoteric": 0,
+      "mythic": 0,
+      "relic": 0,
+      "untouched": 0,
+      "phaseBound": 0,
+      "lightSworn": 0,
+      "voidBorn": 0
+    }
+  },
+  {
+    "level": 4,
+    "cost": 250,
+    "spawnRates": {
+      "common": 82,
+      "uncommon": 11.5,
+      "scarce": 5,
+      "rare": 1.5,
+      "esoteric": 0,
+      "mythic": 0,
+      "relic": 0,
+      "untouched": 0,
+      "phaseBound": 0,
+      "lightSworn": 0,
+      "voidBorn": 0
+    }
+  },
+  {
+    "level": 5,
+    "cost": 600,
+    "spawnRates": {
+      "common": 78,
+      "uncommon": 12,
+      "scarce": 7,
+      "rare": 3,
+      "esoteric": 0,
+      "mythic": 0,
+      "relic": 0,
+      "untouched": 0,
+      "phaseBound": 0,
+      "lightSworn": 0,
+      "voidBorn": 0
+    }
+  },
+  {
+    "level": 6,
+    "cost": 1500,
+    "spawnRates": {
+      "common": 73.99,
+      "uncommon": 13,
+      "scarce": 8,
+      "rare": 5,
+      "esoteric": 0.01,
+      "mythic": 0,
+      "relic": 0,
+      "untouched": 0,
+      "phaseBound": 0,
+      "lightSworn": 0,
+      "voidBorn": 0
+    }
+  },
+  {
+    "level": 7,
+    "cost": 4500,
+    "spawnRates": {
+      "common": 71.995,
+      "uncommon": 13,
+      "scarce": 8.5,
+      "rare": 5.5,
+      "esoteric": 1.005,
+      "mythic": 0,
+      "relic": 0,
+      "untouched": 0,
+      "phaseBound": 0,
+      "lightSworn": 0,
+      "voidBorn": 0
+    }
+  },
+  {
+    "level": 8,
+    "cost": 12000,
+    "spawnRates": {
+      "common": 70,
+      "uncommon": 13,
+      "scarce": 9,
+      "rare": 6,
+      "esoteric": 2,
+      "mythic": 0,
+      "relic": 0,
+      "untouched": 0,
+      "phaseBound": 0,
+      "lightSworn": 0,
+      "voidBorn": 0
+    }
+  },
+  {
+    "level": 9,
+    "cost": 30000,
+    "spawnRates": {
+      "common": 67.99,
+      "uncommon": 13,
+      "scarce": 9.5,
+      "rare": 6.5,
+      "esoteric": 3,
+      "mythic": 0.01,
+      "relic": 0,
+      "untouched": 0,
+      "phaseBound": 0,
+      "lightSworn": 0,
+      "voidBorn": 0
+    }
+  },
+  {
+    "level": 10,
+    "cost": 65000,
+    "spawnRates": {
+      "common": 65.99,
+      "uncommon": 13,
+      "scarce": 10,
+      "rare": 7,
+      "esoteric": 4,
+      "mythic": 0.01,
+      "relic": 0,
+      "untouched": 0,
+      "phaseBound": 0,
+      "lightSworn": 0,
+      "voidBorn": 0
+    }
+  },
+  {
+    "level": 11,
+    "cost": 110000,
+    "spawnRates": {
+      "common": 64.295,
+      "uncommon": 13,
+      "scarce": 10.335,
+      "rare": 7.665,
+      "esoteric": 4.665,
+      "mythic": 0.04,
+      "relic": 0,
+      "untouched": 0,
+      "phaseBound": 0,
+      "lightSworn": 0,
+      "voidBorn": 0
+    }
+  },
+  {
+    "level": 12,
+    "cost": 180000,
+    "spawnRates": {
+      "common": 62.6,
+      "uncommon": 13,
+      "scarce": 10.67,
+      "rare": 8.33,
+      "esoteric": 5.33,
+      "mythic": 0.07,
+      "relic": 0,
+      "untouched": 0,
+      "phaseBound": 0,
+      "lightSworn": 0,
+      "voidBorn": 0
+    }
+  },
+  {
+    "level": 13,
+    "cost": 300000,
+    "spawnRates": {
+      "common": 60.599,
+      "uncommon": 13,
+      "scarce": 11,
+      "rare": 9,
+      "esoteric": 6,
+      "mythic": 0.4,
+      "relic": 0.001,
+      "untouched": 0,
+      "phaseBound": 0,
+      "lightSworn": 0,
+      "voidBorn": 0
+    }
+  },
+  {
+    "level": 14,
+    "cost": 480000,
+    "spawnRates": {
+      "common": 58.1963,
+      "uncommon": 13.1429,
+      "scarce": 11.4286,
+      "rare": 9.4286,
+      "esoteric": 6.5714,
+      "mythic": 1.2,
+      "relic": 0.0294,
+      "untouched": 0,
+      "phaseBound": 0,
+      "lightSworn": 0,
+      "voidBorn": 0
+    }
+  },
+  {
+    "level": 15,
+    "cost": 750000,
+    "spawnRates": {
+      "common": 55.7936,
+      "uncommon": 13.2857,
+      "scarce": 11.8571,
+      "rare": 9.8571,
+      "esoteric": 7.1429,
+      "mythic": 2,
+      "relic": 0.0579,
+      "untouched": 0,
+      "phaseBound": 0,
+      "lightSworn": 0,
+      "voidBorn": 0
+    }
+  },
+  {
+    "level": 16,
+    "cost": 1200000,
+    "spawnRates": {
+      "common": 53.3909,
+      "uncommon": 13.4286,
+      "scarce": 12.2857,
+      "rare": 10.2857,
+      "esoteric": 7.7143,
+      "mythic": 2.8,
+      "relic": 0.0863,
+      "untouched": 0,
+      "phaseBound": 0,
+      "lightSworn": 0,
+      "voidBorn": 0
+    }
+  },
+  {
+    "level": 17,
+    "cost": 1900000,
+    "spawnRates": {
+      "common": 50.9881,
+      "uncommon": 13.5714,
+      "scarce": 12.7143,
+      "rare": 10.7143,
+      "esoteric": 8.2857,
+      "mythic": 3.6,
+      "relic": 0.1147,
+      "untouched": 0,
+      "phaseBound": 0,
+      "lightSworn": 0,
+      "voidBorn": 0
+    }
+  },
+  {
+    "level": 18,
+    "cost": 3000000,
+    "spawnRates": {
+      "common": 48.5854,
+      "uncommon": 13.7143,
+      "scarce": 13.1429,
+      "rare": 11.1429,
+      "esoteric": 8.8571,
+      "mythic": 4.4,
+      "relic": 0.1431,
+      "untouched": 0,
+      "phaseBound": 0,
+      "lightSworn": 0,
+      "voidBorn": 0
+    }
+  },
+  {
+    "level": 19,
+    "cost": 4500000,
+    "spawnRates": {
+      "common": 46.1827,
+      "uncommon": 13.8571,
+      "scarce": 13.5714,
+      "rare": 11.5714,
+      "esoteric": 9.4286,
+      "mythic": 5.2,
+      "relic": 0.1716,
+      "untouched": 0,
+      "phaseBound": 0,
+      "lightSworn": 0,
+      "voidBorn": 0
+    }
+  },
+  {
+    "level": 20,
+    "cost": 7500000,
+    "spawnRates": {
+      "common": 43.78,
+      "uncommon": 14,
+      "scarce": 14,
+      "rare": 12,
+      "esoteric": 10,
+      "mythic": 6,
+      "relic": 0.2,
+      "untouched": 0,
+      "phaseBound": 0,
+      "lightSworn": 0,
+      "voidBorn": 0
+    }
+  },
+  {
+    "level": 21,
+    "cost": 10000000,
+    "spawnRates": {
+      "common": 42.253,
+      "uncommon": 14,
+      "scarce": 14,
+      "rare": 12.3333,
+      "esoteric": 10.3333,
+      "mythic": 6.6667,
+      "relic": 0.4,
+      "untouched": 0.0003,
+      "phaseBound": 0,
+      "lightSworn": 0,
+      "voidBorn": 0
+    }
+  },
+  {
+    "level": 22,
+    "cost": 13000000,
+    "spawnRates": {
+      "common": 40.726,
+      "uncommon": 14,
+      "scarce": 14,
+      "rare": 12.6667,
+      "esoteric": 10.6667,
+      "mythic": 7.3333,
+      "relic": 0.6,
+      "untouched": 0.0007,
+      "phaseBound": 0,
+      "lightSworn": 0,
+      "voidBorn": 0
+    }
+  },
+  {
+    "level": 23,
+    "cost": 17000000,
+    "spawnRates": {
+      "common": 39.199,
+      "uncommon": 14,
+      "scarce": 14,
+      "rare": 13,
+      "esoteric": 11,
+      "mythic": 8,
+      "relic": 0.8,
+      "untouched": 0.001,
+      "phaseBound": 0,
+      "lightSworn": 0,
+      "voidBorn": 0
+    }
+  },
+  {
+    "level": 24,
+    "cost": 22000000,
+    "spawnRates": {
+      "common": 38.169,
+      "uncommon": 13.7143,
+      "scarce": 13.7143,
+      "rare": 13,
+      "esoteric": 11.2857,
+      "mythic": 8.5714,
+      "relic": 1.5429,
+      "untouched": 0.0023,
+      "phaseBound": 0.0001,
+      "lightSworn": 0,
+      "voidBorn": 0
+    }
+  },
+  {
+    "level": 25,
+    "cost": 28000000,
+    "spawnRates": {
+      "common": 37.139,
+      "uncommon": 13.4286,
+      "scarce": 13.4286,
+      "rare": 13,
+      "esoteric": 11.5714,
+      "mythic": 9.1429,
+      "relic": 2.2857,
+      "untouched": 0.0036,
+      "phaseBound": 0.0003,
+      "lightSworn": 0,
+      "voidBorn": 0
+    }
+  },
+  {
+    "level": 26,
+    "cost": 36000000,
+    "spawnRates": {
+      "common": 36.109,
+      "uncommon": 13.1429,
+      "scarce": 13.1429,
+      "rare": 13,
+      "esoteric": 11.8571,
+      "mythic": 9.7143,
+      "relic": 3.0286,
+      "untouched": 0.0049,
+      "phaseBound": 0.0004,
+      "lightSworn": 0,
+      "voidBorn": 0
+    }
+  },
+  {
+    "level": 27,
+    "cost": 46000000,
+    "spawnRates": {
+      "common": 35.079,
+      "uncommon": 12.8571,
+      "scarce": 12.8571,
+      "rare": 13,
+      "esoteric": 12.1429,
+      "mythic": 10.2857,
+      "relic": 3.7714,
+      "untouched": 0.0061,
+      "phaseBound": 0.0006,
+      "lightSworn": 0,
+      "voidBorn": 0
+    }
+  },
+  {
+    "level": 28,
+    "cost": 60000000,
+    "spawnRates": {
+      "common": 34.049,
+      "uncommon": 12.5714,
+      "scarce": 12.5714,
+      "rare": 13,
+      "esoteric": 12.4286,
+      "mythic": 10.8571,
+      "relic": 4.5143,
+      "untouched": 0.0074,
+      "phaseBound": 0.0007,
+      "lightSworn": 0,
+      "voidBorn": 0
+    }
+  },
+  {
+    "level": 29,
+    "cost": 78000000,
+    "spawnRates": {
+      "common": 33.019,
+      "uncommon": 12.2857,
+      "scarce": 12.2857,
+      "rare": 13,
+      "esoteric": 12.7143,
+      "mythic": 11.4286,
+      "relic": 5.2571,
+      "untouched": 0.0087,
+      "phaseBound": 0.0009,
+      "lightSworn": 0,
+      "voidBorn": 0
+    }
+  },
+  {
+    "level": 30,
+    "cost": 100000000,
+    "spawnRates": {
+      "common": 31.989,
+      "uncommon": 12,
+      "scarce": 12,
+      "rare": 13,
+      "esoteric": 13,
+      "mythic": 12,
+      "relic": 6,
+      "untouched": 0.01,
+      "phaseBound": 0.001,
+      "lightSworn": 0,
+      "voidBorn": 0
+    }
+  },
+  {
+    "level": 31,
+    "cost": 130000000,
+    "spawnRates": {
+      "common": 31.3515,
+      "uncommon": 11.75,
+      "scarce": 11.875,
+      "rare": 12.875,
+      "esoteric": 13.125,
+      "mythic": 12.25,
+      "relic": 6.75,
+      "untouched": 0.0213,
+      "phaseBound": 0.0021,
+      "lightSworn": 0.0001,
+      "voidBorn": 0
+    }
+  },
+  {
+    "level": 32,
+    "cost": 170000000,
+    "spawnRates": {
+      "common": 30.714,
+      "uncommon": 11.5,
+      "scarce": 11.75,
+      "rare": 12.75,
+      "esoteric": 13.25,
+      "mythic": 12.5,
+      "relic": 7.5,
+      "untouched": 0.0325,
+      "phaseBound": 0.0033,
+      "lightSworn": 0.0003,
+      "voidBorn": 0
+    }
+  },
+  {
+    "level": 33,
+    "cost": 207400000,
+    "spawnRates": {
+      "common": 30.0765,
+      "uncommon": 11.25,
+      "scarce": 11.625,
+      "rare": 12.625,
+      "esoteric": 13.375,
+      "mythic": 12.75,
+      "relic": 8.25,
+      "untouched": 0.0438,
+      "phaseBound": 0.0044,
+      "lightSworn": 0.0004,
+      "voidBorn": 0
+    }
+  },
+  {
+    "level": 34,
+    "cost": 253028000,
+    "spawnRates": {
+      "common": 29.439,
+      "uncommon": 11,
+      "scarce": 11.5,
+      "rare": 12.5,
+      "esoteric": 13.5,
+      "mythic": 13,
+      "relic": 9,
+      "untouched": 0.055,
+      "phaseBound": 0.0055,
+      "lightSworn": 0.0005,
+      "voidBorn": 0
+    }
+  },
+  {
+    "level": 35,
+    "cost": 308694160,
+    "spawnRates": {
+      "common": 28.8015,
+      "uncommon": 10.75,
+      "scarce": 11.375,
+      "rare": 12.375,
+      "esoteric": 13.625,
+      "mythic": 13.25,
+      "relic": 9.75,
+      "untouched": 0.0663,
+      "phaseBound": 0.0066,
+      "lightSworn": 0.0006,
+      "voidBorn": 0
+    }
+  },
+  {
+    "level": 36,
+    "cost": 376606875,
+    "spawnRates": {
+      "common": 28.164,
+      "uncommon": 10.5,
+      "scarce": 11.25,
+      "rare": 12.25,
+      "esoteric": 13.75,
+      "mythic": 13.5,
+      "relic": 10.5,
+      "untouched": 0.0775,
+      "phaseBound": 0.0078,
+      "lightSworn": 0.0008,
+      "voidBorn": 0
+    }
+  },
+  {
+    "level": 37,
+    "cost": 459460388,
+    "spawnRates": {
+      "common": 27.5265,
+      "uncommon": 10.25,
+      "scarce": 11.125,
+      "rare": 12.125,
+      "esoteric": 13.875,
+      "mythic": 13.75,
+      "relic": 11.25,
+      "untouched": 0.0888,
+      "phaseBound": 0.0089,
+      "lightSworn": 0.0009,
+      "voidBorn": 0
+    }
+  },
+  {
+    "level": 38,
+    "cost": 560541673,
+    "spawnRates": {
+      "common": 26.889,
+      "uncommon": 10,
+      "scarce": 11,
+      "rare": 12,
+      "esoteric": 14,
+      "mythic": 14,
+      "relic": 12,
+      "untouched": 0.1,
+      "phaseBound": 0.01,
+      "lightSworn": 0.001,
+      "voidBorn": 0
+    }
+  },
+  {
+    "level": 39,
+    "cost": 683860841,
+    "spawnRates": {
+      "common": 26.0176,
+      "uncommon": 9.8571,
+      "scarce": 10.8571,
+      "rare": 11.8571,
+      "esoteric": 14,
+      "mythic": 14.1429,
+      "relic": 12.2857,
+      "untouched": 0.9429,
+      "phaseBound": 0.0371,
+      "lightSworn": 0.0023,
+      "voidBorn": 0.0001
+    }
+  },
+  {
+    "level": 40,
+    "cost": 834310226,
+    "spawnRates": {
+      "common": 25.1461,
+      "uncommon": 9.7143,
+      "scarce": 10.7143,
+      "rare": 11.7143,
+      "esoteric": 14,
+      "mythic": 14.2857,
+      "relic": 12.5714,
+      "untouched": 1.7857,
+      "phaseBound": 0.0643,
+      "lightSworn": 0.0036,
+      "voidBorn": 0.0003
+    }
+  },
+  {
+    "level": 41,
+    "cost": 1017858476,
+    "spawnRates": {
+      "common": 24.2747,
+      "uncommon": 9.5714,
+      "scarce": 10.5714,
+      "rare": 11.5714,
+      "esoteric": 14,
+      "mythic": 14.4286,
+      "relic": 12.8571,
+      "untouched": 2.6286,
+      "phaseBound": 0.0914,
+      "lightSworn": 0.0049,
+      "voidBorn": 0.0004
+    }
+  },
+  {
+    "level": 42,
+    "cost": 1241787341,
+    "spawnRates": {
+      "common": 23.4033,
+      "uncommon": 9.4286,
+      "scarce": 10.4286,
+      "rare": 11.4286,
+      "esoteric": 14,
+      "mythic": 14.5714,
+      "relic": 13.1429,
+      "untouched": 3.4714,
+      "phaseBound": 0.1186,
+      "lightSworn": 0.0061,
+      "voidBorn": 0.0006
+    }
+  },
+  {
+    "level": 43,
+    "cost": 1514980556,
+    "spawnRates": {
+      "common": 22.5319,
+      "uncommon": 9.2857,
+      "scarce": 10.2857,
+      "rare": 11.2857,
+      "esoteric": 14,
+      "mythic": 14.7143,
+      "relic": 13.4286,
+      "untouched": 4.3143,
+      "phaseBound": 0.1457,
+      "lightSworn": 0.0074,
+      "voidBorn": 0.0007
+    }
+  },
+  {
+    "level": 44,
+    "cost": 1848276278,
+    "spawnRates": {
+      "common": 21.6604,
+      "uncommon": 9.1429,
+      "scarce": 10.1429,
+      "rare": 11.1429,
+      "esoteric": 14,
+      "mythic": 14.8571,
+      "relic": 13.7143,
+      "untouched": 5.1571,
+      "phaseBound": 0.1729,
+      "lightSworn": 0.0087,
+      "voidBorn": 0.0009
+    }
+  },
+  {
+    "level": 45,
+    "cost": 2254897059,
+    "spawnRates": {
+      "common": 20.789,
+      "uncommon": 9,
+      "scarce": 10,
+      "rare": 11,
+      "esoteric": 14,
+      "mythic": 15,
+      "relic": 14,
+      "untouched": 6,
+      "phaseBound": 0.2,
+      "lightSworn": 0.01,
+      "voidBorn": 0.001
+    }
+  },
+  {
+    "level": 46,
+    "cost": 2750974412,
+    "spawnRates": {
+      "common": 20.3457,
+      "uncommon": 8.8667,
+      "scarce": 9.9333,
+      "rare": 11,
+      "esoteric": 14,
+      "mythic": 15.0667,
+      "relic": 14.1333,
+      "untouched": 6.4,
+      "phaseBound": 0.24,
+      "lightSworn": 0.0127,
+      "voidBorn": 0.0016
+    }
+  },
+  {
+    "level": 47,
+    "cost": 3356188783,
+    "spawnRates": {
+      "common": 19.9025,
+      "uncommon": 8.7333,
+      "scarce": 9.8667,
+      "rare": 11,
+      "esoteric": 14,
+      "mythic": 15.1333,
+      "relic": 14.2667,
+      "untouched": 6.8,
+      "phaseBound": 0.28,
+      "lightSworn": 0.0153,
+      "voidBorn": 0.0022
+    }
+  },
+  {
+    "level": 48,
+    "cost": 4094550315,
+    "spawnRates": {
+      "common": 19.4592,
+      "uncommon": 8.6,
+      "scarce": 9.8,
+      "rare": 11,
+      "esoteric": 14,
+      "mythic": 15.2,
+      "relic": 14.4,
+      "untouched": 7.2,
+      "phaseBound": 0.32,
+      "lightSworn": 0.018,
+      "voidBorn": 0.0028
+    }
+  },
+  {
+    "level": 49,
+    "cost": 4995351384,
+    "spawnRates": {
+      "common": 19.0159,
+      "uncommon": 8.4667,
+      "scarce": 9.7333,
+      "rare": 11,
+      "esoteric": 14,
+      "mythic": 15.2667,
+      "relic": 14.5333,
+      "untouched": 7.6,
+      "phaseBound": 0.36,
+      "lightSworn": 0.0207,
+      "voidBorn": 0.0034
+    }
+  },
+  {
+    "level": 50,
+    "cost": 6094328688,
+    "spawnRates": {
+      "common": 18.5727,
+      "uncommon": 8.3333,
+      "scarce": 9.6667,
+      "rare": 11,
+      "esoteric": 14,
+      "mythic": 15.3333,
+      "relic": 14.6667,
+      "untouched": 8,
+      "phaseBound": 0.4,
+      "lightSworn": 0.0233,
+      "voidBorn": 0.004
+    }
+  },
+  {
+    "level": 51,
+    "cost": 7435080999,
+    "spawnRates": {
+      "common": 18.1294,
+      "uncommon": 8.2,
+      "scarce": 9.6,
+      "rare": 11,
+      "esoteric": 14,
+      "mythic": 15.4,
+      "relic": 14.8,
+      "untouched": 8.4,
+      "phaseBound": 0.44,
+      "lightSworn": 0.026,
+      "voidBorn": 0.0046
+    }
+  },
+  {
+    "level": 52,
+    "cost": 9070798819,
+    "spawnRates": {
+      "common": 17.6861,
+      "uncommon": 8.0667,
+      "scarce": 9.5333,
+      "rare": 11,
+      "esoteric": 14,
+      "mythic": 15.4667,
+      "relic": 14.9333,
+      "untouched": 8.8,
+      "phaseBound": 0.48,
+      "lightSworn": 0.0287,
+      "voidBorn": 0.0052
+    }
+  },
+  {
+    "level": 53,
+    "cost": 11066374559,
+    "spawnRates": {
+      "common": 17.2429,
+      "uncommon": 7.9333,
+      "scarce": 9.4667,
+      "rare": 11,
+      "esoteric": 14,
+      "mythic": 15.5333,
+      "relic": 15.0667,
+      "untouched": 9.2,
+      "phaseBound": 0.52,
+      "lightSworn": 0.0313,
+      "voidBorn": 0.0058
+    }
+  },
+  {
+    "level": 54,
+    "cost": 13500976962,
+    "spawnRates": {
+      "common": 16.7996,
+      "uncommon": 7.8,
+      "scarce": 9.4,
+      "rare": 11,
+      "esoteric": 14,
+      "mythic": 15.6,
+      "relic": 15.2,
+      "untouched": 9.6,
+      "phaseBound": 0.56,
+      "lightSworn": 0.034,
+      "voidBorn": 0.0064
+    }
+  },
+  {
+    "level": 55,
+    "cost": 16471191894,
+    "spawnRates": {
+      "common": 16.3563,
+      "uncommon": 7.6667,
+      "scarce": 9.3333,
+      "rare": 11,
+      "esoteric": 14,
+      "mythic": 15.6667,
+      "relic": 15.3333,
+      "untouched": 10,
+      "phaseBound": 0.6,
+      "lightSworn": 0.0367,
+      "voidBorn": 0.007
+    }
+  },
+  {
+    "level": 56,
+    "cost": 20094854111,
+    "spawnRates": {
+      "common": 15.9131,
+      "uncommon": 7.5333,
+      "scarce": 9.2667,
+      "rare": 11,
+      "esoteric": 14,
+      "mythic": 15.7333,
+      "relic": 15.4667,
+      "untouched": 10.4,
+      "phaseBound": 0.64,
+      "lightSworn": 0.0393,
+      "voidBorn": 0.0076
+    }
+  },
+  {
+    "level": 57,
+    "cost": 24515722015,
+    "spawnRates": {
+      "common": 15.4698,
+      "uncommon": 7.4,
+      "scarce": 9.2,
+      "rare": 11,
+      "esoteric": 14,
+      "mythic": 15.8,
+      "relic": 15.6,
+      "untouched": 10.8,
+      "phaseBound": 0.68,
+      "lightSworn": 0.042,
+      "voidBorn": 0.0082
+    }
+  },
+  {
+    "level": 58,
+    "cost": 29909180858,
+    "spawnRates": {
+      "common": 15.0265,
+      "uncommon": 7.2667,
+      "scarce": 9.1333,
+      "rare": 11,
+      "esoteric": 14,
+      "mythic": 15.8667,
+      "relic": 15.7333,
+      "untouched": 11.2,
+      "phaseBound": 0.72,
+      "lightSworn": 0.0447,
+      "voidBorn": 0.0088
+    }
+  },
+  {
+    "level": 59,
+    "cost": 36489200647,
+    "spawnRates": {
+      "common": 14.5833,
+      "uncommon": 7.1333,
+      "scarce": 9.0667,
+      "rare": 11,
+      "esoteric": 14,
+      "mythic": 15.9333,
+      "relic": 15.8667,
+      "untouched": 11.6,
+      "phaseBound": 0.76,
+      "lightSworn": 0.0473,
+      "voidBorn": 0.0094
+    }
+  },
+  {
+    "level": 60,
+    "cost": 44516824789,
+    "spawnRates": {
+      "common": 14.14,
+      "uncommon": 7,
+      "scarce": 9,
+      "rare": 11,
+      "esoteric": 14,
+      "mythic": 16,
+      "relic": 16,
+      "untouched": 12,
+      "phaseBound": 0.8,
+      "lightSworn": 0.05,
+      "voidBorn": 0.01
+    }
+  },
+  {
+    "level": 61,
+    "cost": 54310526243,
+    "spawnRates": {
+      "common": 13.824,
+      "uncommon": 6.8667,
+      "scarce": 8.8667,
+      "rare": 10.8667,
+      "esoteric": 13.8667,
+      "mythic": 15.9333,
+      "relic": 16,
+      "untouched": 12.2667,
+      "phaseBound": 1.4133,
+      "lightSworn": 0.08,
+      "voidBorn": 0.016
+    }
+  },
+  {
+    "level": 62,
+    "cost": 66258842016,
+    "spawnRates": {
+      "common": 13.508,
+      "uncommon": 6.7333,
+      "scarce": 8.7333,
+      "rare": 10.7333,
+      "esoteric": 13.7333,
+      "mythic": 15.8667,
+      "relic": 16,
+      "untouched": 12.5333,
+      "phaseBound": 2.0267,
+      "lightSworn": 0.11,
+      "voidBorn": 0.022
+    }
+  },
+  {
+    "level": 63,
+    "cost": 80835787260,
+    "spawnRates": {
+      "common": 13.192,
+      "uncommon": 6.6,
+      "scarce": 8.6,
+      "rare": 10.6,
+      "esoteric": 13.6,
+      "mythic": 15.8,
+      "relic": 16,
+      "untouched": 12.8,
+      "phaseBound": 2.64,
+      "lightSworn": 0.14,
+      "voidBorn": 0.028
+    }
+  },
+  {
+    "level": 64,
+    "cost": 98619660457,
+    "spawnRates": {
+      "common": 12.876,
+      "uncommon": 6.4667,
+      "scarce": 8.4667,
+      "rare": 10.4667,
+      "esoteric": 13.4667,
+      "mythic": 15.7333,
+      "relic": 16,
+      "untouched": 13.0667,
+      "phaseBound": 3.2533,
+      "lightSworn": 0.17,
+      "voidBorn": 0.034
+    }
+  },
+  {
+    "level": 65,
+    "cost": 120315985758,
+    "spawnRates": {
+      "common": 12.56,
+      "uncommon": 6.3333,
+      "scarce": 8.3333,
+      "rare": 10.3333,
+      "esoteric": 13.3333,
+      "mythic": 15.6667,
+      "relic": 16,
+      "untouched": 13.3333,
+      "phaseBound": 3.8667,
+      "lightSworn": 0.2,
+      "voidBorn": 0.04
+    }
+  },
+  {
+    "level": 66,
+    "cost": 146785502625,
+    "spawnRates": {
+      "common": 12.244,
+      "uncommon": 6.2,
+      "scarce": 8.2,
+      "rare": 10.2,
+      "esoteric": 13.2,
+      "mythic": 15.6,
+      "relic": 16,
+      "untouched": 13.6,
+      "phaseBound": 4.48,
+      "lightSworn": 0.23,
+      "voidBorn": 0.046
+    }
+  },
+  {
+    "level": 67,
+    "cost": 179078313203,
+    "spawnRates": {
+      "common": 11.928,
+      "uncommon": 6.0667,
+      "scarce": 8.0667,
+      "rare": 10.0667,
+      "esoteric": 13.0667,
+      "mythic": 15.5333,
+      "relic": 16,
+      "untouched": 13.8667,
+      "phaseBound": 5.0933,
+      "lightSworn": 0.26,
+      "voidBorn": 0.052
+    }
+  },
+  {
+    "level": 68,
+    "cost": 218475542108,
+    "spawnRates": {
+      "common": 11.612,
+      "uncommon": 5.9333,
+      "scarce": 7.9333,
+      "rare": 9.9333,
+      "esoteric": 12.9333,
+      "mythic": 15.4667,
+      "relic": 16,
+      "untouched": 14.1333,
+      "phaseBound": 5.7067,
+      "lightSworn": 0.29,
+      "voidBorn": 0.058
+    }
+  },
+  {
+    "level": 69,
+    "cost": 266540161372,
+    "spawnRates": {
+      "common": 11.296,
+      "uncommon": 5.8,
+      "scarce": 7.8,
+      "rare": 9.8,
+      "esoteric": 12.8,
+      "mythic": 15.4,
+      "relic": 16,
+      "untouched": 14.4,
+      "phaseBound": 6.32,
+      "lightSworn": 0.32,
+      "voidBorn": 0.064
+    }
+  },
+  {
+    "level": 70,
+    "cost": 325178996874,
+    "spawnRates": {
+      "common": 10.98,
+      "uncommon": 5.6667,
+      "scarce": 7.6667,
+      "rare": 9.6667,
+      "esoteric": 12.6667,
+      "mythic": 15.3333,
+      "relic": 16,
+      "untouched": 14.6667,
+      "phaseBound": 6.9333,
+      "lightSworn": 0.35,
+      "voidBorn": 0.07
+    }
+  },
+  {
+    "level": 71,
+    "cost": 396718376186,
+    "spawnRates": {
+      "common": 10.664,
+      "uncommon": 5.5333,
+      "scarce": 7.5333,
+      "rare": 9.5333,
+      "esoteric": 12.5333,
+      "mythic": 15.2667,
+      "relic": 16,
+      "untouched": 14.9333,
+      "phaseBound": 7.5467,
+      "lightSworn": 0.38,
+      "voidBorn": 0.076
+    }
+  },
+  {
+    "level": 72,
+    "cost": 483996418947,
+    "spawnRates": {
+      "common": 10.348,
+      "uncommon": 5.4,
+      "scarce": 7.4,
+      "rare": 9.4,
+      "esoteric": 12.4,
+      "mythic": 15.2,
+      "relic": 16,
+      "untouched": 15.2,
+      "phaseBound": 8.16,
+      "lightSworn": 0.41,
+      "voidBorn": 0.082
+    }
+  },
+  {
+    "level": 73,
+    "cost": 590475631115,
+    "spawnRates": {
+      "common": 10.032,
+      "uncommon": 5.2667,
+      "scarce": 7.2667,
+      "rare": 9.2667,
+      "esoteric": 12.2667,
+      "mythic": 15.1333,
+      "relic": 16,
+      "untouched": 15.4667,
+      "phaseBound": 8.7733,
+      "lightSworn": 0.44,
+      "voidBorn": 0.088
+    }
+  },
+  {
+    "level": 74,
+    "cost": 720380269960,
+    "spawnRates": {
+      "common": 9.716,
+      "uncommon": 5.1333,
+      "scarce": 7.1333,
+      "rare": 9.1333,
+      "esoteric": 12.1333,
+      "mythic": 15.0667,
+      "relic": 16,
+      "untouched": 15.7333,
+      "phaseBound": 9.3867,
+      "lightSworn": 0.47,
+      "voidBorn": 0.094
+    }
+  },
+  {
+    "level": 75,
+    "cost": 878863929351,
+    "spawnRates": {
+      "common": 9.4,
+      "uncommon": 5,
+      "scarce": 7,
+      "rare": 9,
+      "esoteric": 12,
+      "mythic": 15,
+      "relic": 16,
+      "untouched": 16,
+      "phaseBound": 10,
+      "lightSworn": 0.5,
+      "voidBorn": 0.1
+    }
+  },
+  {
+    "level": 76,
+    "cost": 1072213993808,
+    "spawnRates": {
+      "common": 9.14,
+      "uncommon": 4.9333,
+      "scarce": 6.9333,
+      "rare": 8.9333,
+      "esoteric": 11.9333,
+      "mythic": 14.9333,
+      "relic": 15.9333,
+      "untouched": 16,
+      "phaseBound": 10.2667,
+      "lightSworn": 0.8667,
+      "voidBorn": 0.1267
+    }
+  },
+  {
+    "level": 77,
+    "cost": 1308101072446,
+    "spawnRates": {
+      "common": 8.88,
+      "uncommon": 4.8667,
+      "scarce": 6.8667,
+      "rare": 8.8667,
+      "esoteric": 11.8667,
+      "mythic": 14.8667,
+      "relic": 15.8667,
+      "untouched": 16,
+      "phaseBound": 10.5333,
+      "lightSworn": 1.2333,
+      "voidBorn": 0.1533
+    }
+  },
+  {
+    "level": 78,
+    "cost": 1595883308384,
+    "spawnRates": {
+      "common": 8.62,
+      "uncommon": 4.8,
+      "scarce": 6.8,
+      "rare": 8.8,
+      "esoteric": 11.8,
+      "mythic": 14.8,
+      "relic": 15.8,
+      "untouched": 16,
+      "phaseBound": 10.8,
+      "lightSworn": 1.6,
+      "voidBorn": 0.18
+    }
+  },
+  {
+    "level": 79,
+    "cost": 1946977636228,
+    "spawnRates": {
+      "common": 8.36,
+      "uncommon": 4.7333,
+      "scarce": 6.7333,
+      "rare": 8.7333,
+      "esoteric": 11.7333,
+      "mythic": 14.7333,
+      "relic": 15.7333,
+      "untouched": 16,
+      "phaseBound": 11.0667,
+      "lightSworn": 1.9667,
+      "voidBorn": 0.2067
+    }
+  },
+  {
+    "level": 80,
+    "cost": 2375312716198,
+    "spawnRates": {
+      "common": 8.1,
+      "uncommon": 4.6667,
+      "scarce": 6.6667,
+      "rare": 8.6667,
+      "esoteric": 11.6667,
+      "mythic": 14.6667,
+      "relic": 15.6667,
+      "untouched": 16,
+      "phaseBound": 11.3333,
+      "lightSworn": 2.3333,
+      "voidBorn": 0.2333
+    }
+  },
+  {
+    "level": 81,
+    "cost": 2897881513762,
+    "spawnRates": {
+      "common": 7.84,
+      "uncommon": 4.6,
+      "scarce": 6.6,
+      "rare": 8.6,
+      "esoteric": 11.6,
+      "mythic": 14.6,
+      "relic": 15.6,
+      "untouched": 16,
+      "phaseBound": 11.6,
+      "lightSworn": 2.7,
+      "voidBorn": 0.26
+    }
+  },
+  {
+    "level": 82,
+    "cost": 3535415446790,
+    "spawnRates": {
+      "common": 7.58,
+      "uncommon": 4.5333,
+      "scarce": 6.5333,
+      "rare": 8.5333,
+      "esoteric": 11.5333,
+      "mythic": 14.5333,
+      "relic": 15.5333,
+      "untouched": 16,
+      "phaseBound": 11.8667,
+      "lightSworn": 3.0667,
+      "voidBorn": 0.2867
+    }
+  },
+  {
+    "level": 83,
+    "cost": 4313206845084,
+    "spawnRates": {
+      "common": 7.32,
+      "uncommon": 4.4667,
+      "scarce": 6.4667,
+      "rare": 8.4667,
+      "esoteric": 11.4667,
+      "mythic": 14.4667,
+      "relic": 15.4667,
+      "untouched": 16,
+      "phaseBound": 12.1333,
+      "lightSworn": 3.4333,
+      "voidBorn": 0.3133
+    }
+  },
+  {
+    "level": 84,
+    "cost": 5262112351002,
+    "spawnRates": {
+      "common": 7.06,
+      "uncommon": 4.4,
+      "scarce": 6.4,
+      "rare": 8.4,
+      "esoteric": 11.4,
+      "mythic": 14.4,
+      "relic": 15.4,
+      "untouched": 16,
+      "phaseBound": 12.4,
+      "lightSworn": 3.8,
+      "voidBorn": 0.34
+    }
+  },
+  {
+    "level": 85,
+    "cost": 6419777068222,
+    "spawnRates": {
+      "common": 6.8,
+      "uncommon": 4.3333,
+      "scarce": 6.3333,
+      "rare": 8.3333,
+      "esoteric": 11.3333,
+      "mythic": 14.3333,
+      "relic": 15.3333,
+      "untouched": 16,
+      "phaseBound": 12.6667,
+      "lightSworn": 4.1667,
+      "voidBorn": 0.3667
+    }
+  },
+  {
+    "level": 86,
+    "cost": 7832128023231,
+    "spawnRates": {
+      "common": 6.54,
+      "uncommon": 4.2667,
+      "scarce": 6.2667,
+      "rare": 8.2667,
+      "esoteric": 11.2667,
+      "mythic": 14.2667,
+      "relic": 15.2667,
+      "untouched": 16,
+      "phaseBound": 12.9333,
+      "lightSworn": 4.5333,
+      "voidBorn": 0.3933
+    }
+  },
+  {
+    "level": 87,
+    "cost": 9555196188342,
+    "spawnRates": {
+      "common": 6.28,
+      "uncommon": 4.2,
+      "scarce": 6.2,
+      "rare": 8.2,
+      "esoteric": 11.2,
+      "mythic": 14.2,
+      "relic": 15.2,
+      "untouched": 16,
+      "phaseBound": 13.2,
+      "lightSworn": 4.9,
+      "voidBorn": 0.42
+    }
+  },
+  {
+    "level": 88,
+    "cost": 11657339349777,
+    "spawnRates": {
+      "common": 6.02,
+      "uncommon": 4.1333,
+      "scarce": 6.1333,
+      "rare": 8.1333,
+      "esoteric": 11.1333,
+      "mythic": 14.1333,
+      "relic": 15.1333,
+      "untouched": 16,
+      "phaseBound": 13.4667,
+      "lightSworn": 5.2667,
+      "voidBorn": 0.4467
+    }
+  },
+  {
+    "level": 89,
+    "cost": 14221954006728,
+    "spawnRates": {
+      "common": 5.76,
+      "uncommon": 4.0667,
+      "scarce": 6.0667,
+      "rare": 8.0667,
+      "esoteric": 11.0667,
+      "mythic": 14.0667,
+      "relic": 15.0667,
+      "untouched": 16,
+      "phaseBound": 13.7333,
+      "lightSworn": 5.6333,
+      "voidBorn": 0.4733
+    }
+  },
+  {
+    "level": 90,
+    "cost": 17350783888208,
+    "spawnRates": {
+      "common": 5.5,
+      "uncommon": 4,
+      "scarce": 6,
+      "rare": 8,
+      "esoteric": 11,
+      "mythic": 14,
+      "relic": 15,
+      "untouched": 16,
+      "phaseBound": 14,
+      "lightSworn": 6,
+      "voidBorn": 0.5
+    }
+  },
+  {
+    "level": 91,
+    "cost": 21167956343614,
+    "spawnRates": {
+      "common": 5,
+      "uncommon": 4,
+      "scarce": 6,
+      "rare": 8.1111,
+      "esoteric": 11.1111,
+      "mythic": 14.1111,
+      "relic": 15.1111,
+      "untouched": 15.8889,
+      "phaseBound": 13.8889,
+      "lightSworn": 6.1111,
+      "voidBorn": 0.6667
+    }
+  },
+  {
+    "level": 92,
+    "cost": 25824906739209,
+    "spawnRates": {
+      "common": 4.5,
+      "uncommon": 4,
+      "scarce": 6,
+      "rare": 8.2222,
+      "esoteric": 11.2222,
+      "mythic": 14.2222,
+      "relic": 15.2222,
+      "untouched": 15.7778,
+      "phaseBound": 13.7778,
+      "lightSworn": 6.2222,
+      "voidBorn": 0.8333
+    }
+  },
+  {
+    "level": 93,
+    "cost": 31506386221835,
+    "spawnRates": {
+      "common": 4,
+      "uncommon": 4,
+      "scarce": 6,
+      "rare": 8.3333,
+      "esoteric": 11.3333,
+      "mythic": 14.3333,
+      "relic": 15.3333,
+      "untouched": 15.6667,
+      "phaseBound": 13.6667,
+      "lightSworn": 6.3333,
+      "voidBorn": 1
+    }
+  },
+  {
+    "level": 94,
+    "cost": 38437791190639,
+    "spawnRates": {
+      "common": 3.5,
+      "uncommon": 4,
+      "scarce": 6,
+      "rare": 8.4444,
+      "esoteric": 11.4444,
+      "mythic": 14.4444,
+      "relic": 15.4444,
+      "untouched": 15.5556,
+      "phaseBound": 13.5556,
+      "lightSworn": 6.4444,
+      "voidBorn": 1.1667
+    }
+  },
+  {
+    "level": 95,
+    "cost": 46894105252580,
+    "spawnRates": {
+      "common": 3,
+      "uncommon": 4,
+      "scarce": 6,
+      "rare": 8.5556,
+      "esoteric": 11.5556,
+      "mythic": 14.5556,
+      "relic": 15.5556,
+      "untouched": 15.4444,
+      "phaseBound": 13.4444,
+      "lightSworn": 6.5556,
+      "voidBorn": 1.3333
+    }
+  },
+  {
+    "level": 96,
+    "cost": 57210808408148,
+    "spawnRates": {
+      "common": 2.5,
+      "uncommon": 4,
+      "scarce": 6,
+      "rare": 8.6667,
+      "esoteric": 11.6667,
+      "mythic": 14.6667,
+      "relic": 15.6667,
+      "untouched": 15.3333,
+      "phaseBound": 13.3333,
+      "lightSworn": 6.6667,
+      "voidBorn": 1.5
+    }
+  },
+  {
+    "level": 97,
+    "cost": 69797186257941,
+    "spawnRates": {
+      "common": 2,
+      "uncommon": 4,
+      "scarce": 6,
+      "rare": 8.7778,
+      "esoteric": 11.7778,
+      "mythic": 14.7778,
+      "relic": 15.7778,
+      "untouched": 15.2222,
+      "phaseBound": 13.2222,
+      "lightSworn": 6.7778,
+      "voidBorn": 1.6667
+    }
+  },
+  {
+    "level": 98,
+    "cost": 85152567234688,
+    "spawnRates": {
+      "common": 1.5,
+      "uncommon": 4,
+      "scarce": 6,
+      "rare": 8.8889,
+      "esoteric": 11.8889,
+      "mythic": 14.8889,
+      "relic": 15.8889,
+      "untouched": 15.1111,
+      "phaseBound": 13.1111,
+      "lightSworn": 6.8889,
+      "voidBorn": 1.8333
+    }
+  },
+  {
+    "level": 99,
+    "cost": 103886132026319,
+    "spawnRates": {
+      "common": 1,
+      "uncommon": 4,
+      "scarce": 6,
+      "rare": 9,
+      "esoteric": 12,
+      "mythic": 15,
+      "relic": 16,
+      "untouched": 15,
+      "phaseBound": 13,
+      "lightSworn": 7,
+      "voidBorn": 2
+    }
+  }
+]
