@@ -22,6 +22,33 @@ const loadState = (key: string, fallback: any) => {
   }
 };
 
+const getCreatureImageUrl = (c: any, absoluteLevel?: number) => {
+  const tierMap: Record<string, string> = {
+    'common': '1-common',
+    'uncommon': '2-uncommon',
+    'scarce': '3-scarce',
+    'rare': '4-rare',
+    'esoteric': '5-esoteric',
+    'mythic': '6-mythic',
+    'relic': '7-relic',
+    'untouched': '8-untouched',
+    'phaseBound': '9-phase-bound',
+    'lightSworn': '10-light-sworn',
+    'voidBorn': '11-void-born'
+  };
+  const prefix = tierMap[c.tier] || c.tier;
+  
+  let imgName = c.image || 'base.png';
+  if (absoluteLevel) {
+    const stageIndex = c.levels[absoluteLevel - 1]?.stage || 1;
+    if (stageIndex === 2) imgName = 'evo1.png';
+    if (stageIndex === 3) imgName = 'evo2.png';
+    if (stageIndex === 4) imgName = 'final.png';
+  }
+  
+  return `https://orbo.shadow.club/orbos/${prefix}/${c.key}/${imgName}`;
+};
+
 export default function App() {
   const [config, setConfig] = useState(() => {
     let saved = loadState('orbo_config', null);
@@ -64,6 +91,7 @@ export default function App() {
   const [search, setSearch] = useState('');
   const [updateAvailable, setUpdateAvailable] = useState(false);
   const [expandedSteps, setExpandedSteps] = useState<Record<number, boolean>>({});
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
   const toggleStep = (idx: number) => {
     setExpandedSteps(prev => ({ ...prev, [idx]: !prev[idx] }));
@@ -402,7 +430,7 @@ export default function App() {
                 {filteredCreatures.map(c => (
                   <button key={c.key} onClick={() => assignCreature(c.key)} className="group bg-[#111] hover:bg-[#1a1a1a] border border-[#222] hover:border-[#444] p-3 rounded-md flex flex-col items-center text-center transition-colors">
                      <div className="w-10 h-10 mb-2 rounded bg-[#0a0a0a] overflow-hidden border border-[#222] shrink-0">
-                        <img src={`https://orbo.tnkrshd.com/creatures/${c.key}/${c.image}`} alt={c.name} className="w-full h-full object-cover" />
+                        <img src={getCreatureImageUrl(c)} alt={c.name} className="w-full h-full object-cover" />
                      </div>
                      <p className="font-medium text-[11px] text-[#ededed] leading-tight mb-1">{c.name}</p>
                      <p className="text-[9px] text-[#666] capitalize">{c.tier}</p>
@@ -593,14 +621,42 @@ export default function App() {
                      };
 
                      return (
-                        <div key={idx} className="bg-[#0a0a0a] border border-[#222] rounded-md flex flex-col relative group overflow-hidden hover:border-[#444] transition-colors">
+                        <div 
+                           key={idx} 
+                           draggable
+                           onDragStart={(e) => {
+                              e.dataTransfer.effectAllowed = 'move';
+                              e.dataTransfer.setData('text/plain', idx.toString());
+                              setDraggedIndex(idx);
+                           }}
+                           onDragEnd={() => setDraggedIndex(null)}
+                           onDragOver={(e) => {
+                              e.preventDefault();
+                              e.dataTransfer.dropEffect = 'move';
+                           }}
+                           onDrop={(e) => {
+                              e.preventDefault();
+                              const fromIdx = parseInt(e.dataTransfer.getData('text/plain'));
+                              if (isNaN(fromIdx) || fromIdx === idx) return;
+
+                              setSlots(prev => {
+                                 const newSlots = [...prev];
+                                 const temp = newSlots[idx];
+                                 newSlots[idx] = newSlots[fromIdx];
+                                 newSlots[fromIdx] = temp;
+                                 return newSlots;
+                              });
+                              setDraggedIndex(null);
+                           }}
+                           className={`bg-[#0a0a0a] border border-[#222] rounded-md flex flex-col relative group overflow-hidden transition-all hover:border-[#444] ${isAssigned ? 'cursor-grab active:cursor-grabbing' : ''} ${draggedIndex === idx ? 'opacity-40 border-dashed scale-95' : ''}`}
+                        >
                            {isAssigned ? (
                               <>
                                  <button onClick={() => removeSlot(idx)} className="absolute top-1 right-1 bg-black/60 backdrop-blur border border-[#333] text-[#888] rounded p-0.5 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity z-10 w-4 h-4 flex justify-center items-center">
                                     <X className="w-2.5 h-2.5" />
                                  </button>
                                  <div className="w-full aspect-square bg-[#111] overflow-hidden relative flex items-center justify-center p-1.5 pb-4">
-                                    <img src={`https://orbo.tnkrshd.com/creatures/${c.key}/${c.image}`} alt={c.name} className="w-full h-full object-contain" />
+                                    <img src={getCreatureImageUrl(c, slot.level)} alt={c.name} className="w-full h-full object-contain" />
                                     <div className="absolute bottom-0 inset-x-0 h-1/2 bg-gradient-to-t from-black/90 to-transparent pointer-events-none" />
                                     
                                     <button 
