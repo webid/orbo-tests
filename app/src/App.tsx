@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Calculator, Sword, Zap, TrendingUp, Skull, Users, Search, X, Plus, DownloadCloud, Copy, Upload, Target, ChevronRight, ChevronDown, Star } from 'lucide-react';
+import { Calculator, Sword, Zap, TrendingUp, Skull, Users, Search, X, Plus, DownloadCloud, Copy, Upload, Target, ChevronRight, ChevronDown, Star, HelpCircle } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Bar, Legend, ComposedChart } from 'recharts';
 import creaturesData from './orbo-creatures.json';
 import bossesData from './orbo-bosses.json';
@@ -1026,11 +1026,27 @@ export default function App() {
                 </div>
                 <div className="col-span-2 h-px bg-[#222] mt-1 mb-2" />
                 <div className="col-span-2 grid grid-cols-3 gap-3">
-                   <InputRow label="Click DPS (%)" name="clickPercentForm" value={config.clickPercent} onChange={handleConfigChange} />
-                   <InputRow label="Max Clicks" name="maxClicks" value={config.maxClicks} onChange={handleConfigChange} />
+                   <InputRow 
+                      label="Click DPS (%)" 
+                      name="clickPercentForm" 
+                      value={config.clickPercent} 
+                      onChange={handleConfigChange} 
+                      tooltip="You need to get this value from your profile page under attributes. In the game UI, it's called 'Orbo DPS → Click'"
+                      tooltipAlign="left"
+                   />
+                   <InputRow 
+                      label="Max Clicks" 
+                      name="maxClicks" 
+                      value={config.maxClicks} 
+                      onChange={handleConfigChange} 
+                      tooltip="Adjust to your liking, 82 is just what the dev suggests :D"
+                      tooltipAlign="center"
+                   />
                    <InputRow 
                       label="Total Click Power" 
                       name="totalClickPower" 
+                      tooltip="You need to get this value from your profile page under attributes. In the game UI, it's called 'Power'"
+                      tooltipAlign="right"
                       value={Math.round(results.currentArmyDps * ((parseFloat(config.clickPercent) || 0) / 100) + config.clickFixed)} 
                       onChange={(e: any) => {
                          const val = parseFloat(e.target.value);
@@ -1350,18 +1366,34 @@ const LevelInput = ({ absoluteLevel, maxLevel, onChange }: any) => {
   );
 };
 
-const InputRow = ({ label, name, value, onChange }: any) => (
-  <div className="flex flex-col space-y-1.5">
-    <label className="text-[10px] font-semibold uppercase tracking-wider text-[#666]">{label}</label>
-    <input 
-      type="number" 
-      name={name}
-      value={value}
-      onChange={onChange}
-      className="w-full bg-[#0a0a0a] border border-[#222] rounded-md py-1.5 px-3 font-mono text-sm text-[#ededed] focus:outline-none focus:border-[#444] transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-    />
-  </div>
-);
+const InputRow = ({ label, name, value, onChange, tooltip, tooltipAlign = 'left' }: any) => {
+  const alignClass = tooltipAlign === 'left' ? 'left-[-4px] sm:left-1/2 sm:-translate-x-1/2' 
+                   : tooltipAlign === 'right' ? 'right-[-12px] sm:left-1/2 sm:-translate-x-1/2 sm:right-auto' 
+                   : 'left-1/2 -translate-x-1/2';
+
+  return (
+    <div className="flex flex-col space-y-1.5">
+      <div className="flex items-center space-x-1.5 relative group z-10 cursor-help" tabIndex={0}>
+        <label className="text-[10px] font-semibold uppercase tracking-wider text-[#666] cursor-help">{label}</label>
+        {tooltip && (
+          <div className="relative">
+            <HelpCircle className="w-3 h-3 text-[#555] group-hover:text-[#888] transition-colors" />
+            <div className={`absolute bottom-full mb-2 hidden group-hover:block group-focus:block active:block w-44 sm:w-48 p-2 bg-[#222] border border-[#333] text-[9.5px] text-[#ccc] rounded shadow-xl z-[100] normal-case tracking-normal leading-relaxed pointer-events-none ${alignClass}`}>
+              {tooltip}
+            </div>
+          </div>
+        )}
+      </div>
+      <input 
+        type="number" 
+        name={name}
+        value={value}
+        onChange={onChange}
+        className="w-full bg-[#0a0a0a] border border-[#222] rounded-md py-1.5 px-3 font-mono text-sm text-[#ededed] focus:outline-none focus:border-[#444] transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+      />
+    </div>
+  );
+};
 
 const StatCard = ({ title, value, subValue, good }: any) => (
   <div className="bg-[#111] p-4 rounded-lg border border-[#222] flex flex-col justify-center">
