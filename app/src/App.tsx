@@ -143,6 +143,18 @@ export default function App() {
     localStorage.setItem('orbo_army', JSON.stringify(slots));
   }, [slots]);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setBossModalOpen(false);
+        setModalTarget(null);
+        setSyncModalOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   const exportData = () => {
     try {
       return btoa(encodeURIComponent(JSON.stringify({ config, slots })));
@@ -342,17 +354,51 @@ export default function App() {
     setSearch('');
   };
 
+  const tierRank: Record<string, number> = {
+    'common': 1,
+    'uncommon': 2,
+    'scarce': 3,
+    'rare': 4,
+    'esoteric': 5,
+    'mythic': 6,
+    'relic': 7,
+    'untouched': 8,
+    'phaseBound': 9,
+    'lightSworn': 10,
+    'voidBorn': 11
+  };
+
+  const getCreatureMaxDps = (c: any) => {
+    if (!c.levels || c.levels.length === 0) return 0;
+    return c.levels[c.levels.length - 1].dps;
+  };
+
   const filteredCreatures = creaturesData.filter(c => 
     c.name.toLowerCase().includes(search.toLowerCase()) || c.tier.toLowerCase().includes(search.toLowerCase())
-  );
+  ).sort((a, b) => {
+    const tA = tierRank[a.tier] || 99;
+    const tB = tierRank[b.tier] || 99;
+    if (tA !== tB) return tA - tB;
+    return getCreatureMaxDps(b) - getCreatureMaxDps(a);
+  });
+
+  const groupedCreatures = filteredCreatures.reduce((acc, c) => {
+    const lastGroup = acc[acc.length - 1];
+    if (lastGroup && lastGroup.tier === c.tier) {
+      lastGroup.creatures.push(c);
+    } else {
+      acc.push({ tier: c.tier, creatures: [c] });
+    }
+    return acc;
+  }, [] as { tier: string, creatures: typeof creaturesData }[]);
 
   return (
     <div className="min-h-screen bg-[#09090b] text-[#ededed] p-6 md:p-10 font-sans selection:bg-[#333]">
       
       {/* Boss Select Modal */}
       {bossModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#111] rounded-lg border border-[#222] w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl">
+        <div onClick={() => setBossModalOpen(false)} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div onClick={e => e.stopPropagation()} className="bg-[#111] rounded-lg border border-[#222] w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl">
              <div className="p-4 border-b border-[#222] flex items-center justify-between">
                 <h2 className="text-sm font-medium flex items-center">
                    <Target className="w-4 h-4 mr-2 text-[#888]" />
@@ -366,6 +412,7 @@ export default function App() {
                 <div className="relative">
                    <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#666]" />
                    <input 
+                      autoFocus
                       type="text" 
                       placeholder="Search bosses or floors..." 
                       value={bossSearch}
@@ -403,8 +450,8 @@ export default function App() {
 
       {/* Creature Select Modal Overlay */}
       {modalTarget !== null && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#111] rounded-lg border border-[#222] w-full max-w-3xl max-h-[80vh] flex flex-col shadow-2xl">
+        <div onClick={() => setModalTarget(null)} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div onClick={e => e.stopPropagation()} className="bg-[#111] rounded-lg border border-[#222] w-full max-w-3xl max-h-[80vh] flex flex-col shadow-2xl">
              <div className="p-4 border-b border-[#222] flex items-center justify-between">
                 <h2 className="text-sm font-medium flex items-center">
                    <Users className="w-4 h-4 mr-2 text-[#888]" />
@@ -418,6 +465,7 @@ export default function App() {
                 <div className="relative">
                    <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#666]" />
                    <input 
+                      autoFocus
                       type="text" 
                       placeholder="Search creatures..." 
                       value={search}
@@ -426,18 +474,25 @@ export default function App() {
                    />
                 </div>
              </div>
-             <div className="p-4 overflow-y-auto grid grid-cols-3 md:grid-cols-5 gap-3 bg-[#0a0a0a]">
-                {filteredCreatures.map(c => (
-                  <button key={c.key} onClick={() => assignCreature(c.key)} className="group bg-[#111] hover:bg-[#1a1a1a] border border-[#222] hover:border-[#444] p-3 rounded-md flex flex-col items-center text-center transition-colors">
-                     <div className="w-10 h-10 mb-2 rounded bg-[#0a0a0a] overflow-hidden border border-[#222] shrink-0">
-                        <img src={getCreatureImageUrl(c)} alt={c.name} className="w-full h-full object-cover" />
-                     </div>
-                     <p className="font-medium text-[11px] text-[#ededed] leading-tight mb-1">{c.name}</p>
-                     <p className="text-[9px] text-[#666] capitalize">{c.tier}</p>
-                  </button>
+             <div className="p-4 overflow-y-auto bg-[#0a0a0a]">
+                {groupedCreatures.map((group, idx) => (
+                   <div key={group.tier} className={idx > 0 ? 'mt-4' : ''}>
+                      <h3 className="text-xs font-semibold text-[#888] uppercase tracking-wider mb-3 border-b border-[#222] pb-1">{group.tier.replace(/([A-Z])/g, ' $1').trim()}</h3>
+                      <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
+                         {group.creatures.map(c => (
+                            <button key={c.key} onClick={() => assignCreature(c.key)} className="group bg-[#111] hover:bg-[#1a1a1a] border border-[#222] hover:border-[#444] p-3 rounded-md flex flex-col items-center text-center transition-colors">
+                               <div className="w-10 h-10 mb-2 rounded bg-[#0a0a0a] overflow-hidden border border-[#222] shrink-0">
+                                  <img src={getCreatureImageUrl(c)} alt={c.name} className="w-full h-full object-cover" />
+                               </div>
+                               <p className="font-medium text-[11px] text-[#ededed] leading-tight mb-1">{c.name}</p>
+                               <p className="text-[9px] text-[#666] capitalize">{c.tier.replace(/([A-Z])/g, ' $1').trim()}</p>
+                            </button>
+                         ))}
+                      </div>
+                   </div>
                 ))}
                 {filteredCreatures.length === 0 && (
-                   <div className="col-span-full py-8 text-center text-[#666] text-sm">
+                   <div className="py-8 text-center text-[#666] text-sm">
                       No matching creatures.
                    </div>
                 )}
@@ -448,8 +503,8 @@ export default function App() {
 
       {/* Sync / Export Modal */}
       {syncModalOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#111] rounded-lg border border-[#222] w-full max-w-md flex flex-col shadow-2xl overflow-hidden relative">
+        <div onClick={() => {setSyncModalOpen(false); setSyncInput('');}} className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div onClick={e => e.stopPropagation()} className="bg-[#111] rounded-lg border border-[#222] w-full max-w-md flex flex-col shadow-2xl overflow-hidden relative">
              <div className="p-4 border-b border-[#222] flex items-center justify-between">
                 <h2 className="text-sm font-medium flex items-center">
                    <DownloadCloud className="w-4 h-4 mr-2 text-[#888]" />
