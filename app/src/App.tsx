@@ -10,6 +10,22 @@ const creaturesDict = creaturesData.reduce((acc, c) => {
   return acc;
 }, {} as Record<string, any>);
 
+const TIER_COLORS: Record<string, string> = {
+  common:     '#9ca3af',
+  uncommon:   '#22c55e',
+  scarce:     '#3b82f6',
+  rare:       '#a855f7',
+  esoteric:   '#f97316',
+  mythic:     '#ef4444',
+  relic:      '#eab308',
+  untouched:  '#06b6d4',
+  phaseBound: '#8b5cf6',
+  lightSworn: '#fbbf24',
+  voidBorn:   '#6b7280',
+};
+
+const getTierColor = (tier: string) => TIER_COLORS[tier] ?? '#444';
+
 type ArmySlotInfo = {
   creatureKey: string | null;
   level: number;
@@ -520,7 +536,7 @@ export default function App() {
                       <h3 className="text-xs font-semibold text-[#888] uppercase tracking-wider mb-3 border-b border-[#222] pb-1">{group.tier.replace(/([A-Z])/g, ' $1').trim()}</h3>
                       <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
                          {group.creatures.map(c => (
-                            <button key={c.key} onClick={() => assignCreature(c.key)} className="group bg-[#111] hover:bg-[#1a1a1a] border border-[#222] hover:border-[#444] p-3 rounded-md flex flex-col items-center text-center transition-colors">
+                            <button key={c.key} onClick={() => assignCreature(c.key)} style={{ borderTop: `3px solid ${getTierColor(c.tier)}` }} className="group bg-[#111] hover:bg-[#1a1a1a] border border-[#222] hover:border-[#444] p-3 rounded-md flex flex-col items-center text-center transition-colors">
                                <div className="w-10 h-10 mb-2 rounded bg-[#0a0a0a] overflow-hidden border border-[#222] shrink-0">
                                   <img src={getCreatureImageUrl(c)} alt={c.name} className="w-full h-full object-cover" />
                                </div>
@@ -1222,6 +1238,7 @@ export default function App() {
                               setDraggedIndex(null);
                            }}
                            className={`bg-[#0a0a0a] border border-[#222] rounded-md flex flex-col relative group overflow-hidden transition-all hover:border-[#444] ${isAssigned ? 'cursor-grab active:cursor-grabbing' : ''} ${draggedIndex === idx ? 'opacity-40 border-dashed scale-95' : ''}`}
+                           style={isAssigned && c ? { borderTop: `3px solid ${getTierColor(c.tier)}` } : undefined}
                         >
                            {isAssigned ? (
                               <>
