@@ -1272,7 +1272,7 @@ export default function App() {
                                            {idx + 1}
                                         </div>
                                         <div className="w-8 h-8 rounded shrink-0 overflow-hidden border border-[#222] bg-[#1a1a1a]">
-                                           <img src={`https://orbo.tnkrshd.com/creatures/${c.key}/${c.image}`} alt={c.name} className="w-full h-full object-cover scale-110" />
+                                            <img src={getCreatureImageUrl(c)} alt={c.name} className="w-full h-full object-cover scale-110" />
                                         </div>
                                         <div className="ml-3 flex-1">
                                            <p className="text-xs font-medium text-[#ededed]">
