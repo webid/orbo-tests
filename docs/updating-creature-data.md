@@ -1,137 +1,111 @@
 # Updating `orbo-creatures.json` with New Game Creatures
 
-This document explains the methodology used to detect new creatures added by the game and calculate their missing `foodCost` and `dps` values for inclusion in `orbo-creatures.json`.
+The single source of truth for creature data is **`app/src/orbo-creatures.json`**.  
+The root-level copy was removed — only `app/src` matters.
 
 ---
 
-## Overview
+## How to Run an Update
 
-The game's source JS exposes creature definitions grouped by tier (arrays `a`, `s`, `l`, `c`, `p`, `d`, `h`, `m`, `u`). These only include:
-- `key`, `name`, `tier`, `aspect`, `dpsMultiplier`, `bio`
+### 1. Paste new game data
 
-They do **not** include `foodCost` or `dps`. These must be derived from the existing data in `orbo-creatures.json`.
+Open **`scripts/new-game-data.txt`** and replace its contents with the raw creature arrays copied from the game JS — exactly as they appear, without any cleanup:
 
----
-
-## Step 1 — Detect New Creatures
-
-Compare the `key` values from the game's JS against every `key` already present in `orbo-creatures.json`.
-
-```js
-const fs = require('fs');
-const existing = JSON.parse(fs.readFileSync('app/src/orbo-creatures.json', 'utf8'));
-const existingKeys = new Set(existing.map(c => c.key));
-
-const newGameCreatures = [ /* paste the array from the game JS here */ ];
-const missing = newGameCreatures.filter(c => !existingKeys.has(c.key));
-console.log('New creatures:', missing.map(c => c.key));
+```
+[{
+    key: "eagle",
+    tier: "scarce",
+    ...
+}]
+, o = [{
+    key: "axolotl",
+    ...
+}]
+, a = [{ ... }]
 ```
 
+The script handles the `, varName = [...]` format automatically — all tiers are parsed and merged.
+
+### 2. Run the script
+
+```bash
+node scripts/update-creatures.js
+```
+
+### 3. Review the output
+
+The script reports three things:
+
+| Section | What it means |
+|---|---|
+| `New creatures` | Keys not yet in the JSON — will be generated and added |
+| `Changed creatures` | Existing creatures whose `dpsMultiplier` changed — DPS levels recalculated |
+| `Bio backfills` | Existing creatures that were missing a bio — filled in |
+
+Example output:
+```
+Existing creatures : 158
+Input creatures    : 172
+
+── New creatures (3) ───────────────────────────────────────
+  + scarce/eagle  (mult: 1.06)
+  + mythic/zodiac-crane  (mult: 0.9)
+  + esoteric/ash-hound  (mult: 1.15)
+
+── Changed creatures ─────────────────────────────────────────────────────
+  ~ boar: mult 0.5 → 0.55  (L1 dps 4.4 → 4.84)
+
+Multiplier updates : 1
+Bio backfills      : 0
+Total creatures    : 161
+Validation         : ✓ all creatures have 80 levels and 3 evolutions
+
+✓ Written to app/src/orbo-creatures.json
+```
+
+### 4. Clear the input file
+
+After running, you can leave `new-game-data.js` as-is (the script ignores unchanged creatures) or wipe it back to the empty template for cleanliness.
+
 ---
 
-## Step 2 — Understand the Data Model
-
-Each creature in `orbo-creatures.json` has:
-- **80 levels** across **4 stages** (1–20, 21–40, 41–60, 61–80).
-- Levels 21, 41, and 61 are **evolution levels** with `evolution: true` and an `evolveFoodCost`.
+## How Values Are Calculated
 
 ### Food Costs
 
-Food costs are **identical for all creatures within the same tier**. They don't vary by `dpsMultiplier`. So any existing creature from the same tier can serve as a template.
+Food costs are **identical for all creatures of the same tier** and are copied directly from the tier template. They grow ~×1.25 per level. Evolution levels (21, 41, 61) carry an extra `evolveFoodCost = foodCost × 2`.
 
-Food costs grow by approximately **×1.25 per level** within each stage. Evolution levels carry an `evolveFoodCost = foodCost × 2`.
+### DPS
 
-### DPS Values
-
-DPS scales **linearly** with the `dpsMultiplier` ratio. For a new creature `N` and any template creature `T` from the same tier:
+DPS scales linearly with `dpsMultiplier`. For a new creature `N` using tier template `T`:
 
 ```
 newDps[level] = templateDps[level] × (N.dpsMultiplier / T.baseDpsMultiplier)
 ```
 
-This was verified by comparing, for example, `bear` (scarce, multiplier 1.0) and `boar` (scarce, multiplier 0.5) — every level's DPS has exactly a 2× ratio.
+### Base DPS Reference (L1, multiplier = 1.0)
 
-### Base DPS per Tier (at level 1, multiplier = 1.0)
+| Tier | ~L1 DPS |
+|---|---|
+| common | 1.10 |
+| uncommon | 2.75 |
+| scarce | 8.80 |
+| rare | 26.95 |
+| esoteric | 80.86 |
+| mythic | 243.10 |
+| relic | 729.85 |
+| untouched | 2,189 |
+| phaseBound | 6,567 |
+| lightSworn | 19,703 |
+| voidBorn | 59,108 |
 
-| Tier | Base L1 DPS |
-|------|------------|
-| common | ~1.10 |
-| uncommon | ~2.75 |
-| scarce | ~8.80 |
-| rare | ~26.95 |
-| esoteric | ~80.86 |
-| mythic | ~243.10 |
-| relic | ~729.85 |
-| untouched | ~2,189 |
-| phaseBound | ~6,567 |
-| lightSworn | ~19,703 |
-| voidBorn | ~59,108 |
-
-Each tier is roughly **×3** the previous, matching the game's tier power curve.
-
----
-
-## Step 3 — Generate the Missing Levels
-
-Pick any existing creature from the same tier as the template. Scale all its DPS values by the multiplier ratio. Keep food costs identical.
-
-```js
-function generateCreatureLevels(newCreature, template) {
-  const ratio = newCreature.dpsMultiplier / template.baseDpsMultiplier;
-  return template.levels.map(level => {
-    const entry = {
-      level: level.level,
-      stage: level.stage,
-      foodCost: level.foodCost,
-      dps: Math.round(level.dps * ratio * 100) / 100,
-    };
-    if (level.evolution) {
-      entry.evolution = true;
-      entry.evolveFoodCost = level.evolveFoodCost;
-    }
-    return entry;
-  });
-}
-
-// Build and merge
-const newEntries = missingCreatures.map(c => ({
-  key: c.key,
-  name: c.name,
-  tier: c.tier,
-  aspect: c.aspect,
-  baseDpsMultiplier: c.dpsMultiplier,
-  image: 'base.png',
-  bio: c.bio || '',
-  levels: generateCreatureLevels(c, templatePerTier[c.tier]),
-}));
-
-const merged = [...existing, ...newEntries].sort((a, b) => a.key.localeCompare(b.key));
-fs.writeFileSync('app/src/orbo-creatures.json', JSON.stringify(merged));
-```
-
----
-
-## Step 4 — Spot-Check
-
-Verify a sample of new creatures:
-
-1. **Food costs** for a new creature should match an existing creature of the same tier exactly.
-2. **DPS at L1** should equal `templateL1dps × (newMult / templateMult)`.
-3. **Level count** should be exactly 80 with 3 evolution entries.
-
-```js
-const updated = JSON.parse(fs.readFileSync('app/src/orbo-creatures.json', 'utf8'));
-for (const c of updated) {
-  if (c.levels.length !== 80) console.error(c.key, 'wrong level count');
-  if (c.levels.filter(l => l.evolution).length !== 3) console.error(c.key, 'wrong evolution count');
-}
-```
+Each tier is roughly **×3** the previous.
 
 ---
 
 ## Notes
 
-- The `image` field should always be `"base.png"` for new creatures until stage-specific art is confirmed.
-- The `bio` field comes directly from the game JS definition.
-- After updating the JSON, the app's image URLs are resolved via `getCreatureImageUrl()` in `App.tsx`, which uses the tier-to-folder mapping — no changes needed there for new creatures in existing tiers.
-- If a **new tier** is added by the game, a new entry must be added to the `tierMap` in `getCreatureImageUrl()` in `App.tsx`.
+- `image` is always `"base.png"` for new creatures until stage-specific art is confirmed.
+- Image URLs are resolved at runtime via `getCreatureImageUrl()` in `App.tsx` — no code changes needed for new creatures in existing tiers.
+- If the game adds a **new tier**, add it to the `tierMap` in `getCreatureImageUrl()` in `App.tsx` and add a template entry to `orbo-creatures.json` manually before running the script.
+- Tier colors used in the UI are defined in `TIER_COLORS` at the top of `App.tsx`.

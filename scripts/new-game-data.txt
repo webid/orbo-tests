@@ -1,0 +1,3 @@
+Paste the raw game creature data here (copy exactly from the game JS source).
+Replace this entire file content with the pasted data, then run:
+  node scripts/update-creatures.js
