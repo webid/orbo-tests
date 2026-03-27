@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Calculator, Sword, Zap, TrendingUp, Skull, Users, Search, X, Plus, DownloadCloud, Copy, Upload, Target, ChevronRight, ChevronDown, Star, HelpCircle } from 'lucide-react';
+import { Calculator, Sword, Zap, TrendingUp, Skull, Users, Search, X, Plus, DownloadCloud, Copy, Upload, Target, ChevronRight, ChevronDown, Star, HelpCircle, Sparkles } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Bar, Legend, ComposedChart } from 'recharts';
 import creaturesData from './orbo-creatures.json';
 import bossesData from './orbo-bosses.json';
+import luckData from './orbo-luck.json';
 
 const creaturesDict = creaturesData.reduce((acc, c) => {
   acc[c.key] = c;
@@ -113,6 +114,7 @@ export default function App() {
   const [updateAvailable, setUpdateAvailable] = useState(false);
   const [expandedSteps, setExpandedSteps] = useState<Record<number, boolean>>({});
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [luckModalOpen, setLuckModalOpen] = useState(false);
   const [explorerBase, setExplorerBase] = useState<string | null>(null);
   const [explorerCompare, setExplorerCompare] = useState<string | null>(null);
 
@@ -172,6 +174,7 @@ export default function App() {
         setBossModalOpen(false);
         setModalTarget(null);
         setSyncModalOpen(false);
+        setLuckModalOpen(false);
         setExplorerBase(null);
         setExplorerCompare(null);
       }
@@ -591,6 +594,86 @@ export default function App() {
         </div>
       )}
 
+      {/* Luck Table Modal */}
+      {luckModalOpen && (
+        <div onClick={() => setLuckModalOpen(false)} className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div onClick={e => e.stopPropagation()} className="bg-[#111] rounded-lg border border-[#222] w-full max-w-5xl max-h-[85vh] flex flex-col shadow-2xl">
+            {/* Modal Header */}
+            <div className="p-4 border-b border-[#222] flex items-center justify-between shrink-0">
+              <h2 className="text-sm font-medium flex items-center">
+                <Sparkles className="w-4 h-4 mr-2 text-[#888]" />
+                Luck Table
+              </h2>
+              <button onClick={() => setLuckModalOpen(false)} className="p-1.5 text-[#888] hover:text-[#ededed] bg-[#1a1a1a] hover:bg-[#222] rounded transition-colors">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Description */}
+            <div className="px-4 py-2.5 border-b border-[#222] bg-[#0d0d0d] shrink-0">
+              <p className="text-[11px] text-[#666] leading-relaxed">
+                Upgrade luck with gold to increase spawn rates for rarer creatures. <span className="text-[#444]">Cost</span> is the gold required to reach that level. <span className="text-[#444]">Cumulative</span> is the total gold spent from level 1.
+              </p>
+            </div>
+
+            {/* Table */}
+            <div className="flex-1 overflow-auto">
+              <table className="w-full text-[11px] border-collapse">
+                <thead className="sticky top-0 z-10">
+                  <tr className="bg-[#111] border-b border-[#333]">
+                    <th className="sticky left-0 z-20 bg-[#111] text-left px-3 py-2.5 font-semibold text-[#666] uppercase tracking-wider whitespace-nowrap w-10">Lv</th>
+                    <th className="text-right px-3 py-2.5 font-semibold text-[#666] uppercase tracking-wider whitespace-nowrap">Cost</th>
+                    <th className="text-right px-3 py-2.5 font-semibold text-[#555] uppercase tracking-wider whitespace-nowrap">Cumulative</th>
+                    <th className="text-right px-3 py-2.5 font-semibold text-[#888] uppercase tracking-wider whitespace-nowrap">Common</th>
+                    <th className="text-right px-3 py-2.5 font-semibold text-[#6EE7B7] uppercase tracking-wider whitespace-nowrap">Uncommon</th>
+                    <th className="text-right px-3 py-2.5 font-semibold text-[#60A5FA] uppercase tracking-wider whitespace-nowrap">Scarce</th>
+                    <th className="text-right px-3 py-2.5 font-semibold text-[#C084FC] uppercase tracking-wider whitespace-nowrap">Rare</th>
+                    <th className="text-right px-3 py-2.5 font-semibold text-[#F472B6] uppercase tracking-wider whitespace-nowrap">Esoteric</th>
+                    <th className="text-right px-3 py-2.5 font-semibold text-[#FB923C] uppercase tracking-wider whitespace-nowrap">Mythic</th>
+                    <th className="text-right px-3 py-2.5 font-semibold text-[#FBBF24] uppercase tracking-wider whitespace-nowrap">Relic</th>
+                    <th className="text-right px-3 py-2.5 font-semibold text-[#34D399] uppercase tracking-wider whitespace-nowrap">Untouched</th>
+                    <th className="text-right px-3 py-2.5 font-semibold text-[#38BDF8] uppercase tracking-wider whitespace-nowrap">Phase Bound</th>
+                    <th className="text-right px-3 py-2.5 font-semibold text-[#A78BFA] uppercase tracking-wider whitespace-nowrap">Light Sworn</th>
+                    <th className="text-right px-3 py-2.5 font-semibold text-[#F87171] uppercase tracking-wider whitespace-nowrap">Void Born</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(() => {
+                    let cumulative = 0;
+                    return (luckData as any[]).map((row: any, idx: number) => {
+                      cumulative += row.cost;
+                      const r = row.spawnRates;
+                      const fmt = (v: number) => v === 0 ? <span className="text-[#333]">—</span> : v < 0.01 ? v.toFixed(4)+'%' : v < 0.1 ? v.toFixed(4)+'%' : v < 1 ? v.toFixed(2)+'%' : v.toFixed(1)+'%';
+                      const isEven = idx % 2 === 0;
+                      return (
+                        <tr key={row.level} className={`border-b border-[#1a1a1a] ${isEven ? 'bg-[#0a0a0a]' : 'bg-[#0d0d0d]'} hover:bg-[#141414] transition-colors`}>
+                          <td className={`sticky left-0 z-[1] px-3 py-2 font-mono font-semibold text-[#ededed] ${isEven ? 'bg-[#0a0a0a]' : 'bg-[#0d0d0d]'} border-r border-[#222]`}>{row.level}</td>
+                          <td className="px-3 py-2 font-mono text-right text-[#888] whitespace-nowrap">
+                            {row.cost === 0 ? <span className="text-[#444]">—</span> : compactNum(row.cost, 2)}
+                          </td>
+                          <td className="px-3 py-2 font-mono text-right text-[#555] whitespace-nowrap">{compactNum(cumulative, 2)}</td>
+                          <td className="px-3 py-2 font-mono text-right text-[#888]">{fmt(r.common)}</td>
+                          <td className="px-3 py-2 font-mono text-right text-[#6EE7B7]">{fmt(r.uncommon)}</td>
+                          <td className="px-3 py-2 font-mono text-right text-[#60A5FA]">{fmt(r.scarce)}</td>
+                          <td className="px-3 py-2 font-mono text-right text-[#C084FC]">{fmt(r.rare)}</td>
+                          <td className="px-3 py-2 font-mono text-right text-[#F472B6]">{fmt(r.esoteric)}</td>
+                          <td className="px-3 py-2 font-mono text-right text-[#FB923C]">{fmt(r.mythic)}</td>
+                          <td className="px-3 py-2 font-mono text-right text-[#FBBF24]">{fmt(r.relic)}</td>
+                          <td className="px-3 py-2 font-mono text-right text-[#34D399]">{fmt(r.untouched)}</td>
+                          <td className="px-3 py-2 font-mono text-right text-[#38BDF8]">{fmt(r.phaseBound)}</td>
+                          <td className="px-3 py-2 font-mono text-right text-[#A78BFA]">{fmt(r.lightSworn)}</td>
+                          <td className="px-3 py-2 font-mono text-right text-[#F87171]">{fmt(r.voidBorn)}</td>
+                        </tr>
+                      );
+                    });
+                  })()}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
       {updateAvailable && (
         <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-[#111] border border-[#333] shadow-2xl rounded-lg p-3 sm:p-4 flex items-center space-x-4 animate-in slide-in-from-top-4 fade-in duration-300">
           <div>
@@ -988,6 +1071,10 @@ export default function App() {
              <button onClick={() => setModalTarget('explorer_base')} className="flex-1 sm:flex-none justify-center flex items-center px-3 py-1.5 text-[10px] uppercase tracking-wider font-semibold rounded bg-[#111] border border-[#222] hover:bg-[#1a1a1a] text-[#888] hover:text-[#ededed] transition-colors shadow-sm">
                <Search className="w-3.5 h-3.5 mr-1.5" />
                Explorer
+             </button>
+             <button onClick={() => setLuckModalOpen(true)} className="flex-1 sm:flex-none justify-center flex items-center px-3 py-1.5 text-[10px] uppercase tracking-wider font-semibold rounded border border-[#222] bg-[#111] hover:bg-[#1a1a1a] text-[#888] hover:text-[#ededed] transition-colors shadow-sm">
+                <Sparkles className="w-3.5 h-3.5 mr-1.5" />
+                Luck
              </button>
              <button onClick={() => setSyncModalOpen(true)} className="flex-1 sm:flex-none justify-center flex items-center px-3 py-1.5 text-[10px] uppercase tracking-wider font-semibold rounded border border-[#222] bg-[#111] hover:bg-[#1a1a1a] text-[#888] hover:text-[#ededed] transition-colors shadow-sm">
                 <DownloadCloud className="w-3.5 h-3.5 mr-1.5" />
