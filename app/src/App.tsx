@@ -49,6 +49,15 @@ const compactNum = (num: number | string, decimals: number = 1): string => {
   }).format(Number(num));
 };
 
+// Like compactNum but stays in K (e.g. 1,170K) rather than jumping to M.
+// Useful for food costs where full-K precision is more readable.
+const compactNumK = (num: number): string => {
+  if (!num || isNaN(num)) return '0';
+  if (num < 1_000) return Math.round(num).toLocaleString();
+  if (num < 1_000_000_000) return Math.round(num / 1_000).toLocaleString() + 'K';
+  return compactNum(num, 1);
+};
+
 const getValidFoodCost = (c: any, levelIdx: number) => {
   if (!c || !c.levels || !c.levels[levelIdx]) return 0;
   let cost = c.levels[levelIdx].foodCost || 0;
@@ -1369,42 +1378,64 @@ export default function App() {
                     </div>
                  ) : (
                     <div>
+                         <p className="text-[10px] text-[#555] mb-3 px-1 leading-relaxed">
+                           Each step is the <span className="text-[#888]">next best level-up</span>. Do one level at a time, the order will shift as your army improves.
+                         </p>
                         <div className="space-y-3 relative before:absolute before:top-4 before:bottom-4 before:left-[13px] before:w-px before:bg-[#333] pl-9 ml-1">
                            {results.upgradePlan.map((step, idx) => {
                               const c = creaturesDict[step.creatureKey];
+                               const nextLevel = step.details[0].level;
+                               const nextLevelDpsGain = c.levels[nextLevel] && c.levels[nextLevel - 1]
+                                 ? c.levels[nextLevel].dps - c.levels[nextLevel - 1].dps : 0;
                               return (
                                   <div key={idx} className="bg-[#0a0a0a] border border-[#222] rounded-md relative flex flex-col transition-colors hover:border-[#333]">
-                                     <div onClick={() => toggleStep(idx)} className="p-2.5 flex items-center cursor-pointer transition-colors rounded-md relative">
+                                     <div onClick={() => toggleStep(idx)} className="p-2.5 flex items-center flex-wrap gap-y-2 cursor-pointer transition-colors rounded-md relative">
                                         <div className="absolute top-1/2 -translate-y-1/2 -left-[35px] w-6 h-6 rounded-full bg-[#111] border border-[#444] flex items-center justify-center text-[10px] font-bold text-[#ededed] shadow-sm z-10">
                                            {idx + 1}
                                         </div>
                                         <div className="w-8 h-8 rounded shrink-0 overflow-hidden border border-[#222] bg-[#1a1a1a]">
                                             <img src={getCreatureImageUrl(c)} alt={c.name} className="w-full h-full object-cover scale-110" />
                                         </div>
-                                        <div className="ml-3 flex-1">
+                                        <div className="ml-3 flex-1 min-w-0">
                                            <p className="text-xs font-medium text-[#ededed]">
                                               {c.name} <span className="text-[#666] font-normal ml-1">Slot {step.slotIndex + 1}</span>
                                            </p>
-                                           <div className="flex items-center mt-0.5 space-x-1.5">
-                                              <p className="text-[10px] text-[#888] font-mono">
-                                                 Lv {step.startLevel} → Lv {step.endLevel}
-                                              </p>
-                                              <div className="bg-[#222] h-3 px-1 rounded flex items-center justify-center border border-[#333]">
-                                                <ChevronDown className={`w-2.5 h-2.5 text-[#888] transition-transform duration-200 ${expandedSteps[idx] ? 'rotate-180' : ''}`} />
-                                              </div>
-                                           </div>
+                                            <div className="flex items-center mt-0.5 space-x-1.5 flex-wrap gap-y-0.5">
+                                               <p className="text-[10px] font-mono font-semibold text-[#ededed]">
+                                                  Lv {nextLevel} → {nextLevel + 1}
+                                               </p>
+                                               {step.details.length > 1 && (
+                                                 <span className="text-[9px] text-[#555] font-mono">
+                                                   (goal Lv {step.endLevel}, {step.details.length} upgrades)
+                                                 </span>
+                                               )}
+                                               <div className="bg-[#222] h-3 px-1 rounded flex items-center justify-center border border-[#333]">
+                                                 <ChevronDown className={`w-2.5 h-2.5 text-[#888] transition-transform duration-200 ${expandedSteps[idx] ? 'rotate-180' : ''}`} />
+                                               </div>
+                                            </div>
                                         </div>
-                                        <div className="text-right ml-3">
-                                           <p className="text-[9px] uppercase tracking-wider text-[#666] mb-0.5">Cost</p>
-                                           <p className="text-xs font-mono text-[#ededed]">{step.totalCost.toLocaleString()}</p>
+                                        <div className="flex items-start justify-end space-x-3 w-full sm:w-auto sm:ml-3 pl-11 sm:pl-0">
+                                           <div className="text-right">
+                                              <p className="text-[9px] uppercase tracking-wider text-[#555] mb-0.5">Next</p>
+                                               <p className="text-[11px] font-mono text-[#888]">{compactNumK(step.details[0].cost)}</p>
+                                              <p className="text-[9px] font-mono text-[#22c55e] mt-0.5">+{nextLevelDpsGain.toLocaleString(undefined, { maximumFractionDigits: 1 })} DPS</p>
+                                           </div>
+                                           <div className="text-right border-l border-[#222] pl-3">
+                                              <p className="text-[9px] uppercase tracking-wider text-[#666] mb-0.5">Total</p>
+                                               <p className="text-[11px] font-mono text-[#ededed]">{compactNumK(step.totalCost)}</p>
+                                              <p className="text-[9px] font-mono text-[#22c55e] mt-0.5">+{step.totalDpsGain.toLocaleString(undefined, { maximumFractionDigits: 1 })} DPS</p>
+                                           </div>
                                         </div>
                                      </div>
                                      
                                      {expandedSteps[idx] && (
                                         <div className="border-t border-[#222] bg-[#0c0c0c] rounded-b-md p-3 space-y-1.5 overflow-hidden animate-in fade-in slide-in-from-top-1 duration-200">
                                            <div className="flex items-center justify-between text-[8px] uppercase tracking-wider text-[#555] mb-2 border-b border-[#222] pb-1.5">
-                                              <span>Step Breakdown</span>
-                                              <span>Food Cost</span>
+                                              <span>All Planned Upgrades</span>
+                                              <div className="flex space-x-6">
+                                                <span>+DPS</span>
+                                                <span>Food Cost</span>
+                                              </div>
                                            </div>
                                            {step.details.map((d, dIdx) => (
                                               <div key={dIdx} className="flex items-center justify-between text-[10px] font-mono">
@@ -1412,7 +1443,14 @@ export default function App() {
                                                     <div className="w-1 h-1 rounded-full bg-[#333]" />
                                                     <span className="text-[#888]">Lv {d.level} → {d.level + 1}</span>
                                                  </div>
-                                                 <span className="text-[#ededed]">{d.cost.toLocaleString()}</span>
+                                                 <div className="flex space-x-6">
+                                                   <span className="text-[#22c55e]">+{(() => {
+                                                     const g = c.levels[d.level] && c.levels[d.level - 1]
+                                                       ? c.levels[d.level].dps - c.levels[d.level - 1].dps : 0;
+                                                     return g.toLocaleString(undefined, { maximumFractionDigits: 1 });
+                                                   })()}</span>
+                                                   <span className="text-[#ededed]">{d.cost.toLocaleString()}</span>
+                                                 </div>
                                               </div>
                                            ))}
                                         </div>
