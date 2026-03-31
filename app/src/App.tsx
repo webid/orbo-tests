@@ -640,17 +640,17 @@ export default function App() {
                     <th className="sticky left-0 z-20 bg-[#111] text-left px-3 py-2.5 font-semibold text-[#666] uppercase tracking-wider whitespace-nowrap w-10">Lv</th>
                     <th className="text-right px-3 py-2.5 font-semibold text-[#666] uppercase tracking-wider whitespace-nowrap">Cost</th>
                     <th className="text-right px-3 py-2.5 font-semibold text-[#555] uppercase tracking-wider whitespace-nowrap">Cumulative</th>
-                    <th className="text-right px-3 py-2.5 font-semibold text-[#888] uppercase tracking-wider whitespace-nowrap">Common</th>
-                    <th className="text-right px-3 py-2.5 font-semibold text-[#6EE7B7] uppercase tracking-wider whitespace-nowrap">Uncommon</th>
-                    <th className="text-right px-3 py-2.5 font-semibold text-[#60A5FA] uppercase tracking-wider whitespace-nowrap">Scarce</th>
-                    <th className="text-right px-3 py-2.5 font-semibold text-[#C084FC] uppercase tracking-wider whitespace-nowrap">Rare</th>
-                    <th className="text-right px-3 py-2.5 font-semibold text-[#F472B6] uppercase tracking-wider whitespace-nowrap">Esoteric</th>
-                    <th className="text-right px-3 py-2.5 font-semibold text-[#FB923C] uppercase tracking-wider whitespace-nowrap">Mythic</th>
-                    <th className="text-right px-3 py-2.5 font-semibold text-[#FBBF24] uppercase tracking-wider whitespace-nowrap">Relic</th>
-                    <th className="text-right px-3 py-2.5 font-semibold text-[#34D399] uppercase tracking-wider whitespace-nowrap">Untouched</th>
-                    <th className="text-right px-3 py-2.5 font-semibold text-[#38BDF8] uppercase tracking-wider whitespace-nowrap">Phase Bound</th>
-                    <th className="text-right px-3 py-2.5 font-semibold text-[#A78BFA] uppercase tracking-wider whitespace-nowrap">Light Sworn</th>
-                    <th className="text-right px-3 py-2.5 font-semibold text-[#F87171] uppercase tracking-wider whitespace-nowrap">Void Born</th>
+                    <th className="text-right px-3 py-2.5 font-semibold uppercase tracking-wider whitespace-nowrap" style={{ color: TIER_COLORS.common }}>Common</th>
+                    <th className="text-right px-3 py-2.5 font-semibold uppercase tracking-wider whitespace-nowrap" style={{ color: TIER_COLORS.uncommon }}>Uncommon</th>
+                    <th className="text-right px-3 py-2.5 font-semibold uppercase tracking-wider whitespace-nowrap" style={{ color: TIER_COLORS.scarce }}>Scarce</th>
+                    <th className="text-right px-3 py-2.5 font-semibold uppercase tracking-wider whitespace-nowrap" style={{ color: TIER_COLORS.rare }}>Rare</th>
+                    <th className="text-right px-3 py-2.5 font-semibold uppercase tracking-wider whitespace-nowrap" style={{ color: TIER_COLORS.esoteric }}>Esoteric</th>
+                    <th className="text-right px-3 py-2.5 font-semibold uppercase tracking-wider whitespace-nowrap" style={{ color: TIER_COLORS.mythic }}>Mythic</th>
+                    <th className="text-right px-3 py-2.5 font-semibold uppercase tracking-wider whitespace-nowrap" style={{ color: TIER_COLORS.relic }}>Relic</th>
+                    <th className="text-right px-3 py-2.5 font-semibold uppercase tracking-wider whitespace-nowrap" style={{ color: TIER_COLORS.untouched }}>Untouched</th>
+                    <th className="text-right px-3 py-2.5 font-semibold uppercase tracking-wider whitespace-nowrap" style={{ color: TIER_COLORS.phaseBound }}>Phase Bound</th>
+                    <th className="text-right px-3 py-2.5 font-semibold uppercase tracking-wider whitespace-nowrap" style={{ color: TIER_COLORS.lightSworn }}>Light Sworn</th>
+                    <th className="text-right px-3 py-2.5 font-semibold uppercase tracking-wider whitespace-nowrap" style={{ color: TIER_COLORS.voidBorn }}>Void Born</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -668,17 +668,17 @@ export default function App() {
                             {row.cost === 0 ? <span className="text-[#444]">—</span> : compactNum(row.cost, 2)}
                           </td>
                           <td className="px-3 py-2 font-mono text-right text-[#555] whitespace-nowrap">{compactNum(cumulative, 2)}</td>
-                          <td className="px-3 py-2 font-mono text-right text-[#888]">{fmt(r.common)}</td>
-                          <td className="px-3 py-2 font-mono text-right text-[#6EE7B7]">{fmt(r.uncommon)}</td>
-                          <td className="px-3 py-2 font-mono text-right text-[#60A5FA]">{fmt(r.scarce)}</td>
-                          <td className="px-3 py-2 font-mono text-right text-[#C084FC]">{fmt(r.rare)}</td>
-                          <td className="px-3 py-2 font-mono text-right text-[#F472B6]">{fmt(r.esoteric)}</td>
-                          <td className="px-3 py-2 font-mono text-right text-[#FB923C]">{fmt(r.mythic)}</td>
-                          <td className="px-3 py-2 font-mono text-right text-[#FBBF24]">{fmt(r.relic)}</td>
-                          <td className="px-3 py-2 font-mono text-right text-[#34D399]">{fmt(r.untouched)}</td>
-                          <td className="px-3 py-2 font-mono text-right text-[#38BDF8]">{fmt(r.phaseBound)}</td>
-                          <td className="px-3 py-2 font-mono text-right text-[#A78BFA]">{fmt(r.lightSworn)}</td>
-                          <td className="px-3 py-2 font-mono text-right text-[#F87171]">{fmt(r.voidBorn)}</td>
+                          <td className="px-3 py-2 font-mono text-right" style={{ color: TIER_COLORS.common }}>{fmt(r.common)}</td>
+                          <td className="px-3 py-2 font-mono text-right" style={{ color: TIER_COLORS.uncommon }}>{fmt(r.uncommon)}</td>
+                          <td className="px-3 py-2 font-mono text-right" style={{ color: TIER_COLORS.scarce }}>{fmt(r.scarce)}</td>
+                          <td className="px-3 py-2 font-mono text-right" style={{ color: TIER_COLORS.rare }}>{fmt(r.rare)}</td>
+                          <td className="px-3 py-2 font-mono text-right" style={{ color: TIER_COLORS.esoteric }}>{fmt(r.esoteric)}</td>
+                          <td className="px-3 py-2 font-mono text-right" style={{ color: TIER_COLORS.mythic }}>{fmt(r.mythic)}</td>
+                          <td className="px-3 py-2 font-mono text-right" style={{ color: TIER_COLORS.relic }}>{fmt(r.relic)}</td>
+                          <td className="px-3 py-2 font-mono text-right" style={{ color: TIER_COLORS.untouched }}>{fmt(r.untouched)}</td>
+                          <td className="px-3 py-2 font-mono text-right" style={{ color: TIER_COLORS.phaseBound }}>{fmt(r.phaseBound)}</td>
+                          <td className="px-3 py-2 font-mono text-right" style={{ color: TIER_COLORS.lightSworn }}>{fmt(r.lightSworn)}</td>
+                          <td className="px-3 py-2 font-mono text-right" style={{ color: TIER_COLORS.voidBorn }}>{fmt(r.voidBorn)}</td>
                         </tr>
                       );
                     });
@@ -1242,8 +1242,11 @@ export default function App() {
                         >
                            {isAssigned ? (
                               <>
-                                 <button onClick={() => removeSlot(idx)} className="absolute top-1 right-1 bg-black/60 backdrop-blur border border-[#333] text-[#888] rounded p-0.5 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity z-10 w-4 h-4 flex justify-center items-center">
+                                 <button onClick={(e) => { e.stopPropagation(); removeSlot(idx); }} className="absolute top-1 right-1 bg-black/60 backdrop-blur border border-[#333] text-[#888] rounded p-0.5 hover:text-white opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity z-10 w-4 h-4 flex justify-center items-center">
                                     <X className="w-2.5 h-2.5" />
+                                 </button>
+                                 <button onClick={(e) => { e.stopPropagation(); e.preventDefault(); setExplorerBase(c!.key); }} className="absolute top-1 right-6 bg-black/60 backdrop-blur border border-[#333] text-[#888] rounded p-0.5 hover:text-[#ededed] opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity z-10 w-4 h-4 flex justify-center items-center" title="View in Explorer">
+                                    <Search className="w-2.5 h-2.5" />
                                  </button>
                                  <div className="w-full aspect-square bg-[#111] overflow-hidden relative flex items-center justify-center p-1.5 pb-4">
                                     <img src={getCreatureImageUrl(c, slot.level)} alt={c.name} className="w-full h-full object-contain" />
@@ -1272,12 +1275,12 @@ export default function App() {
                                        />
                                     </div>
                                  </div>
-                                 <div className="w-full p-1.5 flex flex-col border-t border-[#222]">
+                                 <button onClick={(e) => { e.stopPropagation(); setExplorerBase(c!.key); }} className="w-full p-1.5 flex flex-col border-t border-[#222] text-left hover:bg-[#1a1a1a] active:bg-[#222] transition-colors" title="View in Explorer">
                                     <p className="text-[9px] font-medium truncate text-[#ededed] w-full" title={c.name}>{c.name}</p>
                                     <p className="text-[8.5px] text-[#888] font-mono mt-0.5 truncate leading-tight">
                                       {dps.toLocaleString(undefined, { maximumFractionDigits: 1 })} DPS
                                     </p>
-                                 </div>
+                                 </button>
                               </>
                            ) : (
                               <>
