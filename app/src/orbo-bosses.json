@@ -125,8 +125,8 @@
     "floor": 120,
     "biome": "clockworkdepths",
     "biomeName": "Clockwork Depths",
-    "hp": 4335000,
-    "minDps": 144500,
+    "hp": 2940000,
+    "minDps": 98000,
     "timer": 30,
     "gold": 6560,
     "rocks": 20
@@ -136,8 +136,8 @@
     "floor": 130,
     "biome": "petrifiedforest",
     "biomeName": "Petrified Forest",
-    "hp": 7369500,
-    "minDps": 245650,
+    "hp": 4116000,
+    "minDps": 137200,
     "timer": 30,
     "gold": 8240,
     "rocks": 20
