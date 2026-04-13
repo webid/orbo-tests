@@ -147,8 +147,8 @@
     "floor": 140,
     "biome": "stormcitadel",
     "biomeName": "Storm Citadel",
-    "hp": 12528150,
-    "minDps": 417605,
+    "hp": 5762400,
+    "minDps": 192080,
     "timer": 30,
     "gold": 9920,
     "rocks": 20
@@ -158,8 +158,8 @@
     "floor": 150,
     "biome": "bioluminescentabyss",
     "biomeName": "Bioluminescent Abyss",
-    "hp": 21297840,
-    "minDps": 709928,
+    "hp": 8067360,
+    "minDps": 268912,
     "timer": 30,
     "gold": 11600,
     "rocks": 20
