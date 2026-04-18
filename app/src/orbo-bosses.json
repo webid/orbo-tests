@@ -136,8 +136,8 @@
     "floor": 130,
     "biome": "petrifiedforest",
     "biomeName": "Petrified Forest",
-    "hp": 4116000,
-    "minDps": 137200,
+    "hp": 5062500,
+    "minDps": 168750,
     "timer": 30,
     "gold": 8240,
     "rocks": 20
