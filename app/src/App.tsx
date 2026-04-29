@@ -115,6 +115,15 @@ export default function App() {
     } else if (typeof saved.clickPercent === 'number') {
       saved.clickPercent = saved.clickPercent.toString();
     }
+    // Sync bossEnergy/battleDuration from the current bossesData so stale
+    // localStorage values are overwritten whenever HP values are updated.
+    if (saved.bossNumber != null) {
+      const match = bossesData.find((b: any) => b.bossNumber === saved.bossNumber);
+      if (match) {
+        saved.bossEnergy = match.hp;
+        saved.battleDuration = match.timer;
+      }
+    }
     return saved;
   });
 
