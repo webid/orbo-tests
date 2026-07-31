@@ -1,11 +1,12 @@
 // ---------------------------------------------------------------------------
 // PresetBar (M3.1) — named snapshots of the full battle state.
-// Dropdown loads a preset, the inline input renames the selected preset,
-// Save snapshots the current config+slots, Delete removes it. Max 5 presets.
+// Dropdown loads a preset, the pencil button opens an inline rename input
+// (Enter/blur commits, Escape cancels), Save snapshots the current
+// config+slots, Delete removes it. Max 5 presets.
 // ---------------------------------------------------------------------------
 
 import { useState } from 'react';
-import { Bookmark, Save, Trash2 } from 'lucide-react';
+import { Bookmark, Pencil, Save, Trash2 } from 'lucide-react';
 import { useOrboStore, MAX_PRESETS } from '../store';
 
 export const PresetBar = () => {
@@ -18,16 +19,34 @@ export const PresetBar = () => {
 
   // Which preset is currently loaded into the bar (transient UI state).
   const [selectedId, setSelectedId] = useState('');
+  // Rename is opt-in: loading a preset no longer forces the input open.
+  const [renaming, setRenaming] = useState(false);
+  const [draftName, setDraftName] = useState('');
 
   const selectedPreset = presets.find(p => p.id === selectedId) ?? null;
   const atCap = presets.length >= MAX_PRESETS;
 
   const handleSelect = (id: string) => {
     setSelectedId(id);
+    setRenaming(false);
     if (!id) return;
     loadPreset(id);
     const p = presets.find(x => x.id === id);
     setToast(`Loaded preset: ${p?.name ?? ''}`);
+  };
+
+  const startRename = () => {
+    if (!selectedPreset) return;
+    setDraftName(selectedPreset.name);
+    setRenaming(true);
+  };
+
+  const commitRename = () => {
+    if (selectedPreset) {
+      const name = draftName.trim();
+      if (name && name !== selectedPreset.name) renamePreset(selectedPreset.id, name);
+    }
+    setRenaming(false);
   };
 
   const handleSave = () => {
@@ -69,16 +88,34 @@ export const PresetBar = () => {
         ))}
       </select>
 
-      {/* Inline rename for the selected preset */}
-      {selectedPreset && (
+      {/* Rename is opt-in via the pencil — loading a preset keeps the bar compact. */}
+      {selectedPreset && renaming && (
         <input
           type="text"
-          value={selectedPreset.name}
-          onChange={e => renamePreset(selectedPreset.id, e.target.value)}
+          value={draftName}
+          onChange={e => setDraftName(e.target.value)}
+          onKeyDown={e => {
+            if (e.key === 'Enter') commitRename();
+            if (e.key === 'Escape') setRenaming(false);
+          }}
+          onBlur={commitRename}
+          onFocus={e => e.target.select()}
+          autoFocus
           aria-label="Rename preset"
-          title="Rename preset"
-          className="flex-1 min-w-[100px] bg-[#0a0a0a] border border-[#222] rounded p-1.5 text-xs text-[#ededed] focus:outline-none focus:border-[#444] transition-colors"
+          title="Enter to save, Escape to cancel"
+          className="flex-1 min-w-[100px] bg-[#0a0a0a] border border-[#444] rounded p-1.5 text-xs text-[#ededed] focus:outline-none transition-colors"
         />
+      )}
+
+      {selectedPreset && !renaming && (
+        <button
+          onClick={startRename}
+          aria-label="Rename preset"
+          title="Rename this preset"
+          className="px-2 py-1.5 rounded bg-[#1a1a1a] hover:bg-[#222] border border-[#333] text-[#888] hover:text-[#ededed] transition-colors shrink-0"
+        >
+          <Pencil className="w-3.5 h-3.5" />
+        </button>
       )}
 
       <button

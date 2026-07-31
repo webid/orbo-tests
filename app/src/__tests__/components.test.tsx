@@ -165,6 +165,45 @@ describe('preset bar', () => {
     expect(useOrboStore.getState().config.maxClicks).toBe(normalizeConfig(null).maxClicks);
     expect(screen.getByText(/Loaded preset: Snapshot/)).toBeTruthy();
   });
+
+  it('renames via the pencil button — loading does not force the form open', () => {
+    vi.spyOn(window, 'prompt').mockReturnValue('Old Name');
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: /save/i }));
+
+    const combo = screen.getByRole('combobox', { name: 'Load a preset' }) as HTMLSelectElement;
+    fireEvent.change(combo, { target: { value: useOrboStore.getState().presets[0].id } });
+
+    // Loading a preset must NOT open the rename input.
+    expect(screen.queryByRole('textbox', { name: 'Rename preset' })).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Rename preset' }));
+    const input = screen.getByRole('textbox', { name: 'Rename preset' }) as HTMLInputElement;
+    expect(input.value).toBe('Old Name');
+
+    fireEvent.change(input, { target: { value: 'New Name' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+
+    expect(useOrboStore.getState().presets[0].name).toBe('New Name');
+    expect(screen.queryByRole('textbox', { name: 'Rename preset' })).toBeNull();
+  });
+
+  it('cancels a rename with Escape, keeping the old name', () => {
+    vi.spyOn(window, 'prompt').mockReturnValue('Keep Me');
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: /save/i }));
+
+    const combo = screen.getByRole('combobox', { name: 'Load a preset' }) as HTMLSelectElement;
+    fireEvent.change(combo, { target: { value: useOrboStore.getState().presets[0].id } });
+    fireEvent.click(screen.getByRole('button', { name: 'Rename preset' }));
+
+    const input = screen.getByRole('textbox', { name: 'Rename preset' });
+    fireEvent.change(input, { target: { value: 'Changed' } });
+    fireEvent.keyDown(input, { key: 'Escape' });
+
+    expect(useOrboStore.getState().presets[0].name).toBe('Keep Me');
+    expect(screen.queryByRole('textbox', { name: 'Rename preset' })).toBeNull();
+  });
 });
 
 // --- helpers ---------------------------------------------------------------
