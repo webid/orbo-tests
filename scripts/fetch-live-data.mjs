@@ -356,25 +356,23 @@ function buildExportCode(data) {
     }
   }
 
-  const ring = inventory ? findEquippedRing(inventory) : null;
-  const ringKey = ring && ringsDict[ring.key] ? ring.key : null;
-  if (ring && !ringKey) {
-    console.error(`  warning: equipped ring "${ring.key}" not in app/src/orbo-rings.json — leaving ringKey unset.`);
-  }
-
-  const flatBonus = inventory?.clickStats?.flatBonus;
+  // clickStats from game.player.inventory.state is already the aggregate of
+  // all equipped rings — exactly what the tool's clickPercent/clickFixed
+  // fields represent (Attributes screen: "Orbo DPS → Click"). Use it raw.
+  const cs = inventory?.clickStats ?? {};
+  const orboDpsMultiplier = typeof cs.orboDpsMultiplier === 'number' ? cs.orboDpsMultiplier : 0.35;
+  const flatBonus = typeof cs.flatBonus === 'number' ? cs.flatBonus : 57;
 
   // Matches the App.tsx default config shape; boss fields keep tool defaults
   // (boss choice is a planning input, not live account state).
   const config = {
-    clickPercent: '35',
-    clickFixed: typeof flatBonus === 'number' ? flatBonus : 57,
+    clickPercent: String(Math.round(orboDpsMultiplier * 100)),
+    clickFixed: flatBonus,
     bossEnergy: 2550000,
     battleDuration: 30,
     maxClicks: 82,
     bossNumber: 11,
     selectedBoss: null,
-    ringKey,
     overchargeLevel: state.overchargeLevel ?? 0,
     orboDamagePct: deltaToPct(agg.orboDamageMult),
     attackSpeedPct: deltaToPct(agg.orboAttackSpeedMult),

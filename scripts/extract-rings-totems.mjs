@@ -26,6 +26,8 @@ function sliceArray(src, start) {
   throw new Error('unbalanced array');
 }
 
+// NOTE: Evaluates array literals from the local game bundle snapshot.
+// This script is a dev-time tool, not part of any runtime or build pipeline.
 function evalArray(literal) {
   return new Function(`"use strict"; return (${literal});`)();
 }
