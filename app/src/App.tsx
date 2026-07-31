@@ -503,7 +503,7 @@ export default function App() {
                      setBossSearch('');
                   }} className={`group cursor-pointer bg-[#111] hover:bg-[#1a1a1a] border flex flex-col items-center justify-between text-center transition-colors shadow-sm p-4 rounded-xl h-full ${config.bossNumber === b.bossNumber ? 'border-[#888]' : 'border-[#222] hover:border-[#444]'}`}>
                      <div className="w-full h-14 flex items-center justify-center shrink-0 mb-2">
-                        <img src={`https://orbo.tnkrshd.com/bosses/${b.biome}.png`} alt={b.biomeName} className="max-w-[85%] max-h-full object-contain drop-shadow-md" />
+                        <img src={`https://orbo.tnkrshd.com/bosses/${b.biome}.png`} alt={b.biomeName} onError={e => { (e.target as HTMLImageElement).style.visibility = 'hidden'; }} className="max-w-[85%] max-h-full object-contain drop-shadow-md" />
                      </div>
                      <div className="flex flex-col items-center w-full mt-auto">
                         <p className="font-semibold text-[11px] text-[#ededed] leading-tight mb-1">{b.biomeName}</p>
@@ -1135,7 +1135,7 @@ export default function App() {
                    <button onClick={() => setBossModalOpen(true)} className="w-full bg-[#0a0a0a] border border-[#222] hover:border-[#444] rounded-md p-3 flex items-center justify-between transition-colors text-left group">
                       <div className="flex items-center">
                          <div className="w-10 h-10 rounded overflow-hidden border border-[#333] bg-[#1a1a1a] shrink-0 mr-3">
-                            <img src={config.bossNumber ? `https://orbo.tnkrshd.com/bosses/${bossesData.find(b => b.bossNumber === config.bossNumber)?.biome}.png` : 'https://orbo.tnkrshd.com/bosses/grasslands.png'} alt="" className="w-full h-full object-cover scale-[1.15]" />
+                            <img src={config.bossNumber ? `https://orbo.tnkrshd.com/bosses/${bossesData.find(b => b.bossNumber === config.bossNumber)?.biome}.png` : 'https://orbo.tnkrshd.com/bosses/grasslands.png'} alt="" onError={e => { (e.target as HTMLImageElement).style.visibility = 'hidden'; }} className="w-full h-full object-cover scale-[1.15]" />
                          </div>
                          <div>
                             <p className="text-sm font-medium text-[#ededed] group-hover:text-white transition-colors">{config.bossNumber ? `Floor ${bossesData.find(b => b.bossNumber === config.bossNumber)?.floor} - ${bossesData.find(b => b.bossNumber === config.bossNumber)?.biomeName}` : 'Custom Boss'}</p>
