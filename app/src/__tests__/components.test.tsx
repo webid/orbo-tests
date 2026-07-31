@@ -54,7 +54,7 @@ describe('App shell', () => {
     render(<App />);
     expect(screen.getByText('Orbo Command Center')).toBeTruthy();
     expect(screen.getByRole('heading', { name: /battle config/i })).toBeTruthy();
-    expect(screen.getByRole('heading', { name: /army composition/i })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: /^deck$/i })).toBeTruthy();
     expect(screen.getByRole('combobox', { name: 'Load a preset' })).toBeTruthy();
     expect(screen.getByText(/presets/i)).toBeTruthy();
   });
@@ -474,7 +474,7 @@ describe('dps breakdown highlight', () => {
 
     // React derives onMouseEnter/Leave from the bubbling mouseover/mouseout.
     fireEvent.mouseOver(seg);
-    const armyCard = screen.getByRole('heading', { name: /army composition/i })
+    const armyCard = screen.getByRole('heading', { name: /^deck$/i })
       .closest('div[class*="bg-[#111]"]') as HTMLElement;
     const card = within(armyCard).getByAltText('Weasel').closest('div.group') as HTMLElement;
     expect(card.className).toContain('border-[#666]');

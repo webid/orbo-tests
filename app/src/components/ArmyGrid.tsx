@@ -38,7 +38,7 @@ export const ArmyGrid = () => {
        <div className="p-3.5 border-b border-[#222] flex items-center justify-between">
           <h2 className="text-xs uppercase tracking-wider font-semibold text-[#888] flex items-center">
             <Sword className="w-3.5 h-3.5 mr-2" />
-            Army Composition
+            Deck
           </h2>
           <div className="flex space-x-2">
              <button onClick={handleUndo} disabled={!canUndo} title="Undo last army change (assign, remove, reorder) — Ctrl/Cmd+Z" aria-label="Undo last army change" className="px-2.5 py-1 text-[10px] uppercase tracking-wide font-medium rounded bg-[#222] hover:bg-[#333] text-[#ededed] transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:disabled:bg-[#222] flex items-center">
