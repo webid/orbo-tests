@@ -142,6 +142,7 @@ export interface OrboStore {
   draggedIndex: number | null;
   highlightedSlot: number | null;
   slotsHistory: ArmySlotInfo[][];
+  slotsRedo: ArmySlotInfo[][];
   luckModalOpen: boolean;
   tapModsOpen: boolean;
   totemPickerSlot: number | null;
@@ -163,6 +164,7 @@ export interface OrboStore {
   assignCreature: (creatureKey: string) => void;
   swapSlots: (from: number, to: number) => void;
   undoSlotChange: () => void;
+  redoSlotChange: () => void;
 
   // UI actions
   setModalTarget: (t: ModalTarget) => void;
@@ -217,6 +219,7 @@ export const useOrboStore = create<OrboStore>()(
       draggedIndex: null,
       highlightedSlot: null,
       slotsHistory: [],
+      slotsRedo: [],
       luckModalOpen: false,
       tapModsOpen: false,
       totemPickerSlot: null,
@@ -266,6 +269,7 @@ export const useOrboStore = create<OrboStore>()(
       removeSlot: (index) => set(state => ({
         slots: state.slots.map((s, i) => i === index ? { creatureKey: null, level: 1 } : s),
         slotsHistory: pushSlotsHistory(state),
+        slotsRedo: [],
       })),
 
       assignCreature: (creatureKey) => {
@@ -289,7 +293,7 @@ export const useOrboStore = create<OrboStore>()(
           } else if (typeof modalTarget === 'number') {
             slots[modalTarget] = { creatureKey, level: 1 };
           }
-          return { slots, slotsHistory: pushSlotsHistory(state), modalTarget: null, search: '' };
+          return { slots, slotsHistory: pushSlotsHistory(state), slotsRedo: [], modalTarget: null, search: '' };
         });
       },
 
@@ -299,7 +303,7 @@ export const useOrboStore = create<OrboStore>()(
         const temp = slots[to];
         slots[to] = slots[from];
         slots[from] = temp;
-        return { slots, slotsHistory: pushSlotsHistory(state) };
+        return { slots, slotsHistory: pushSlotsHistory(state), slotsRedo: [] };
       }),
 
       // Restores the most recent army snapshot (assign / remove / reorder).
@@ -307,8 +311,24 @@ export const useOrboStore = create<OrboStore>()(
       undoSlotChange: () => set(state => {
         if (state.slotsHistory.length === 0) return state;
         const slotsHistory = [...state.slotsHistory];
-        const slots = slotsHistory.pop()!;
-        return { slots, slotsHistory };
+        const previous = slotsHistory.pop()!;
+        return {
+          slots: previous,
+          slotsHistory,
+          slotsRedo: [...state.slotsRedo, state.slots.map(s => ({ ...s }))].slice(-MAX_UNDO),
+        };
+      }),
+      
+      // Re-applies the most recently undone army change.
+      redoSlotChange: () => set(state => {
+        if (state.slotsRedo.length === 0) return state;
+        const slotsRedo = [...state.slotsRedo];
+        const next = slotsRedo.pop()!;
+        return {
+          slots: next,
+          slotsRedo,
+          slotsHistory: [...state.slotsHistory, state.slots.map(s => ({ ...s }))].slice(-MAX_UNDO),
+        };
       }),
 
       // --- UI actions ---

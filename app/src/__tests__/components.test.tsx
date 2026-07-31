@@ -30,6 +30,7 @@ const resetStore = () => {
     draggedIndex: null,
     highlightedSlot: null,
     slotsHistory: [],
+    slotsRedo: [],
     luckModalOpen: false,
     tapModsOpen: false,
     totemPickerSlot: null,
@@ -313,6 +314,64 @@ describe('army undo', () => {
     fireEvent.click(undoBtn);
     expect(useOrboStore.getState().slots[0].creatureKey).toBe('archon');
     expect(useOrboStore.getState().slots[1].creatureKey).toBe('weasel');
+  });
+
+  it('redo button re-applies an undone change, and a new action clears the redo stack', () => {
+    useOrboStore.getState().setSlots([
+      { creatureKey: 'archon', level: 3 },
+      { creatureKey: 'weasel', level: 2 },
+      ...Array.from({ length: 6 }, () => ({ creatureKey: null, level: 1 })),
+    ]);
+    render(<App />);
+    const undoBtn = screen.getByRole('button', { name: /undo/i });
+    const redoBtn = () => screen.getByRole('button', { name: /redo/i }) as HTMLButtonElement;
+    expect(redoBtn().disabled).toBe(true);
+
+    act(() => { useOrboStore.getState().removeSlot(1); });
+    fireEvent.click(undoBtn);
+    expect(useOrboStore.getState().slots[1]).toEqual({ creatureKey: 'weasel', level: 2 });
+    expect(redoBtn().disabled).toBe(false);
+
+    fireEvent.click(redoBtn());
+    expect(useOrboStore.getState().slots[1].creatureKey).toBeNull();
+    expect(screen.getByText(/Redid army change/)).toBeTruthy();
+    expect(redoBtn().disabled).toBe(true);
+
+    // Undo again, then make a NEW army change — the redo branch is discarded.
+    fireEvent.click(undoBtn);
+    expect(useOrboStore.getState().slots[1].creatureKey).toBe('weasel');
+    act(() => { useOrboStore.getState().removeSlot(0); });
+    expect(redoBtn().disabled).toBe(true);
+  });
+
+  it('Ctrl/Cmd+Z undoes and Ctrl/Cmd+Shift+Z redoes, but not while typing', () => {
+    useOrboStore.getState().setSlots([
+      { creatureKey: 'archon', level: 3 },
+      { creatureKey: 'weasel', level: 2 },
+      ...Array.from({ length: 6 }, () => ({ creatureKey: null, level: 1 })),
+    ]);
+    render(<App />);
+
+    act(() => { useOrboStore.getState().removeSlot(1); });
+    expect(useOrboStore.getState().slots[1].creatureKey).toBeNull();
+
+    // Ctrl+Z undoes.
+    fireEvent.keyDown(document.body, { key: 'z', ctrlKey: true });
+    expect(useOrboStore.getState().slots[1]).toEqual({ creatureKey: 'weasel', level: 2 });
+
+    // Ctrl+Shift+Z redoes (browsers report an uppercase key with shift held).
+    fireEvent.keyDown(document.body, { key: 'Z', ctrlKey: true, shiftKey: true });
+    expect(useOrboStore.getState().slots[1].creatureKey).toBeNull();
+
+    // Cmd+Z works too (macOS).
+    fireEvent.keyDown(document.body, { key: 'z', metaKey: true });
+    expect(useOrboStore.getState().slots[1].creatureKey).toBe('weasel');
+
+    // While typing in a text field the shortcut stays with the field.
+    act(() => { useOrboStore.getState().removeSlot(1); });
+    const input = document.querySelector('input[name="maxClicks"]')!;
+    fireEvent.keyDown(input, { key: 'z', ctrlKey: true });
+    expect(useOrboStore.getState().slots[1].creatureKey).toBeNull();
   });
 });
 

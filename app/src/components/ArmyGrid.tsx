@@ -1,4 +1,4 @@
-import { Plus, X, Search, Star, Sword, Undo2 } from 'lucide-react';
+import { Plus, X, Search, Star, Sword, Undo2, Redo2 } from 'lucide-react';
 import { creaturesDict } from '../data';
 import { getCreatureImageUrl } from '../utils';
 import { useOrboStore } from '../store';
@@ -13,7 +13,9 @@ export const ArmyGrid = () => {
   const removeSlot = useOrboStore(s => s.removeSlot);
   const swapSlots = useOrboStore(s => s.swapSlots);
   const undoSlotChange = useOrboStore(s => s.undoSlotChange);
+  const redoSlotChange = useOrboStore(s => s.redoSlotChange);
   const canUndo = useOrboStore(s => s.slotsHistory.length > 0);
+  const canRedo = useOrboStore(s => s.slotsRedo.length > 0);
   const setToast = useOrboStore(s => s.setToast);
   const draggedIndex = useOrboStore(s => s.draggedIndex);
   const setDraggedIndex = useOrboStore(s => s.setDraggedIndex);
@@ -25,6 +27,12 @@ export const ArmyGrid = () => {
     setToast('Undid last army change');
   };
 
+  const handleRedo = () => {
+    if (!canRedo) return;
+    redoSlotChange();
+    setToast('Redid army change');
+  };
+
   return (
     <div className="bg-[#111] rounded-lg border border-[#222]">
        <div className="p-3.5 border-b border-[#222] flex items-center justify-between">
@@ -33,9 +41,13 @@ export const ArmyGrid = () => {
             Army Composition
           </h2>
           <div className="flex space-x-2">
-             <button onClick={handleUndo} disabled={!canUndo} title="Undo last army change (assign, remove, reorder)" className="px-2.5 py-1 text-[10px] uppercase tracking-wide font-medium rounded bg-[#222] hover:bg-[#333] text-[#ededed] transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:disabled:bg-[#222] flex items-center">
-                <Undo2 className="w-3 h-3 mr-1" />
-                Undo
+             <button onClick={handleUndo} disabled={!canUndo} title="Undo last army change (assign, remove, reorder) — Ctrl/Cmd+Z" aria-label="Undo last army change" className="px-2.5 py-1 text-[10px] uppercase tracking-wide font-medium rounded bg-[#222] hover:bg-[#333] text-[#ededed] transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:disabled:bg-[#222] flex items-center">
+                <Undo2 className="w-3.5 h-3.5 sm:w-3 sm:h-3 sm:mr-1" />
+                <span className="hidden sm:inline">Undo</span>
+             </button>
+             <button onClick={handleRedo} disabled={!canRedo} title="Redo army change — Ctrl/Cmd+Shift+Z" aria-label="Redo army change" className="px-2.5 py-1 text-[10px] uppercase tracking-wide font-medium rounded bg-[#222] hover:bg-[#333] text-[#ededed] transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:disabled:bg-[#222] flex items-center">
+                <Redo2 className="w-3.5 h-3.5 sm:w-3 sm:h-3 sm:mr-1" />
+                <span className="hidden sm:inline">Redo</span>
              </button>
              <button onClick={() => setModalTarget('empty')} disabled={!slots.some(s => !s.creatureKey)} className="px-2.5 py-1 text-[10px] uppercase tracking-wide font-medium rounded bg-[#222] hover:bg-[#333] text-[#ededed] transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:disabled:bg-[#222]">
                 Fill Empty

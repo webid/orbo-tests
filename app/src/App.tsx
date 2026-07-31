@@ -94,6 +94,31 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [closeAllModals]);
 
+  // Ctrl/Cmd+Z undoes the last army change, Ctrl/Cmd+Shift+Z (or Ctrl+Y)
+  // redoes it. Skipped while typing so text fields keep their native undo.
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!(e.metaKey || e.ctrlKey) || e.altKey) return;
+      const key = e.key.toLowerCase();
+      const isUndo = key === 'z' && !e.shiftKey;
+      const isRedo = (key === 'z' && e.shiftKey) || key === 'y';
+      if (!isUndo && !isRedo) return;
+      const target = e.target as HTMLElement | null;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
+      e.preventDefault();
+      const state = useOrboStore.getState();
+      if (isUndo && state.slotsHistory.length > 0) {
+        state.undoSlotChange();
+        state.setToast('Undid last army change');
+      } else if (isRedo && state.slotsRedo.length > 0) {
+        state.redoSlotChange();
+        state.setToast('Redid army change');
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   // Shareable build links (M3.2): a #build={base64} hash is decoded, applied
   // after a confirm prompt, and then cleared so a refresh doesn't re-prompt.
   useEffect(() => {
