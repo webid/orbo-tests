@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { X, HelpCircle, Plus, Star, Undo2, Redo2, GripVertical, Search, Sparkles, DownloadCloud, Save } from 'lucide-react';
+import { X, HelpCircle, Plus, Star, Undo2, Redo2, GripVertical, Search, Sparkles, DownloadCloud } from 'lucide-react';
 import { TIER_COLORS } from '../data';
 import { useOrboStore } from '../store';
 
@@ -59,11 +59,18 @@ export const HelpModal = () => {
               <GripVertical className="w-3 h-3 inline text-[#666]" aria-hidden="true" /> to reorder, and tap the{' '}
               <Star className="w-3 h-3 inline text-[#666]" aria-hidden="true" /> stars to cycle stages.
             </p>
-            <p className="flex items-center flex-wrap gap-x-1.5 gap-y-1.5">
-              Mistake? <Undo2 className="w-3.5 h-3.5 text-[#888]" aria-hidden="true" />
-              <Kbd>Ctrl/⌘ Z</Kbd> undoes, <Redo2 className="w-3.5 h-3.5 text-[#888]" aria-hidden="true" />
-              <Kbd>Ctrl/⌘ Shift Z</Kbd> redoes — same as the buttons in the army header.
-            </p>
+            <div className="pt-0.5">
+              <p>Mistake? Every change is reversible:</p>
+              <div className="grid grid-cols-[auto_auto_1fr] gap-x-2.5 gap-y-1.5 items-center mt-1.5 w-fit max-w-full">
+                <Undo2 className="w-3.5 h-3.5 text-[#888]" aria-hidden="true" />
+                <Kbd>Ctrl/⌘ Z</Kbd>
+                <span>undo the last change</span>
+                <Redo2 className="w-3.5 h-3.5 text-[#888]" aria-hidden="true" />
+                <Kbd>Ctrl/⌘ Shift Z</Kbd>
+                <span>redo it</span>
+              </div>
+              <p className="text-[10px] text-[#666] mt-1.5">Both are also buttons in the Deck header.</p>
+            </div>
           </Section>
 
           <Section icon={<Search className="w-3.5 h-3.5" />} title="3 · Read the DPS bar">
@@ -79,13 +86,14 @@ export const HelpModal = () => {
           </Section>
 
           <Section icon={<Sparkles className="w-3.5 h-3.5" />} title="Tools">
-            <p><b className="text-[#ededed]">Explorer</b> — simulate upgrades before spending gold.</p>
-            <p><b className="text-[#ededed]">Luck</b> — spawn rates and gold cost for every luck level.</p>
-            <p>
-              <Save className="w-3 h-3 inline mr-1 text-[#666]" aria-hidden="true" />
-              <b className="text-[#ededed]">Presets</b> — save and load army + settings. Save turns into
-              Update while a preset is loaded, so you always overwrite the right one.
-            </p>
+            <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5">
+              <b className="text-[#ededed] whitespace-nowrap">Explorer</b>
+              <span>simulate upgrades before spending gold.</span>
+              <b className="text-[#ededed] whitespace-nowrap">Luck</b>
+              <span>spawn rates and gold cost for every luck level.</span>
+              <b className="text-[#ededed] whitespace-nowrap">Presets</b>
+              <span>save and load army + settings. Save turns into Update while a preset is loaded, so you always overwrite the right one.</span>
+            </div>
           </Section>
 
           <p className="text-[10px] text-[#555] border-t border-[#222] pt-3">
