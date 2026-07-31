@@ -4,28 +4,12 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import creaturesData from './orbo-creatures.json';
 import bossesData from './orbo-bosses.json';
 import luckData from './orbo-luck.json';
-import ringsData from './orbo-rings.json';
 import tapConfig from './orbo-tap-config.json';
 
 const creaturesDict = creaturesData.reduce((acc, c) => {
   acc[c.key] = c;
   return acc;
 }, {} as Record<string, any>);
-
-const ringsDict = ringsData.reduce((acc, r) => {
-  acc[r.key] = r;
-  return acc;
-}, {} as Record<string, any>);
-
-const RING_RARITY_ORDER = ['common', 'uncommon', 'rare', 'epic', 'legendary'];
-
-const RING_RARITY_COLORS: Record<string, string> = {
-  common:    '#9ca3af',
-  uncommon:  '#22c55e',
-  rare:      '#3b82f6',
-  epic:      '#a855f7',
-  legendary: '#eab308',
-};
 
 const TIER_COLORS: Record<string, string> = {
   common:     '#9ca3af',
@@ -125,7 +109,6 @@ export default function App() {
         maxClicks: 82,
         bossNumber: 11,
         selectedBoss: null,
-        ringKey: null,
         overchargeLevel: 0,
         orboDamagePct: 0,
         attackSpeedPct: 0,
@@ -147,7 +130,6 @@ export default function App() {
       }
     }
     // Backfill tap/totem modifier fields for configs saved before they existed.
-    saved.ringKey = saved.ringKey ?? null;
     saved.overchargeLevel = saved.overchargeLevel ?? 0;
     saved.orboDamagePct = saved.orboDamagePct ?? 0;
     saved.attackSpeedPct = saved.attackSpeedPct ?? 0;
@@ -272,6 +254,13 @@ export default function App() {
         // Fallback for legacy codes
       }
       const decoded = JSON.parse(decodedString);
+      // Backfill tap/totem modifier fields for save codes exported before they existed.
+      if (decoded.config) {
+        decoded.config.overchargeLevel = decoded.config.overchargeLevel ?? 0;
+        decoded.config.orboDamagePct = decoded.config.orboDamagePct ?? 0;
+        decoded.config.attackSpeedPct = decoded.config.attackSpeedPct ?? 0;
+        decoded.config.energyMaxPct = decoded.config.energyMaxPct ?? 0;
+      }
       if (decoded.config && decoded.slots) {
         setConfig(decoded.config);
         setSlots(decoded.slots);
@@ -298,10 +287,9 @@ export default function App() {
     const targetTotalDps = config.bossEnergy / config.battleDuration;
 
     // --- Tap & totem modifiers ---
-    const ring = config.ringKey ? ringsDict[config.ringKey] : null;
-    const ringFlat = ring?.flatDamage ?? 0;
-    const ringOrboMult = ring?.orboDpsMultiplier ?? 0;
-    // Overcharge L0 = 1x (off); each level adds 0.5x to both tap damage and energy cost.
+    // Overcharge: L0 = 1× (off); each level adds 0.5× to both tap damage and energy cost.
+    // tapConfig.overcharge.baseMultiplier (1.5) documents the game's L1 value
+    // but we model overcharge as a delta: 1 + level * 0.5 → L1=1.5, L4=3.0
     const overchargeMultiplier = 1 + (config.overchargeLevel || 0) * tapConfig.overcharge.multiplierPerLevel;
     const orboDamageMult = (config.orboDamagePct || 0) / 100;
     const speedMultiplier = 1 + (config.attackSpeedPct || 0) / 100;
@@ -316,16 +304,17 @@ export default function App() {
     const effectiveMaxClicks = Math.min(config.maxClicks, energyBasedMaxClicks);
 
     // Solve for adjusted army DPS `D` (after orboDamageMult) in:
-    // D * speed * duration + (D * (clickPct + ringOrbo%) + clickFixed + ringFlat) * overcharge * clicks = bossEnergy
+    // D * speed * duration + (D * clickPct + clickFixed) * overcharge * clicks = bossEnergy
+    // clickPercent/clickFixed are the aggregate of all 8 equipped rings (from the game's Attributes screen).
     const clickScale = overchargeMultiplier * effectiveMaxClicks;
-    const adjustedRequiredDps = (config.bossEnergy - (config.clickFixed + ringFlat) * clickScale) /
-                                (config.battleDuration * speedMultiplier + (clickPctNum + ringOrboMult) * clickScale);
+    const adjustedRequiredDps = (config.bossEnergy - config.clickFixed * clickScale) /
+                                (config.battleDuration * speedMultiplier + clickPctNum * clickScale);
     // Divide back out the totem damage boost to get base army DPS (comparable to slot DPS sums).
     const requiredArmyDps = adjustedRequiredDps / (1 + orboDamageMult);
     
     const gap = requiredArmyDps - currentArmyDps;
     const adjustedCurrentArmyDps = currentArmyDps * (1 + orboDamageMult);
-    const currentClickDps = (adjustedCurrentArmyDps * (clickPctNum + ringOrboMult) + config.clickFixed + ringFlat) * overchargeMultiplier;
+    const currentClickDps = (adjustedCurrentArmyDps * clickPctNum + config.clickFixed) * overchargeMultiplier;
     const currentTotalDps = adjustedCurrentArmyDps * speedMultiplier + (currentClickDps * effectiveMaxClicks / config.battleDuration);
 
     let remainingGap = gap;
@@ -614,6 +603,7 @@ export default function App() {
                                   <img src={getCreatureImageUrl(c)} alt={c.name} className="w-full h-full object-cover" />
                                </div>
                                <p className="font-medium text-[11px] text-[#ededed] leading-tight mb-1">{c.name}</p>
+                               <span className="text-[10px] text-[#666] mt-0.5">{getCreatureMaxDps(c).toLocaleString()} dps</span>
                                <p className="text-[9px] text-[#666] capitalize">{c.tier.replace(/([A-Z])/g, ' $1').trim()}</p>
                             </button>
                          ))}
@@ -1240,10 +1230,10 @@ export default function App() {
               <button onClick={() => setTapModsOpen(prev => !prev)} className="w-full p-3.5 flex items-center justify-between group">
                 <h2 className="text-xs uppercase tracking-wider font-semibold text-[#888] flex items-center">
                   <Zap className="w-3.5 h-3.5 mr-2" />
-                  Tap &amp; Totem Modifiers
+                  Tap &amp; Totem Bonuses
                 </h2>
                 <div className="flex items-center space-x-2">
-                  {(config.ringKey || config.overchargeLevel > 0 || config.orboDamagePct > 0 || config.attackSpeedPct > 0 || config.energyMaxPct > 0) && (
+                  {(config.overchargeLevel > 0 || config.orboDamagePct > 0 || config.attackSpeedPct > 0 || config.energyMaxPct > 0) && (
                     <span className="text-[9px] uppercase tracking-wide font-medium px-1.5 py-0.5 rounded bg-[#222] text-emerald-500/80">Active</span>
                   )}
                   {tapModsOpen ? <ChevronDown className="w-4 h-4 text-[#444] group-hover:text-[#888] transition-colors" /> : <ChevronRight className="w-4 h-4 text-[#444] group-hover:text-[#888] transition-colors" />}
@@ -1251,30 +1241,7 @@ export default function App() {
               </button>
               {tapModsOpen && (
                 <div className="p-5 pt-1 space-y-4 border-t border-[#222]">
-                  <div className="grid grid-cols-2 gap-4 pt-3">
-                    <div className="flex flex-col space-y-1.5">
-                      <label className="text-[10px] font-semibold uppercase tracking-wider text-[#666]">Equipped Ring</label>
-                      <select
-                        value={config.ringKey ?? ''}
-                        onChange={e => setConfig((prev: any) => ({ ...prev, ringKey: e.target.value || null }))}
-                        className="w-full bg-[#0a0a0a] border border-[#222] rounded-md py-1.5 px-2.5 font-mono text-sm text-[#ededed] focus:outline-none focus:border-[#444] transition-colors appearance-none"
-                      >
-                        <option value="">None</option>
-                        {RING_RARITY_ORDER.map(rarity => (
-                          <optgroup key={rarity} label={rarity.charAt(0).toUpperCase() + rarity.slice(1)}>
-                            {ringsData.filter(r => r.rarity === rarity).map(r => (
-                              <option key={r.key} value={r.key}>{r.name}</option>
-                            ))}
-                          </optgroup>
-                        ))}
-                      </select>
-                      {config.ringKey && ringsDict[config.ringKey] && (
-                        <p className="text-[10px] font-mono text-[#888]">
-                          <span style={{ color: RING_RARITY_COLORS[ringsDict[config.ringKey].rarity] ?? '#888' }}>{ringsDict[config.ringKey].rarity}</span>
-                          {' '}&middot; +{ringsDict[config.ringKey].flatDamage} dmg &middot; +{(ringsDict[config.ringKey].orboDpsMultiplier * 100).toLocaleString(undefined, { maximumFractionDigits: 1 })}% orbo DPS
-                        </p>
-                      )}
-                    </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3">
                     <div className="flex flex-col space-y-1.5">
                       <label className="text-[10px] font-semibold uppercase tracking-wider text-[#666]">Overcharge Level</label>
                       <div className="flex items-center space-x-3 h-[34px]">
@@ -1292,7 +1259,7 @@ export default function App() {
                       <p className="text-[10px] font-mono text-[#888]">
                         {config.overchargeLevel > 0
                           ? `${results.overchargeMultiplier}\u00d7 tap dmg \u00b7 ${(tapConfig.energyPerTap * results.overchargeMultiplier).toLocaleString(undefined, { maximumFractionDigits: 2 })} energy/tap`
-                          : 'off \u00b7 1.5 energy/tap'}
+                          : `off \u00b7 ${tapConfig.energyPerTap} energy/tap`}
                       </p>
                     </div>
                   </div>
@@ -1409,6 +1376,12 @@ export default function App() {
                            className={`bg-[#0a0a0a] border border-[#222] rounded-md flex flex-col relative group overflow-hidden transition-all hover:border-[#444] ${isAssigned ? 'cursor-grab active:cursor-grabbing' : ''} ${draggedIndex === idx ? 'opacity-40 border-dashed scale-95' : ''}`}
                            style={isAssigned && c ? { borderTop: `3px solid ${getTierColor(c.tier)}` } : undefined}
                         >
+                           {/* Rarity background (empty.png for vacant slots) */}
+                           <img
+                              src={`https://playorbo.fun/game/spawn/rarity-bgs/${isAssigned && c ? c.tier : 'empty'}.png`}
+                              className="absolute inset-0 w-full h-full object-cover opacity-30 pointer-events-none"
+                              alt=""
+                           />
                            {isAssigned ? (
                               <>
                                  <button onClick={(e) => { e.stopPropagation(); removeSlot(idx); }} className="absolute top-1 right-1 bg-black/60 backdrop-blur border border-[#333] text-[#888] rounded p-0.5 hover:text-white opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity z-10 w-4 h-4 flex justify-center items-center">
@@ -1417,7 +1390,7 @@ export default function App() {
                                  <button onClick={(e) => { e.stopPropagation(); e.preventDefault(); setExplorerBase(c!.key); }} className="absolute top-1 right-6 bg-black/60 backdrop-blur border border-[#333] text-[#888] rounded p-0.5 hover:text-[#ededed] opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity z-10 w-4 h-4 flex justify-center items-center" title="View in Explorer">
                                     <Search className="w-2.5 h-2.5" />
                                  </button>
-                                 <div className="w-full aspect-square bg-[#111] overflow-hidden relative flex items-center justify-center p-1.5 pb-4">
+                                 <div className="w-full aspect-square overflow-hidden relative flex items-center justify-center p-1.5 pb-4">
                                     <img src={getCreatureImageUrl(c, slot.level)} alt={c.name} className="w-full h-full object-contain" />
                                     <div className="absolute bottom-0 inset-x-0 h-1/2 bg-gradient-to-t from-black/90 to-transparent pointer-events-none" />
                                     
@@ -1444,7 +1417,7 @@ export default function App() {
                                        />
                                     </div>
                                  </div>
-                                 <button onClick={(e) => { e.stopPropagation(); setExplorerBase(c!.key); }} className="w-full p-1.5 flex flex-col border-t border-[#222] text-left hover:bg-[#1a1a1a] active:bg-[#222] transition-colors" title="View in Explorer">
+                                 <button onClick={(e) => { e.stopPropagation(); setExplorerBase(c!.key); }} className="relative w-full p-1.5 flex flex-col border-t border-[#222] text-left hover:bg-[#1a1a1a] active:bg-[#222] transition-colors" title="View in Explorer">
                                     <p className="text-[9px] font-medium truncate text-[#ededed] w-full" title={c.name}>{c.name}</p>
                                     <p className="text-[8.5px] text-[#888] font-mono mt-0.5 truncate leading-tight">
                                       {dps.toLocaleString(undefined, { maximumFractionDigits: 1 })} DPS
@@ -1453,10 +1426,10 @@ export default function App() {
                               </>
                            ) : (
                               <>
-                                 <button onClick={() => setModalTarget(idx)} className="w-full aspect-square bg-[#0a0a0a] hover:bg-[#111] flex flex-col items-center justify-center text-[#555] transition-colors cursor-pointer">
+                                 <button onClick={() => setModalTarget(idx)} className="relative w-full aspect-square hover:bg-white/5 flex flex-col items-center justify-center text-[#555] transition-colors cursor-pointer">
                                     <Plus className="w-4 h-4 mb-0.5" />
                                  </button>
-                                 <div className="w-full p-1.5 flex flex-col border-t border-[#222]">
+                                 <div className="relative w-full p-1.5 flex flex-col border-t border-[#222]">
                                     <p className="text-[9px] font-medium text-[#444] w-full truncate">Empty Unit</p>
                                     <p className="text-[8.5px] text-transparent font-mono mt-0.5 leading-tight">0 DPS</p>
                                  </div>
