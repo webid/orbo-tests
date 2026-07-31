@@ -11,7 +11,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage, type StateStorage } from 'zustand/middleware';
 import { bossesData, creaturesDict } from './data';
-import type { ArmySlotInfo, ConfigState, ModalTarget } from './types';
+import type { ArmySlotInfo, ConfigState, ModalTarget, Preset } from './types';
 
 // ---------------------------------------------------------------------------
 // Config normalization (applied on every load, mirrors the old initializer)
@@ -34,7 +34,10 @@ const DEFAULT_CONFIG: ConfigState = {
 
 const DEFAULT_SLOTS: ArmySlotInfo[] = Array(8).fill({ creatureKey: null, level: 1 });
 
-function normalizeConfig(saved: any): ConfigState {
+// Maximum number of named presets (M3).
+export const MAX_PRESETS = 5;
+
+export function normalizeConfig(saved: any): ConfigState {
   if (!saved) return { ...DEFAULT_CONFIG };
   const cfg = { ...DEFAULT_CONFIG, ...saved };
 
@@ -85,11 +88,13 @@ const legacyStorage: StateStorage = {
     try {
       const config = localStorage.getItem('orbo_config');
       const slots = localStorage.getItem('orbo_army');
-      if (!config && !slots) return null;
+      const presets = localStorage.getItem('orbo_presets');
+      if (!config && !slots && !presets) return null;
       return JSON.stringify({
         state: {
           config: config ? JSON.parse(config) : null,
           slots: slots ? JSON.parse(slots) : null,
+          presets: presets ? JSON.parse(presets) : [],
         },
         version: 0,
       });
@@ -102,11 +107,13 @@ const legacyStorage: StateStorage = {
       const parsed = JSON.parse(value);
       if (parsed.state?.config) localStorage.setItem('orbo_config', JSON.stringify(parsed.state.config));
       if (parsed.state?.slots) localStorage.setItem('orbo_army', JSON.stringify(parsed.state.slots));
+      if (Array.isArray(parsed.state?.presets)) localStorage.setItem('orbo_presets', JSON.stringify(parsed.state.presets));
     } catch { /* non-fatal */ }
   },
   removeItem: () => {
     localStorage.removeItem('orbo_config');
     localStorage.removeItem('orbo_army');
+    localStorage.removeItem('orbo_presets');
   },
 };
 
@@ -137,6 +144,7 @@ export interface OrboStore {
   explorerBase: string | null;
   explorerCompare: string | null;
   toast: string | null;
+  presets: Preset[];
 
   // Config actions
   setConfig: (partial: Partial<ConfigState>) => void;
@@ -169,6 +177,12 @@ export interface OrboStore {
   setExplorerCompare: (key: string | null) => void;
   setToast: (msg: string | null) => void;
   closeAllModals: () => void;
+
+  // Preset actions (M3)
+  savePreset: (name: string) => string | null;
+  loadPreset: (id: string) => void;
+  deletePreset: (id: string) => void;
+  renamePreset: (id: string, name: string) => void;
 }
 
 export const useOrboStore = create<OrboStore>()(
@@ -196,6 +210,7 @@ export const useOrboStore = create<OrboStore>()(
       explorerBase: null,
       explorerCompare: null,
       toast: null,
+      presets: [],
 
       // --- Config actions ---
       setConfig: (partial) => set(state => ({ config: { ...state.config, ...partial } })),
@@ -304,19 +319,51 @@ export const useOrboStore = create<OrboStore>()(
         explorerBase: null,
         explorerCompare: null,
       }),
+
+      // --- Preset actions (M3) ---
+      // Named snapshots of the full battle state, capped at MAX_PRESETS.
+      // savePreset returns the new preset id (or null when at the cap).
+      savePreset: (name) => {
+        const state = get();
+        if (state.presets.length >= MAX_PRESETS) return null;
+        const id = `preset-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+        const preset: Preset = {
+          id,
+          name: name.trim() || `Preset ${state.presets.length + 1}`,
+          config: { ...state.config },
+          slots: state.slots.map(s => ({ ...s })),
+        };
+        set({ presets: [...state.presets, preset] });
+        return id;
+      },
+      loadPreset: (id) => set(state => {
+        const preset = state.presets.find(p => p.id === id);
+        if (!preset) return state;
+        return {
+          config: normalizeConfig({ ...preset.config }),
+          slots: preset.slots.map(s => ({ ...s })),
+        };
+      }),
+      deletePreset: (id) => set(state => ({
+        presets: state.presets.filter(p => p.id !== id),
+      })),
+      renamePreset: (id, name) => set(state => ({
+        presets: state.presets.map(p => p.id === id ? { ...p, name } : p),
+      })),
     }),
     {
       name: 'orbo-store',
       storage: createJSONStorage(() => legacyStorage),
-      partialize: (state) => ({ config: state.config, slots: state.slots }),
+      partialize: (state) => ({ config: state.config, slots: state.slots, presets: state.presets }),
       merge: (persisted, current) => {
-        const p = persisted as { config?: any; slots?: ArmySlotInfo[] } | undefined;
+        const p = persisted as { config?: any; slots?: ArmySlotInfo[]; presets?: Preset[] } | undefined;
         return {
           ...current,
           config: normalizeConfig(p?.config ?? null),
           slots: Array.isArray(p?.slots) && p!.slots.length === 8
             ? p!.slots
             : current.slots,
+          presets: Array.isArray(p?.presets) ? p!.presets : [],
         };
       },
     }

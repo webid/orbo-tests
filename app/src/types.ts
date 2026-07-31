@@ -105,6 +105,14 @@ export interface ArmySlotInfo {
   level: number;
 }
 
+// A named, explicit snapshot of the full battle state (M3 presets).
+export interface Preset {
+  id: string;
+  name: string;
+  config: ConfigState;
+  slots: ArmySlotInfo[];
+}
+
 export type ModalTarget = 'all' | 'empty' | number | 'explorer_base' | 'explorer_compare' | null;
 
 export interface UpgradeHistory {

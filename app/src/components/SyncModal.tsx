@@ -1,4 +1,5 @@
-import { DownloadCloud, X, Copy, Upload } from 'lucide-react';
+import { useState } from 'react';
+import { DownloadCloud, X, Copy, Link as LinkIcon, Upload } from 'lucide-react';
 import { bossesData } from '../data';
 import { useOrboStore } from '../store';
 
@@ -14,6 +15,9 @@ export const SyncModal = () => {
   const setConfig = useOrboStore(s => s.setConfig);
   const setSlots = useOrboStore(s => s.setSlots);
   const setToast = useOrboStore(s => s.setToast);
+
+  // M3.2 — "Copy Link" feedback is local so it doesn't clash with code-copy state.
+  const [linkCopied, setLinkCopied] = useState(false);
 
   if (!syncModalOpen) return null;
 
@@ -36,6 +40,17 @@ export const SyncModal = () => {
     navigator.clipboard.writeText(data);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  // Shareable build link (M3.2): same encoding as the export code, embedded
+  // in a #build= hash that App decodes on load.
+  const handleCopyLink = () => {
+    const data = exportData();
+    if (!data) return;
+    const url = `${window.location.origin}${window.location.pathname}#build=${data}`;
+    navigator.clipboard.writeText(url);
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 2000);
   };
 
   const handleImport = () => {
@@ -110,8 +125,11 @@ export const SyncModal = () => {
                   <button onClick={handleCopy} className="px-3 py-2 bg-[#222] hover:bg-[#333] border border-[#333] rounded text-xs text-[#ededed] font-medium transition-colors flex items-center shrink-0">
                      {copied ? "Copied!" : <><Copy className="w-3.5 h-3.5 mr-1.5" /> Copy</>}
                   </button>
+                  <button onClick={handleCopyLink} title="Copy a shareable link that loads this build" className="px-3 py-2 bg-[#222] hover:bg-[#333] border border-[#333] rounded text-xs text-[#ededed] font-medium transition-colors flex items-center shrink-0">
+                     {linkCopied ? "Copied!" : <><LinkIcon className="w-3.5 h-3.5 mr-1.5" /> Copy Link</>}
+                  </button>
                </div>
-               <p className="text-[10px] text-[#666] mt-2 leading-relaxed">Copy this code to load your army on another device.</p>
+               <p className="text-[10px] text-[#666] mt-2 leading-relaxed">Copy this code to load your army on another device — or use Copy Link to share a ready-to-load build URL.</p>
             </div>
 
             <div className="h-px w-full bg-[#222]" />

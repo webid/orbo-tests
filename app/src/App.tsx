@@ -8,13 +8,14 @@ import { useEffect, useMemo, lazy, Suspense } from 'react';
 import { Calculator, Search, Sparkles, DownloadCloud } from 'lucide-react';
 
 import { calculateRequirements } from './calc';
-import { useOrboStore } from './store';
+import { useOrboStore, normalizeConfig } from './store';
 
 import { ArmyGrid } from './components/ArmyGrid';
 import { BattleConfig } from './components/BattleConfig';
 import { BossModal } from './components/BossModal';
 import { CreatureModal } from './components/CreatureModal';
 import { LuckTableModal } from './components/LuckTableModal';
+import { PresetBar } from './components/PresetBar';
 import { StatCard } from './components/StatCard';
 import { SyncModal } from './components/SyncModal';
 import { TapTotemPanel } from './components/TapTotemPanel';
@@ -39,6 +40,9 @@ export default function App() {
   const explorerBase = useOrboStore(s => s.explorerBase);
   const setUpdateAvailable = useOrboStore(s => s.setUpdateAvailable);
   const closeAllModals = useOrboStore(s => s.closeAllModals);
+  const setConfig = useOrboStore(s => s.setConfig);
+  const setSlots = useOrboStore(s => s.setSlots);
+  const setToast = useOrboStore(s => s.setToast);
 
   // Battle math — memoized so it only re-runs when config or slots change,
   // not on every unrelated UI state update.
@@ -90,6 +94,34 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [closeAllModals]);
 
+  // Shareable build links (M3.2): a #build={base64} hash is decoded, applied
+  // after a confirm prompt, and then cleared so a refresh doesn't re-prompt.
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (!hash.startsWith('#build=')) return;
+    const code = hash.slice('#build='.length);
+    const clearHash = () => window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    if (!code) { clearHash(); return; }
+    try {
+      let decodedString = atob(code);
+      try { decodedString = decodeURIComponent(decodedString); } catch { /* legacy codes */ }
+      const decoded = JSON.parse(decodedString);
+      if (decoded && decoded.config && Array.isArray(decoded.slots)) {
+        const filled = decoded.slots.filter((s: any) => s && s.creatureKey).length;
+        const ok = window.confirm(`Load shared build (${filled} creatures)? This replaces your current army and settings.`);
+        if (ok) {
+          setConfig(normalizeConfig(decoded.config));
+          setSlots(decoded.slots);
+          setToast('Shared build loaded');
+        }
+      }
+    } catch {
+      // Malformed build code — ignore.
+    } finally {
+      clearHash();
+    }
+  }, [setConfig, setSlots, setToast]);
+
   return (
     <div className="min-h-screen bg-[#09090b] text-[#ededed] p-6 md:p-10 font-sans selection:bg-[#333]">
 
@@ -137,6 +169,7 @@ export default function App() {
           <div className="lg:col-span-6 space-y-6">
             <BattleConfig results={results} />
             <TapTotemPanel results={results} />
+            <PresetBar />
             <ArmyGrid />
           </div>
 
