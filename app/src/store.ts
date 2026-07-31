@@ -37,6 +37,9 @@ const DEFAULT_SLOTS: ArmySlotInfo[] = Array(8).fill({ creatureKey: null, level: 
 // Maximum number of named presets (M3).
 export const MAX_PRESETS = 5;
 
+// Maximum army snapshots kept for the Undo button (transient, not persisted).
+const MAX_UNDO = 20;
+
 export function normalizeConfig(saved: any): ConfigState {
   if (!saved) return { ...DEFAULT_CONFIG };
   const cfg = { ...DEFAULT_CONFIG, ...saved };
@@ -138,6 +141,7 @@ export interface OrboStore {
   expandedSteps: Record<number, boolean>;
   draggedIndex: number | null;
   highlightedSlot: number | null;
+  slotsHistory: ArmySlotInfo[][];
   luckModalOpen: boolean;
   tapModsOpen: boolean;
   totemPickerSlot: number | null;
@@ -158,6 +162,7 @@ export interface OrboStore {
   removeSlot: (index: number) => void;
   assignCreature: (creatureKey: string) => void;
   swapSlots: (from: number, to: number) => void;
+  undoSlotChange: () => void;
 
   // UI actions
   setModalTarget: (t: ModalTarget) => void;
@@ -188,6 +193,10 @@ export interface OrboStore {
   renamePreset: (id: string, name: string) => void;
 }
 
+// Snapshot the current army for the Undo button, capped at MAX_UNDO.
+const pushSlotsHistory = (state: Pick<OrboStore, 'slots' | 'slotsHistory'>): ArmySlotInfo[][] =>
+  [...state.slotsHistory, state.slots.map(s => ({ ...s }))].slice(-MAX_UNDO);
+
 export const useOrboStore = create<OrboStore>()(
   persist(
     (set, get) => ({
@@ -207,6 +216,7 @@ export const useOrboStore = create<OrboStore>()(
       expandedSteps: {},
       draggedIndex: null,
       highlightedSlot: null,
+      slotsHistory: [],
       luckModalOpen: false,
       tapModsOpen: false,
       totemPickerSlot: null,
@@ -254,7 +264,8 @@ export const useOrboStore = create<OrboStore>()(
       }),
 
       removeSlot: (index) => set(state => ({
-        slots: state.slots.map((s, i) => i === index ? { creatureKey: null, level: 1 } : s)
+        slots: state.slots.map((s, i) => i === index ? { creatureKey: null, level: 1 } : s),
+        slotsHistory: pushSlotsHistory(state),
       })),
 
       assignCreature: (creatureKey) => {
@@ -278,7 +289,7 @@ export const useOrboStore = create<OrboStore>()(
           } else if (typeof modalTarget === 'number') {
             slots[modalTarget] = { creatureKey, level: 1 };
           }
-          return { slots, modalTarget: null, search: '' };
+          return { slots, slotsHistory: pushSlotsHistory(state), modalTarget: null, search: '' };
         });
       },
 
@@ -288,7 +299,16 @@ export const useOrboStore = create<OrboStore>()(
         const temp = slots[to];
         slots[to] = slots[from];
         slots[from] = temp;
-        return { slots };
+        return { slots, slotsHistory: pushSlotsHistory(state) };
+      }),
+
+      // Restores the most recent army snapshot (assign / remove / reorder).
+      // Level tweaks are intentionally not tracked — cheap to redo by hand.
+      undoSlotChange: () => set(state => {
+        if (state.slotsHistory.length === 0) return state;
+        const slotsHistory = [...state.slotsHistory];
+        const slots = slotsHistory.pop()!;
+        return { slots, slotsHistory };
       }),
 
       // --- UI actions ---

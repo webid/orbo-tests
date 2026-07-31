@@ -1,4 +1,4 @@
-import { Plus, X, Search, Star, Sword } from 'lucide-react';
+import { Plus, X, Search, Star, Sword, Undo2 } from 'lucide-react';
 import { creaturesDict } from '../data';
 import { getCreatureImageUrl } from '../utils';
 import { useOrboStore } from '../store';
@@ -7,14 +7,23 @@ import { LevelInput } from './LevelInput';
 
 export const ArmyGrid = () => {
   const slots = useOrboStore(s => s.slots);
-  const setSlots = useOrboStore(s => s.setSlots);
   const setModalTarget = useOrboStore(s => s.setModalTarget);
   const setExplorerBase = useOrboStore(s => s.setExplorerBase);
   const updateSlotLevel = useOrboStore(s => s.updateSlotLevel);
   const removeSlot = useOrboStore(s => s.removeSlot);
+  const swapSlots = useOrboStore(s => s.swapSlots);
+  const undoSlotChange = useOrboStore(s => s.undoSlotChange);
+  const canUndo = useOrboStore(s => s.slotsHistory.length > 0);
+  const setToast = useOrboStore(s => s.setToast);
   const draggedIndex = useOrboStore(s => s.draggedIndex);
   const setDraggedIndex = useOrboStore(s => s.setDraggedIndex);
   const highlightedSlot = useOrboStore(s => s.highlightedSlot);
+
+  const handleUndo = () => {
+    if (!canUndo) return;
+    undoSlotChange();
+    setToast('Undid last army change');
+  };
 
   return (
     <div className="bg-[#111] rounded-lg border border-[#222]">
@@ -24,6 +33,10 @@ export const ArmyGrid = () => {
             Army Composition
           </h2>
           <div className="flex space-x-2">
+             <button onClick={handleUndo} disabled={!canUndo} title="Undo last army change (assign, remove, reorder)" className="px-2.5 py-1 text-[10px] uppercase tracking-wide font-medium rounded bg-[#222] hover:bg-[#333] text-[#ededed] transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:disabled:bg-[#222] flex items-center">
+                <Undo2 className="w-3 h-3 mr-1" />
+                Undo
+             </button>
              <button onClick={() => setModalTarget('empty')} disabled={!slots.some(s => !s.creatureKey)} className="px-2.5 py-1 text-[10px] uppercase tracking-wide font-medium rounded bg-[#222] hover:bg-[#333] text-[#ededed] transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:disabled:bg-[#222]">
                 Fill Empty
              </button>
@@ -80,13 +93,8 @@ export const ArmyGrid = () => {
                    onDrop={(e) => {
                       e.preventDefault();
                       const fromIdx = parseInt(e.dataTransfer.getData('text/plain'));
-                      if (isNaN(fromIdx) || fromIdx === idx) return;
-
-                      const newSlots = [...slots];
-                      const temp = newSlots[idx];
-                      newSlots[idx] = newSlots[fromIdx];
-                      newSlots[fromIdx] = temp;
-                      setSlots(newSlots);
+                      if (isNaN(fromIdx)) return;
+                      swapSlots(fromIdx, idx);
                       setDraggedIndex(null);
                    }}
                    className={`bg-[#0a0a0a] border ${highlightedSlot === idx ? 'border-[#666] drop-shadow-[0_0_6px_rgba(255,255,255,0.15)]' : 'border-[#222]'} rounded-md flex flex-col relative group overflow-hidden transition-all hover:border-[#444] ${isAssigned ? 'cursor-grab active:cursor-grabbing' : ''} ${draggedIndex === idx ? 'opacity-40 border-dashed scale-95' : ''}`}

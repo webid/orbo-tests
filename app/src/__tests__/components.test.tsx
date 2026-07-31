@@ -5,7 +5,7 @@
 // ---------------------------------------------------------------------------
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 
 import App from '../App';
 import { normalizeConfig, useOrboStore } from '../store';
@@ -29,6 +29,7 @@ const resetStore = () => {
     expandedSteps: {},
     draggedIndex: null,
     highlightedSlot: null,
+    slotsHistory: [],
     luckModalOpen: false,
     tapModsOpen: false,
     totemPickerSlot: null,
@@ -257,6 +258,61 @@ describe('preset bar', () => {
 
     expect(useOrboStore.getState().presets[1].name).toBe('Beta');
     expect(screen.getByText(/already named/)).toBeTruthy();
+  });
+});
+
+describe('army undo', () => {
+  it('undo button is disabled when there is nothing to undo', () => {
+    render(<App />);
+    expect((screen.getByRole('button', { name: /undo/i }) as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it('restores the army after a misfired Assign All (full picker flow)', () => {
+    useOrboStore.getState().setSlots([
+      { creatureKey: 'archon', level: 5 },
+      ...Array.from({ length: 7 }, () => ({ creatureKey: null, level: 1 })),
+    ]);
+    render(<App />);
+
+    // Misfire: Assign All → pick Weasel → every slot becomes Weasel L1.
+    fireEvent.click(screen.getByRole('button', { name: /assign all/i }));
+    const search = screen.getByPlaceholderText(/search creatures/i);
+    fireEvent.change(search, { target: { value: 'weasel' } });
+    fireEvent.keyDown(search, { key: 'Enter' });
+    expect(useOrboStore.getState().slots.every(s => s.creatureKey === 'weasel')).toBe(true);
+
+    fireEvent.click(screen.getByRole('button', { name: /undo/i }));
+
+    const slots = useOrboStore.getState().slots;
+    expect(slots[0]).toEqual({ creatureKey: 'archon', level: 5 });
+    expect(slots.filter(s => !s.creatureKey)).toHaveLength(7);
+    expect(screen.getByText(/Undid last army change/)).toBeTruthy();
+    // One undo per change: the stack is empty again.
+    expect((screen.getByRole('button', { name: /undo/i }) as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it('brings back a removed unit and un-swaps a reorder', () => {
+    useOrboStore.getState().setSlots([
+      { creatureKey: 'archon', level: 3 },
+      { creatureKey: 'weasel', level: 2 },
+      ...Array.from({ length: 6 }, () => ({ creatureKey: null, level: 1 })),
+    ]);
+    render(<App />);
+    const undoBtn = screen.getByRole('button', { name: /undo/i });
+
+    // Remove the weasel → undo → it is back, level intact. (act() flushes
+    // the re-render so the Undo button is enabled before we click it.)
+    act(() => { useOrboStore.getState().removeSlot(1); });
+    expect(useOrboStore.getState().slots[1].creatureKey).toBeNull();
+    fireEvent.click(undoBtn);
+    expect(useOrboStore.getState().slots[1]).toEqual({ creatureKey: 'weasel', level: 2 });
+
+    // Reorder via swapSlots (the drag & drop path) → undo → original order.
+    act(() => { useOrboStore.getState().swapSlots(0, 1); });
+    expect(useOrboStore.getState().slots[0].creatureKey).toBe('weasel');
+    fireEvent.click(undoBtn);
+    expect(useOrboStore.getState().slots[0].creatureKey).toBe('archon');
+    expect(useOrboStore.getState().slots[1].creatureKey).toBe('weasel');
   });
 });
 
