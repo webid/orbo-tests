@@ -32,9 +32,6 @@ export const ArmyGrid = () => {
           </div>
        </div>
 
-       {/* DPS contribution bar (2.2) */}
-       <DpsBreakdown />
-
        <div className="p-2 sm:p-3 grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2">
           {slots.map((slot, idx) => {
              const isAssigned = !!slot.creatureKey;
@@ -157,6 +154,10 @@ export const ArmyGrid = () => {
              )
           })}
        </div>
+
+       {/* DPS contribution bar (2.2) — sits below the slots so the army is
+           the first thing you see in the card. */}
+       <DpsBreakdown />
     </div>
   );
 };

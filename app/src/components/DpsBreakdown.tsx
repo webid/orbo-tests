@@ -33,7 +33,7 @@ export const DpsBreakdown = () => {
   if (total <= 0) return null;
 
   return (
-    <div className="px-2 sm:px-3 pt-2 sm:pt-3">
+    <div className="px-2 sm:px-3 pt-2 sm:pt-2.5 pb-2.5 sm:pb-3 border-t border-[#222]">
       {/* 2px gaps let the dark track show through, so same-tier neighbours
           still read as separate units. */}
       <div className="flex h-2.5 w-full gap-[2px] overflow-hidden rounded-full border border-[#222] bg-[#0a0a0a]">

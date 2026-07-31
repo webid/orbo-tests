@@ -169,8 +169,8 @@ export default function App() {
           <div className="lg:col-span-6 space-y-6">
             <BattleConfig results={results} />
             <TapTotemPanel results={results} />
-            <PresetBar />
             <ArmyGrid />
+            <PresetBar />
           </div>
 
           <div className="lg:col-span-6 space-y-6 flex flex-col">
