@@ -598,13 +598,18 @@ export default function App() {
                       <h3 className="text-xs font-semibold text-[#888] uppercase tracking-wider mb-3 border-b border-[#222] pb-1">{group.tier.replace(/([A-Z])/g, ' $1').trim()}</h3>
                       <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
                          {group.creatures.map(c => (
-                            <button key={c.key} onClick={() => assignCreature(c.key)} style={{ borderTop: `3px solid ${getTierColor(c.tier)}` }} className="group bg-[#111] hover:bg-[#1a1a1a] border border-[#222] hover:border-[#444] p-3 rounded-md flex flex-col items-center text-center transition-colors">
-                               <div className="w-10 h-10 mb-2 rounded bg-[#0a0a0a] overflow-hidden border border-[#222] shrink-0">
+                            <button key={c.key} onClick={() => assignCreature(c.key)} style={{ borderTop: `3px solid ${getTierColor(c.tier)}` }} className="group relative overflow-hidden bg-[#111] hover:bg-[#1a1a1a] border border-[#222] hover:border-[#444] p-3 rounded-md flex flex-col items-center text-center transition-colors">
+                               <img
+                                  src={`https://playorbo.fun/game/spawn/rarity-bgs/${c.tier}.png`}
+                                  className="absolute inset-0 w-full h-full object-cover opacity-25 pointer-events-none"
+                                  alt=""
+                               />
+                               <div className="relative z-10 w-10 h-10 mb-2 rounded bg-[#0a0a0a] overflow-hidden border border-[#222] shrink-0">
                                   <img src={getCreatureImageUrl(c)} alt={c.name} className="w-full h-full object-cover" />
                                </div>
-                               <p className="font-medium text-[11px] text-[#ededed] leading-tight mb-1">{c.name}</p>
-                               <span className="text-[10px] text-[#666] mt-0.5">{getCreatureMaxDps(c).toLocaleString()} dps</span>
-                               <p className="text-[9px] text-[#666] capitalize">{c.tier.replace(/([A-Z])/g, ' $1').trim()}</p>
+                               <p className="relative z-10 font-medium text-[11px] text-[#ededed] leading-tight mb-1">{c.name}</p>
+                               <span className="relative z-10 text-[10px] text-[#666] mt-0.5">{compactNum(getCreatureMaxDps(c))} dps</span>
+                               <p className="relative z-10 text-[9px] text-[#666] capitalize">{c.tier.replace(/([A-Z])/g, ' $1').trim()}</p>
                             </button>
                          ))}
                       </div>
@@ -780,8 +785,13 @@ export default function App() {
              </div>
              
              <div className="flex-1 overflow-y-auto p-4 sm:p-5 bg-[#0a0a0a] space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 sm:gap-4">
-                   <div className="flex items-center space-x-4">
+                <div className="relative overflow-hidden rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-5 sm:gap-4">
+                   <img
+                      src={`https://playorbo.fun/game/spawn/rarity-bgs/${creaturesDict[explorerBase].tier}.png`}
+                      className="absolute inset-0 w-full h-full object-cover opacity-15 pointer-events-none"
+                      alt=""
+                   />
+                   <div className="relative z-10 flex items-center space-x-4">
                       <div className="w-16 h-16 rounded bg-[#111] overflow-hidden border border-[#222] shrink-0 p-1">
                          <img src={getCreatureImageUrl(creaturesDict[explorerBase])} alt="" className="w-full h-full object-contain" />
                       </div>
@@ -799,7 +809,7 @@ export default function App() {
                       </div>
                    </div>
 
-                   <div className="flex items-center space-x-4 justify-end sm:justify-auto pt-4 border-t border-[#222] sm:border-0 sm:pt-0">
+                   <div className="relative z-10 flex items-center space-x-4 justify-end sm:justify-auto pt-4 border-t border-[#222] sm:border-0 sm:pt-0">
                       {explorerCompare ? (
                          <>
                             <div className="flex items-center space-x-4 text-right">
