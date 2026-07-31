@@ -288,7 +288,7 @@ describe('army undo', () => {
     const slots = useOrboStore.getState().slots;
     expect(slots[0]).toEqual({ creatureKey: 'archon', level: 5 });
     expect(slots.filter(s => !s.creatureKey)).toHaveLength(7);
-    expect(screen.getByText(/Undid last army change/)).toBeTruthy();
+    expect(screen.getByText(/Undid last deck change/)).toBeTruthy();
     // One undo per change: the stack is empty again.
     expect((screen.getByRole('button', { name: /undo/i }) as HTMLButtonElement).disabled).toBe(true);
   });
@@ -335,7 +335,7 @@ describe('army undo', () => {
 
     fireEvent.click(redoBtn());
     expect(useOrboStore.getState().slots[1].creatureKey).toBeNull();
-    expect(screen.getByText(/Redid army change/)).toBeTruthy();
+    expect(screen.getByText(/Redid deck change/)).toBeTruthy();
     expect(redoBtn().disabled).toBe(true);
 
     // Undo again, then make a NEW army change — the redo branch is discarded.
@@ -386,7 +386,7 @@ describe('help modal', () => {
 
     fireEvent.click(helpButtons[0]);
     expect(screen.getByText('How it works')).toBeTruthy();
-    expect(screen.getByText(/paste the data you copied in-game/)).toBeTruthy();
+    expect(screen.getByText(/mirror your account/)).toBeTruthy();
     expect(screen.getByText(/Ctrl\/⌘ Z/)).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: 'Close help' }));

@@ -24,13 +24,13 @@ export const ArmyGrid = () => {
   const handleUndo = () => {
     if (!canUndo) return;
     undoSlotChange();
-    setToast('Undid last army change');
+    setToast('Undid last deck change');
   };
 
   const handleRedo = () => {
     if (!canRedo) return;
     redoSlotChange();
-    setToast('Redid army change');
+    setToast('Redid deck change');
   };
 
   return (
@@ -41,11 +41,11 @@ export const ArmyGrid = () => {
             Deck
           </h2>
           <div className="flex space-x-2">
-             <button onClick={handleUndo} disabled={!canUndo} title="Undo last army change (assign, remove, reorder) — Ctrl/Cmd+Z" aria-label="Undo last army change" className="px-2.5 py-1 text-[10px] uppercase tracking-wide font-medium rounded bg-[#222] hover:bg-[#333] text-[#ededed] transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:disabled:bg-[#222] flex items-center">
+             <button onClick={handleUndo} disabled={!canUndo} title="Undo last deck change (assign, remove, reorder) — Ctrl/Cmd+Z" aria-label="Undo last deck change" className="px-2.5 py-1 text-[10px] uppercase tracking-wide font-medium rounded bg-[#222] hover:bg-[#333] text-[#ededed] transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:disabled:bg-[#222] flex items-center">
                 <Undo2 className="w-3.5 h-3.5 sm:w-3 sm:h-3 sm:mr-1" />
                 <span className="hidden sm:inline">Undo</span>
              </button>
-             <button onClick={handleRedo} disabled={!canRedo} title="Redo army change — Ctrl/Cmd+Shift+Z" aria-label="Redo army change" className="px-2.5 py-1 text-[10px] uppercase tracking-wide font-medium rounded bg-[#222] hover:bg-[#333] text-[#ededed] transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:disabled:bg-[#222] flex items-center">
+             <button onClick={handleRedo} disabled={!canRedo} title="Redo deck change — Ctrl/Cmd+Shift+Z" aria-label="Redo deck change" className="px-2.5 py-1 text-[10px] uppercase tracking-wide font-medium rounded bg-[#222] hover:bg-[#333] text-[#ededed] transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:disabled:bg-[#222] flex items-center">
                 <Redo2 className="w-3.5 h-3.5 sm:w-3 sm:h-3 sm:mr-1" />
                 <span className="hidden sm:inline">Redo</span>
              </button>

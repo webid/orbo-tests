@@ -14,18 +14,18 @@ export const UpgradeSimulator = ({ results }: { results: CalcResults }) => {
       <div className="p-5 border-b border-[#222]">
         <h3 className="text-xs uppercase tracking-wider font-semibold text-[#888] mb-5 flex items-center">
           <TrendingUp className="w-3.5 h-3.5 mr-2" />
-          Optimization Simulator
+          Upgrade Path
         </h3>
 
         <div className="grid grid-cols-2 gap-4 mb-5">
           <div>
-            <p className="text-[10px] uppercase tracking-wider text-[#666] mb-1">Required Army DPS</p>
+            <p className="text-[10px] uppercase tracking-wider text-[#666] mb-1">Required Deck DPS</p>
             <p className="text-xl font-mono text-[#ededed]">
               {results.requiredArmyDps.toLocaleString(undefined, { maximumFractionDigits: 1 })}
             </p>
           </div>
           <div className="text-right">
-            <p className="text-[10px] uppercase tracking-wider text-[#666] mb-1">Current Army DPS</p>
+            <p className="text-[10px] uppercase tracking-wider text-[#666] mb-1">Current Deck DPS</p>
             <p className="text-lg font-mono text-[#888]">
               {results.currentArmyDps.toLocaleString(undefined, { maximumFractionDigits: 1 })}
             </p>
@@ -64,7 +64,7 @@ export const UpgradeSimulator = ({ results }: { results: CalcResults }) => {
          ) : (
             <div className="lg:h-full lg:flex lg:flex-col">
                  <p className="text-[10px] text-[#555] mb-3 px-1 leading-relaxed">
-                   Each step is the <span className="text-[#888]">next best level-up</span>. Do one level at a time, the order will shift as your army improves.
+                   Each step is the <span className="text-[#888]">next best level-up</span>. Do one level at a time, the order will shift as your deck improves.
                  </p>
                 <div className="space-y-3 relative before:absolute before:top-4 before:bottom-4 before:left-[13px] before:w-px before:bg-[#333] pl-9 ml-1 lg:flex-1 lg:flex lg:flex-col lg:justify-between lg:space-y-0 lg:gap-3">
                    {results.upgradePlan.map((step, idx) => {

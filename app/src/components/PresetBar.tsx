@@ -150,8 +150,8 @@ export const PresetBar = () => {
         onClick={handleSave}
         disabled={!selectedPreset && atCap}
         title={selectedPreset
-          ? `Overwrite "${selectedPreset.name}" with the current army & config`
-          : atCap ? `Max ${MAX_PRESETS} presets` : 'Save current army & config as a new preset'}
+          ? `Overwrite "${selectedPreset.name}" with the current deck & config`
+          : atCap ? `Max ${MAX_PRESETS} presets` : 'Save current deck & config as a new preset'}
         className="px-2.5 py-1.5 text-[10px] uppercase tracking-wide font-medium rounded bg-[#222] hover:bg-[#333] text-[#ededed] transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:disabled:bg-[#222] flex items-center shrink-0"
       >
         <Save className="w-3 h-3 mr-1" />

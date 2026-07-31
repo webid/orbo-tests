@@ -96,7 +96,7 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [closeAllModals]);
 
-  // Ctrl/Cmd+Z undoes the last army change, Ctrl/Cmd+Shift+Z (or Ctrl+Y)
+  // Ctrl/Cmd+Z undoes the last deck change, Ctrl/Cmd+Shift+Z (or Ctrl+Y)
   // redoes it. Skipped while typing so text fields keep their native undo.
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -111,10 +111,10 @@ export default function App() {
       const state = useOrboStore.getState();
       if (isUndo && state.slotsHistory.length > 0) {
         state.undoSlotChange();
-        state.setToast('Undid last army change');
+        state.setToast('Undid last deck change');
       } else if (isRedo && state.slotsRedo.length > 0) {
         state.redoSlotChange();
-        state.setToast('Redid army change');
+        state.setToast('Redid deck change');
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -135,7 +135,7 @@ export default function App() {
       const decoded = JSON.parse(decodedString);
       if (decoded && decoded.config && Array.isArray(decoded.slots)) {
         const filled = decoded.slots.filter((s: any) => s && s.creatureKey).length;
-        const ok = window.confirm(`Load shared build (${filled} creatures)? This replaces your current army and settings.`);
+        const ok = window.confirm(`Load shared build (${filled} creatures)? This replaces your current deck and settings.`);
         if (ok) {
           setConfig(normalizeConfig(decoded.config));
           setSlots(decoded.slots);
@@ -230,7 +230,7 @@ export default function App() {
                         </span>
                       )}
                       <div className="flex justify-between items-center text-[10px] text-[#666] border-t border-[#222] pt-1.5 mt-1.5">
-                         <span>Army: {results.currentArmyDps.toLocaleString(undefined, { maximumFractionDigits: 1 })}</span>
+                         <span>Deck: {results.currentArmyDps.toLocaleString(undefined, { maximumFractionDigits: 1 })}</span>
                          <span>Clicks: {(results.currentTotalDps - results.currentArmyDps).toLocaleString(undefined, { maximumFractionDigits: 1 })}</span>
                       </div>
                    </div>

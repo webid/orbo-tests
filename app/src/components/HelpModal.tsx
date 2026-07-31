@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { X, HelpCircle, Plus, Star, Undo2, Redo2, GripVertical, Search, Sparkles, DownloadCloud } from 'lucide-react';
+import { X, HelpCircle, Plus, Star, Undo2, Redo2, GripVertical, Search, Sparkles, ClipboardList } from 'lucide-react';
 import { TIER_COLORS } from '../data';
 import { useOrboStore } from '../store';
 
@@ -41,23 +41,36 @@ export const HelpModal = () => {
 
         {/* Body */}
         <div className="p-4 overflow-auto space-y-5">
-          <Section icon={<DownloadCloud className="w-3.5 h-3.5" />} title="1 · Get your numbers in">
-            <p>
-              Press <b className="text-[#ededed]">Sync</b> and paste the data you copied in-game —
-              it imports your army, levels, totems and battle settings in one go.
-            </p>
-            <p>Or do it by hand: pick a boss, set your clicks, then build your army.</p>
+          <Section icon={<ClipboardList className="w-3.5 h-3.5" />} title="1 · Set up your numbers">
+            <p>First, mirror your account so the math matches the game:</p>
+            <ul className="list-disc pl-4 space-y-1.5 marker:text-[#555]">
+              <li>
+                Copy <b className="text-[#ededed]">Click DPS %</b> and{' '}
+                <b className="text-[#ededed]">Total Click Power</b> from the in-game{' '}
+                <b className="text-[#ededed]">Attributes</b> screen.
+              </li>
+              <li>Configure your tap upgrades and the totems you use.</li>
+              <li>Set up your deck's orbos and each orbo's level (next section).</li>
+              <li>
+                Set your current luck level in the <b className="text-[#ededed]">Luck</b> modal.
+              </li>
+            </ul>
+            <p>Only after that, save a preset or export a code to keep the setup.</p>
           </Section>
 
-          <Section icon={<Plus className="w-3.5 h-3.5" />} title="2 · Build your army">
+          <Section icon={<Plus className="w-3.5 h-3.5" />} title="2 · Build your deck">
             <p>
               Tap an empty slot{' '}
               <span className="inline-flex items-center justify-center w-5 h-5 rounded bg-[#0a0a0a] border border-[#222] align-middle" aria-hidden="true">
                 <Plus className="w-3 h-3 text-[#666]" />
               </span>{' '}
-              to add a creature, tap a portrait to replace it, drag cards{' '}
+              to add an orbo, tap a portrait to replace it, drag cards{' '}
               <GripVertical className="w-3 h-3 inline text-[#666]" aria-hidden="true" /> to reorder, and tap the{' '}
               <Star className="w-3 h-3 inline text-[#666]" aria-hidden="true" /> stars to cycle stages.
+            </p>
+            <p>
+              Filling in bulk: <b className="text-[#ededed]">Fill Empty</b> drops the picked orbo into
+              every open slot, and <b className="text-[#ededed]">Assign All</b> sets all eight slots to it.
             </p>
             <div className="pt-0.5">
               <p>Mistake? Every change is reversible:</p>
@@ -80,19 +93,23 @@ export const HelpModal = () => {
               <div style={{ width: '24%', backgroundColor: TIER_COLORS.common }} />
             </div>
             <p>
-              Each segment is one unit's share of your army DPS — including runt (weakest) and apex
-              (strongest) totem boosts. Hover or tap a segment to highlight that unit in the grid.
+              Each segment is one orbo's share of your deck's DPS — including runt (weakest) and apex
+              (strongest) totem boosts. Hover or tap a segment to highlight that orbo in the grid.
             </p>
           </Section>
 
           <Section icon={<Sparkles className="w-3.5 h-3.5" />} title="Tools">
             <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5">
               <b className="text-[#ededed] whitespace-nowrap">Explorer</b>
-              <span>simulate upgrades before spending gold.</span>
+              <span>explore and compare every orbo available in the game.</span>
+              <b className="text-[#ededed] whitespace-nowrap">Upgrade Path</b>
+              <span>the best next level-ups for your deck, in order, with their food cost.</span>
               <b className="text-[#ededed] whitespace-nowrap">Luck</b>
               <span>spawn rates and gold cost for every luck level.</span>
               <b className="text-[#ededed] whitespace-nowrap">Presets</b>
-              <span>save and load army + settings. Save turns into Update while a preset is loaded, so you always overwrite the right one.</span>
+              <span>save and load deck + settings. Save turns into Update while a preset is loaded, so you always overwrite the right one.</span>
+              <b className="text-[#ededed] whitespace-nowrap">Sync</b>
+              <span>export your setup as a code to back it up or share it, then import it any time.</span>
             </div>
           </Section>
 
