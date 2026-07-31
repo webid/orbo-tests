@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { RefreshCw, X, Copy, Check } from 'lucide-react';
+import { DownloadCloud, X, Copy, Upload } from 'lucide-react';
 import { useOrboStore } from '../store';
 
 export const SyncModal = () => {
@@ -14,90 +13,115 @@ export const SyncModal = () => {
   const setConfig = useOrboStore(s => s.setConfig);
   const setSlots = useOrboStore(s => s.setSlots);
 
-  const [error, setError] = useState(false);
-
   if (!syncModalOpen) return null;
 
   const exportData = () => {
-    const payload = { config, slots };
-    return btoa(encodeURIComponent(JSON.stringify(payload)));
+    try {
+      // Strip legacy manual % fields so exports only carry totemKeys.
+      const cleanConfig: any = { ...config };
+      delete cleanConfig.orboDamagePct;
+      delete cleanConfig.attackSpeedPct;
+      delete cleanConfig.energyMaxPct;
+      return btoa(encodeURIComponent(JSON.stringify({ config: cleanConfig, slots })));
+    } catch (e) {
+      return "";
+    }
+  };
+
+  const handleCopy = () => {
+    const data = exportData();
+    if (!data) return;
+    navigator.clipboard.writeText(data);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const handleImport = () => {
+    if (!syncInput.trim()) return;
     try {
-      const decoded = JSON.parse(decodeURIComponent(atob(syncInput.trim())));
-      if (decoded.config && decoded.slots) {
+      let decodedString = atob(syncInput.trim().replace(/\s/g, ''));
+      try {
+        decodedString = decodeURIComponent(decodedString);
+      } catch (e) {
+        // Fallback for legacy codes
+      }
+      const decoded = JSON.parse(decodedString);
+      // Backfill tap/totem modifier fields for save codes exported before they existed.
+      // Old codes carried manual % fields; those can't be mapped back to specific
+      // cards, so imports without totemKeys start with empty slots.
+      if (decoded.config) {
+        decoded.config.overchargeLevel = decoded.config.overchargeLevel ?? 0;
+        decoded.config.surgeLevel = decoded.config.surgeLevel ?? 0;
+        decoded.config.totemKeys = Array.isArray(decoded.config.totemKeys) && decoded.config.totemKeys.length === 3
+          ? decoded.config.totemKeys
+          : [null, null, null];
         decoded.config.luckLevel = decoded.config.luckLevel ?? null;
         decoded.config.totemImagesOn = decoded.config.totemImagesOn !== false;
+        delete decoded.config.orboDamagePct;
+        delete decoded.config.attackSpeedPct;
+        delete decoded.config.energyMaxPct;
+      }
+      if (decoded.config && decoded.slots) {
         setConfig(decoded.config);
         setSlots(decoded.slots);
         setSyncModalOpen(false);
         setSyncInput('');
-        setError(false);
       } else {
-        setError(true);
+        alert('Invalid save code format.');
       }
-    } catch (e) {
-      console.error(e);
-      setError(true);
+    } catch {
+      alert('Failed to parse save code. Please ensure it is copied correctly.');
     }
   };
 
   return (
-    <div onClick={() => setSyncModalOpen(false)} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-      <div onClick={e => e.stopPropagation()} className="bg-[#111] rounded-lg border border-[#222] w-full max-w-xl flex flex-col shadow-2xl">
-        <div className="p-4 border-b border-[#222] flex items-center justify-between">
-          <h2 className="text-sm font-medium flex items-center">
-            <RefreshCw className="w-4 h-4 mr-2 text-[#888]" />
-            Sync Setup
-          </h2>
-          <button onClick={() => setSyncModalOpen(false)} className="p-1.5 text-[#888] hover:text-[#ededed] bg-[#1a1a1a] hover:bg-[#222] rounded transition-colors">
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-        <div className="p-5 space-y-6">
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="text-[10px] font-semibold uppercase tracking-wider text-[#666]">Export Code</label>
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(exportData());
-                  setCopied(true);
-                  setTimeout(() => setCopied(false), 2000);
-                }}
-                className="flex items-center space-x-1 text-[10px] font-medium text-[#888] hover:text-[#ededed] transition-colors"
-              >
-                {copied ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
-                <span>{copied ? 'Copied' : 'Copy'}</span>
-              </button>
-            </div>
-            <textarea
-              readOnly
-              value={exportData()}
-              className="w-full h-24 bg-[#0a0a0a] border border-[#222] rounded-md p-3 font-mono text-[10px] text-[#888] focus:outline-none resize-none break-all"
-            />
-            <p className="text-[10px] text-[#666] leading-relaxed">
-              Share this code to let others import your exact army, boss and settings.
-            </p>
-          </div>
-          <div className="space-y-2">
-            <label className="text-[10px] font-semibold uppercase tracking-wider text-[#666]">Import Code</label>
-            <textarea
-              value={syncInput}
-              onChange={e => { setSyncInput(e.target.value); setError(false); }}
-              placeholder="Paste code here..."
-              className={`w-full h-24 bg-[#0a0a0a] border rounded-md p-3 font-mono text-[10px] text-[#ededed] focus:outline-none resize-none break-all transition-colors ${error ? 'border-red-500/50' : 'border-[#222] focus:border-[#444]'}`}
-            />
-            {error && <p className="text-[10px] text-red-500">Invalid code format.</p>}
-            <button
-              onClick={handleImport}
-              disabled={!syncInput.trim()}
-              className="w-full py-2.5 bg-[#ededed] hover:bg-white disabled:opacity-30 disabled:hover:bg-[#ededed] text-black text-[10px] uppercase tracking-wider font-semibold rounded transition-colors"
-            >
-              Import Setup
+    <div onClick={() => {setSyncModalOpen(false); setSyncInput('');}} className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+      <div onClick={e => e.stopPropagation()} className="bg-[#111] rounded-lg border border-[#222] w-full max-w-md flex flex-col shadow-2xl overflow-hidden relative">
+         <div className="p-4 border-b border-[#222] flex items-center justify-between">
+            <h2 className="text-sm font-medium flex items-center">
+               <DownloadCloud className="w-4 h-4 mr-2 text-[#888]" />
+               Sync Data
+            </h2>
+            <button onClick={() => {setSyncModalOpen(false); setSyncInput('');}} className="p-1.5 text-[#888] hover:text-[#ededed] bg-[#1a1a1a] hover:bg-[#222] rounded transition-colors">
+               <X className="w-4 h-4" />
             </button>
-          </div>
-        </div>
+         </div>
+         <div className="p-5 space-y-6">
+            <div>
+               <label className="text-[10px] font-semibold uppercase tracking-wider text-[#888] mb-2 block">Export Save Code</label>
+               <div className="flex space-x-2">
+                  <input
+                     type="text"
+                     readOnly
+                     value={exportData()}
+                     className="flex-1 bg-[#0a0a0a] border border-[#222] rounded p-2 text-xs font-mono text-[#666] focus:outline-none"
+                     onClick={e => e.currentTarget.select()}
+                  />
+                  <button onClick={handleCopy} className="px-3 py-2 bg-[#222] hover:bg-[#333] border border-[#333] rounded text-xs text-[#ededed] font-medium transition-colors flex items-center shrink-0">
+                     {copied ? "Copied!" : <><Copy className="w-3.5 h-3.5 mr-1.5" /> Copy</>}
+                  </button>
+               </div>
+               <p className="text-[10px] text-[#666] mt-2 leading-relaxed">Copy this code to load your army on another device.</p>
+            </div>
+
+            <div className="h-px w-full bg-[#222]" />
+
+            <div>
+               <label className="text-[10px] font-semibold uppercase tracking-wider text-[#888] mb-2 block">Import Save Code</label>
+               <div className="flex space-x-2">
+                  <input
+                     type="text"
+                     placeholder="Paste your code here..."
+                     value={syncInput}
+                     onChange={e => setSyncInput(e.target.value)}
+                     className="flex-1 bg-[#0a0a0a] border border-[#222] rounded p-2 text-xs font-mono text-[#ededed] focus:outline-none focus:border-[#444] transition-colors"
+                  />
+                  <button onClick={handleImport} className="px-3 py-2 bg-[#ededed] hover:bg-white border border-transparent rounded text-xs text-black font-medium transition-colors flex items-center shrink-0">
+                     <Upload className="w-3.5 h-3.5 mr-1" /> Import
+                  </button>
+               </div>
+            </div>
+         </div>
       </div>
     </div>
   );
