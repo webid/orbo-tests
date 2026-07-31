@@ -46,8 +46,9 @@ export const UpgradeSimulator = ({ results }: { results: CalcResults }) => {
       </div>
 
       {/* On large screens the two columns share a row height, so drop the
-          400px cap and let the plan stretch to fill the card (mobile keeps
-          the compact scrollable list). */}
+          400px cap; steps pack to the top and any leftover space falls after
+          the last step instead of spreading between them (mobile keeps the
+          compact scrollable list). */}
       <div className="flex-1 overflow-y-auto p-4 space-y-2 max-h-[400px] lg:max-h-none">
          {results.gap <= 0 ? (
             <div className="text-center py-10 flex flex-col items-center text-[#888] lg:flex-1 lg:justify-center">
@@ -66,7 +67,7 @@ export const UpgradeSimulator = ({ results }: { results: CalcResults }) => {
                  <p className="text-[10px] text-[#555] mb-3 px-1 leading-relaxed">
                    Each step is the <span className="text-[#888]">next best level-up</span>. Do one level at a time, the order will shift as your deck improves.
                  </p>
-                <div className="space-y-3 relative before:absolute before:top-4 before:bottom-4 before:left-[13px] before:w-px before:bg-[#333] pl-9 ml-1 lg:flex-1 lg:flex lg:flex-col lg:justify-between lg:space-y-0 lg:gap-3">
+                <div className="space-y-3 relative before:absolute before:top-4 before:bottom-4 before:left-[13px] before:w-px before:bg-[#333] pl-9 ml-1 lg:flex lg:flex-col lg:space-y-0 lg:gap-3">
                    {results.upgradePlan.map((step, idx) => {
                       const c = creaturesDict[step.creatureKey];
                        const nextLevel = step.details[0].level;
