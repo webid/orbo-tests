@@ -34,7 +34,9 @@ export const DpsBreakdown = () => {
 
   return (
     <div className="px-2 sm:px-3 pt-2 sm:pt-3">
-      <div className="flex h-2.5 w-full overflow-hidden rounded-full border border-[#222] bg-[#0a0a0a]">
+      {/* 2px gaps let the dark track show through, so same-tier neighbours
+          still read as separate units. */}
+      <div className="flex h-2.5 w-full gap-[2px] overflow-hidden rounded-full border border-[#222] bg-[#0a0a0a]">
         {segments.map(s => {
           const pct = (s.dps / total) * 100;
           return (
@@ -47,7 +49,20 @@ export const DpsBreakdown = () => {
           );
         })}
       </div>
-      <p className="text-[9px] font-mono text-[#555] mt-1">DPS share per unit — hover a segment for details</p>
+      {/* Legend: identifies each segment without needing to hover. */}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5">
+        {segments.map(s => {
+          const pct = (s.dps / total) * 100;
+          return (
+            <span key={s.idx} className="flex items-center text-[9px] font-mono text-[#888]">
+              <span className="w-2 h-2 rounded-full mr-1.5 shrink-0" style={{ backgroundColor: TIER_COLORS[s.tier] }} />
+              {s.name}
+              <span className="text-[#555] ml-1">{pct.toFixed(1)}%</span>
+            </span>
+          );
+        })}
+      </div>
+      <p className="text-[9px] font-mono text-[#555] mt-1">DPS share per unit — hover a segment for exact values</p>
     </div>
   );
 };
