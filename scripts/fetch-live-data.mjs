@@ -397,6 +397,8 @@ function buildExportCode(data) {
     overchargeLevel: state.overchargeLevel ?? 0,
     surgeLevel: state.surgeLevel ?? 0,
     totemKeys,
+    luckLevel: state.luckLevel ?? null,
+    totemImagesOn: true,
   };
 
   // Same encoding as the tool's exportData(): btoa(encodeURIComponent(JSON.stringify(...)))

@@ -222,6 +222,8 @@ type ConfigState = {
   overchargeLevel: number;
   surgeLevel: number;
   totemKeys: (string | null)[];
+  luckLevel?: number | null;
+  totemImagesOn?: boolean;
   // Legacy manual % fields (pre-totem-picker); kept only for old save/import compat.
   orboDamagePct?: number;
   attackSpeedPct?: number;
@@ -242,7 +244,9 @@ export default function App() {
         selectedBoss: null,
         overchargeLevel: 0,
         surgeLevel: 0,
-        totemKeys: [null, null, null]
+        totemKeys: [null, null, null],
+        luckLevel: null,
+        totemImagesOn: true
       };
     }
     if (typeof saved.clickPercent === 'number' && saved.clickPercent <= 1) {
@@ -297,8 +301,8 @@ export default function App() {
   const [luckModalOpen, setLuckModalOpen] = useState(false);
   const [tapModsOpen, setTapModsOpen] = useState(false);
   const [totemPickerSlot, setTotemPickerSlot] = useState<number | null>(null);
-  // Show/hide totem card art (session-only preference, not part of config/export).
-  const [totemImagesOn, setTotemImagesOn] = useState(false);
+  const totemImagesOn = config.totemImagesOn !== false; // default true
+  const setTotemImagesOn = (on: boolean) => setConfig((prev: any) => ({ ...prev, totemImagesOn: on }));
   const [explorerBase, setExplorerBase] = useState<string | null>(null);
   const [explorerCompare, setExplorerCompare] = useState<string | null>(null);
 
@@ -408,6 +412,8 @@ export default function App() {
         decoded.config.totemKeys = Array.isArray(decoded.config.totemKeys) && decoded.config.totemKeys.length === 3
           ? decoded.config.totemKeys
           : [null, null, null];
+        decoded.config.luckLevel = decoded.config.luckLevel ?? null;
+        decoded.config.totemImagesOn = decoded.config.totemImagesOn !== false;
         delete decoded.config.orboDamagePct;
         delete decoded.config.attackSpeedPct;
         delete decoded.config.energyMaxPct;
@@ -939,9 +945,26 @@ export default function App() {
                 <Sparkles className="w-4 h-4 mr-2 text-[#888]" />
                 Luck Table
               </h2>
-              <button onClick={() => setLuckModalOpen(false)} className="p-1.5 text-[#888] hover:text-[#ededed] bg-[#1a1a1a] hover:bg-[#222] rounded transition-colors">
-                <X className="w-4 h-4" />
-              </button>
+              <div className="flex items-center space-x-3">
+                <label className="flex items-center space-x-1.5 text-[10px] uppercase tracking-wider text-[#666]">
+                  <span>Your Lv</span>
+                  <input
+                    type="number"
+                    min={1}
+                    max={(luckData as any[]).length}
+                    value={config.luckLevel ?? ''}
+                    placeholder="—"
+                    onChange={e => {
+                      const v = e.target.value === '' ? null : Math.max(1, Math.min((luckData as any[]).length, parseInt(e.target.value) || 1));
+                      setConfig((prev: any) => ({ ...prev, luckLevel: v }));
+                    }}
+                    className="w-14 bg-[#0a0a0a] border border-[#333] rounded px-2 py-1 text-xs font-mono text-[#ededed] focus:outline-none focus:border-[#555] transition-colors text-center"
+                  />
+                </label>
+                <button onClick={() => setLuckModalOpen(false)} className="p-1.5 text-[#888] hover:text-[#ededed] bg-[#1a1a1a] hover:bg-[#222] rounded transition-colors">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
             {/* Description */}
@@ -974,15 +997,25 @@ export default function App() {
                 </thead>
                 <tbody>
                   {(() => {
+                    const allRows = luckData as any[];
+                    // When a luck level is set, trim the table to currentLevel-1 → max.
+                    const startLevel = config.luckLevel != null ? Math.max(1, config.luckLevel - 1) : 1;
+                    // Pre-compute cumulative cost for levels before the visible window.
                     let cumulative = 0;
-                    return (luckData as any[]).map((row: any, idx: number) => {
+                    for (const row of allRows) {
+                      if (row.level >= startLevel) break;
+                      cumulative += row.cost;
+                    }
+                    const visibleRows = allRows.filter((row: any) => row.level >= startLevel);
+                    return visibleRows.map((row: any, idx: number) => {
                       cumulative += row.cost;
                       const r = row.spawnRates;
                       const fmt = (v: number) => v === 0 ? <span className="text-[#333]">—</span> : v < 0.01 ? v.toFixed(4)+'%' : v < 0.1 ? v.toFixed(4)+'%' : v < 1 ? v.toFixed(2)+'%' : v.toFixed(1)+'%';
                       const isEven = idx % 2 === 0;
+                      const isCurrentLuck = config.luckLevel != null && row.level === config.luckLevel;
                       return (
-                        <tr key={row.level} className={`border-b border-[#1a1a1a] ${isEven ? 'bg-[#0a0a0a]' : 'bg-[#0d0d0d]'} hover:bg-[#141414] transition-colors`}>
-                          <td className={`sticky left-0 z-[1] px-3 py-2 font-mono font-semibold text-[#ededed] ${isEven ? 'bg-[#0a0a0a]' : 'bg-[#0d0d0d]'} border-r border-[#222]`}>{row.level}</td>
+                        <tr key={row.level} className={`border-b border-[#1a1a1a] ${isCurrentLuck ? 'bg-[#1a2a1a] ring-1 ring-inset ring-[#3a5a3a]' : isEven ? 'bg-[#0a0a0a]' : 'bg-[#0d0d0d]'} hover:bg-[#141414] transition-colors`}>
+                          <td className={`sticky left-0 z-[1] px-3 py-2 font-mono font-semibold ${isCurrentLuck ? 'text-[#7dde7d] bg-[#1a2a1a]' : 'text-[#ededed] ' + (isEven ? 'bg-[#0a0a0a]' : 'bg-[#0d0d0d]')} border-r border-[#222]`}>{row.level}{isCurrentLuck ? ' ◂' : ''}</td>
                           <td className="px-3 py-2 font-mono text-right text-[#888] whitespace-nowrap">
                             {row.cost === 0 ? <span className="text-[#444]">—</span> : compactNum(row.cost, 2)}
                           </td>
