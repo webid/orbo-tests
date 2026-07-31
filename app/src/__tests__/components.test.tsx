@@ -9,7 +9,8 @@ import { cleanup, fireEvent, render, screen, within } from '@testing-library/rea
 
 import App from '../App';
 import { normalizeConfig, useOrboStore } from '../store';
-import { bossesData, luckData } from '../data';
+import { bossesData, creaturesDict, luckData, totemsData } from '../data';
+import { getEquippedTotemEffects, getTotemMult } from '../utils';
 
 const resetStore = () => {
   localStorage.clear();
@@ -256,6 +257,38 @@ describe('preset bar', () => {
 
     expect(useOrboStore.getState().presets[1].name).toBe('Beta');
     expect(screen.getByText(/already named/)).toBeTruthy();
+  });
+});
+
+describe('dps breakdown bar', () => {
+  it('sizes segments by effective share incl. runt totem boost, with square corners', () => {
+    const runtTotem = totemsData.find(t => t.effects.some(e => e.key === 'runtOrboDamageMult'));
+    expect(runtTotem, 'fixture: a runt totem must exist in the data').toBeTruthy();
+    useOrboStore.getState().setConfig({ totemKeys: [runtTotem!.key, null, null] });
+    useOrboStore.getState().setSlots([
+      { creatureKey: 'archon', level: 1 },
+      { creatureKey: 'weasel', level: 1 },
+      ...Array.from({ length: 6 }, () => ({ creatureKey: null, level: 1 })),
+    ]);
+    render(<App />);
+
+    // Weasel (the runt) gets the totem's expected boost; Archon is untouched.
+    const effects = getEquippedTotemEffects([runtTotem!.key, null, null]);
+    const sum = (key: string) => effects.filter(e => e.key === key).reduce((a, e) => a + e.value, 0);
+    const runtExp = getTotemMult(effects, 'runtOrboDamageMult') *
+      (1 + sum('runtOrboCritChance') * sum('runtOrboCritMult'));
+    const weaselDps = creaturesDict['weasel'].levels[0].dps;
+    const archonDps = creaturesDict['archon'].levels[0].dps;
+    const expectedPct = (weaselDps * runtExp) / (archonDps + weaselDps * runtExp) * 100;
+
+    const seg = document.querySelector('[title^="Weasel:"]') as HTMLElement;
+    expect(seg).toBeTruthy();
+    expect(parseFloat(seg.style.width)).toBeCloseTo(expectedPct, 4);
+    expect(seg.getAttribute('title')).toContain('runt');
+    expect(document.body.textContent).toContain('incl. runt/apex totem boosts');
+
+    // Square corners: the track must not round its ends.
+    expect(seg.parentElement!.className).not.toContain('rounded');
   });
 });
 

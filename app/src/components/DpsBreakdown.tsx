@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { creaturesDict, TIER_COLORS } from '../data';
+import { getRuntApexBoosts } from '../calc';
 import { useOrboStore } from '../store';
 import type { TierKey } from '../types';
 
@@ -7,14 +8,17 @@ interface Segment {
   idx: number;
   name: string;
   tier: TierKey;
-  dps: number;
+  dps: number;            // effective DPS (base × runt/apex totem boost)
+  boost: string | null;   // tooltip tag, e.g. "runt ×2" / "apex ×2"
 }
 
 // Army DPS contribution bar: one segment per filled slot, width = % of the
-// total army DPS, color = tier color. Full-width by design, so it stays
-// readable on narrow screens.
+// total army DPS, color = tier color. Shares use effective DPS so runt/apex
+// totem passives (weakest/strongest unit boosts) show in the segment sizes.
+// Full-width by design, so it stays readable on narrow screens.
 export const DpsBreakdown = () => {
   const slots = useOrboStore(s => s.slots);
+  const totemKeys = useOrboStore(s => s.config.totemKeys);
   const highlightedSlot = useOrboStore(s => s.highlightedSlot);
   const setHighlightedSlot = useOrboStore(s => s.setHighlightedSlot);
 
@@ -26,26 +30,39 @@ export const DpsBreakdown = () => {
   });
 
   const { segments, total } = useMemo(() => {
+    const baseDps = slots.map(slot => {
+      if (!slot.creatureKey) return 0;
+      const c = creaturesDict[slot.creatureKey];
+      return c?.levels[slot.level - 1]?.dps || 0;
+    });
+    const { mults, runtIdx, apexIdx } = getRuntApexBoosts(totemKeys || [], baseDps);
     const segments: Segment[] = [];
     let total = 0;
     slots.forEach((slot, idx) => {
       if (!slot.creatureKey) return;
       const c = creaturesDict[slot.creatureKey];
-      const dps = c?.levels[slot.level - 1]?.dps || 0;
-      if (!c || dps <= 0) return;
-      segments.push({ idx, name: c.name, tier: c.tier, dps });
+      const base = baseDps[idx];
+      if (!c || base <= 0) return;
+      const dps = base * mults[idx];
+      const tags = [runtIdx === idx ? 'runt' : null, apexIdx === idx ? 'apex' : null].filter(Boolean);
+      const boost = tags.length
+        ? `${tags.join('+')} ×${mults[idx].toLocaleString(undefined, { maximumFractionDigits: 2 })}`
+        : null;
+      segments.push({ idx, name: c.name, tier: c.tier, dps, boost });
       total += dps;
     });
     return { segments, total };
-  }, [slots]);
+  }, [slots, totemKeys]);
 
   if (total <= 0) return null;
+  const boosted = segments.some(s => s.boost);
 
   return (
     <div className="px-2 sm:px-3 pt-2 sm:pt-2.5 pb-2.5 sm:pb-3 border-t border-[#222]">
       {/* 2px gaps let the dark track show through, so same-tier neighbours
-          still read as separate units. */}
-      <div className="flex h-2.5 w-full gap-[2px] overflow-hidden rounded-full border border-[#222] bg-[#0a0a0a]">
+          still read as separate units. Square corners keep the widths an
+          honest 1:1 map of the shares (no rounded-end foreshortening). */}
+      <div className="flex h-2.5 w-full gap-[2px] overflow-hidden border border-[#222] bg-[#0a0a0a]">
         {segments.map(s => {
           const pct = (s.dps / total) * 100;
           return (
@@ -54,7 +71,7 @@ export const DpsBreakdown = () => {
               {...hoverHandlers(s.idx)}
               className="h-full transition-all duration-300 hover:opacity-75"
               style={{ width: `${pct}%`, backgroundColor: TIER_COLORS[s.tier] }}
-              title={`${s.name}: ${pct.toFixed(1)}% (${s.dps.toLocaleString(undefined, { maximumFractionDigits: 1 })} DPS)`}
+              title={`${s.name}: ${pct.toFixed(1)}% (${s.dps.toLocaleString(undefined, { maximumFractionDigits: 1 })} DPS${s.boost ? ` · ${s.boost}` : ''})`}
             />
           );
         })}
@@ -72,7 +89,11 @@ export const DpsBreakdown = () => {
           );
         })}
       </div>
-      <p className="text-[9px] font-mono text-[#555] mt-1">DPS share per unit — hover a segment for exact values</p>
+      <p className="text-[9px] font-mono text-[#555] mt-1">
+        {boosted
+          ? 'DPS share per unit incl. runt/apex totem boosts — hover a segment for exact values'
+          : 'DPS share per unit — hover a segment for exact values'}
+      </p>
     </div>
   );
 };

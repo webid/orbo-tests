@@ -8,6 +8,44 @@ import { creaturesDict, tapConfig } from './data';
 import { getEquippedTotemEffects, getTotemMult } from './utils';
 import type { ArmySlotInfo, CalcResults, ConfigState, UpgradeHistory } from './types';
 
+// Runt/apex totem passives target single units: the runt boost hits the
+// weakest filled slot, the apex boost the strongest (a lone filled slot
+// counts as both; ties go to the earliest slot). Crit is probabilistic, so
+// each is modeled as an expected-value multiplier:
+// damageMult * (1 + critChance * critMultBonus).
+export interface RuntApexBoosts {
+  mults: number[];          // per-slot expected multiplier (1 = no boost)
+  runtIdx: number | null;   // slot receiving the runt boost (null = none)
+  apexIdx: number | null;   // slot receiving the apex boost (null = none)
+}
+
+export function getRuntApexBoosts(totemKeys: (string | null)[], slotDps: number[]): RuntApexBoosts {
+  const effects = getEquippedTotemEffects(totemKeys);
+  const sum = (key: string) => effects.filter(e => e.key === key).reduce((a, e) => a + e.value, 0);
+  const runtExpectedMult = getTotemMult(effects, 'runtOrboDamageMult') *
+    (1 + sum('runtOrboCritChance') * sum('runtOrboCritMult'));
+  const apexExpectedMult = getTotemMult(effects, 'apexOrboDamageMult') *
+    (1 + sum('apexOrboCritChance') * sum('apexOrboCritMult'));
+
+  const mults = slotDps.map(() => 1);
+  let runtIdx: number | null = null;
+  let apexIdx: number | null = null;
+  const filled = slotDps.map((dps, i) => ({ dps, i })).filter(s => s.dps > 0);
+  if (filled.length > 0 && (runtExpectedMult !== 1 || apexExpectedMult !== 1)) {
+    let minI = filled[0].i;
+    let maxI = filled[0].i;
+    for (const s of filled) {
+      if (s.dps < slotDps[minI]) minI = s.i;
+      if (s.dps > slotDps[maxI]) maxI = s.i;
+    }
+    mults[minI] *= runtExpectedMult;
+    mults[maxI] *= apexExpectedMult;
+    if (runtExpectedMult !== 1) runtIdx = minI;
+    if (apexExpectedMult !== 1) apexIdx = maxI;
+  }
+  return { mults, runtIdx, apexIdx };
+}
+
 export function calculateRequirements(config: ConfigState, slots: ArmySlotInfo[]): CalcResults {
   // Base DPS per slot (0 for empty); currentArmyDps is the plain sum.
   const slotDps = slots.map(slot => {
@@ -35,20 +73,11 @@ export function calculateRequirements(config: ConfigState, slots: ArmySlotInfo[]
   const energyRegenMult = getTotemMult(totemEffects, 'energyRegenMult');
   const freeTapChance = totemEffects.filter(e => e.key === 'freeTapChance').reduce((a, e) => a + e.value, 0);
 
-  // Runt/Apex/Tap-crit passives. Crit is probabilistic, so it is modeled as
-  // an expected-value multiplier: 1 + critChance * critMultBonus (the totem's
-  // crit-mult value is treated as the bonus damage multiplier applied on crit).
-  const runtDamageMult = getTotemMult(totemEffects, 'runtOrboDamageMult');
-  const runtCritChance = totemEffects.filter(e => e.key === 'runtOrboCritChance').reduce((a, e) => a + e.value, 0);
-  const runtCritMult = totemEffects.filter(e => e.key === 'runtOrboCritMult').reduce((a, e) => a + e.value, 0);
-  const apexDamageMult = getTotemMult(totemEffects, 'apexOrboDamageMult');
-  const apexCritChance = totemEffects.filter(e => e.key === 'apexOrboCritChance').reduce((a, e) => a + e.value, 0);
-  const apexCritMult = totemEffects.filter(e => e.key === 'apexOrboCritMult').reduce((a, e) => a + e.value, 0);
+  // Tap-crit passive (runt/apex live in getRuntApexBoosts). Crit is modeled
+  // as an expected-value multiplier: 1 + critChance * critMultBonus (the
+  // totem's crit-mult value is treated as the bonus damage on crit).
   const tapCritChance = totemEffects.filter(e => e.key === 'tapCritChance').reduce((a, e) => a + e.value, 0);
   const tapCritMultBonus = totemEffects.filter(e => e.key === 'tapCritMultBonus').reduce((a, e) => a + e.value, 0);
-
-  const runtExpectedMult = runtDamageMult * (1 + runtCritChance * runtCritMult);
-  const apexExpectedMult = apexDamageMult * (1 + apexCritChance * apexCritMult);
   const tapCritExpectedMult = 1 + tapCritChance * tapCritMultBonus;
 
   // Energy budget caps how many taps fit in a battle: starting energy pool
@@ -76,21 +105,8 @@ export function calculateRequirements(config: ConfigState, slots: ArmySlotInfo[]
   const currentTotalDps = adjustedCurrentArmyDps * speedMultiplier + (currentClickDps * effectiveMaxClicks / config.battleDuration);
 
   // --- Effective DPS with totem passives (runt / apex / tap crit) ---
-  // Runt boost applies to the weakest filled slot, apex boost to the
-  // strongest. With a single filled slot it counts as both. Base numbers
-  // above are intentionally left untouched; these are additive results.
-  const slotMults = slotDps.map(() => 1);
-  const filledIdx = slotDps.map((dps, i) => ({ dps, i })).filter(s => s.dps > 0);
-  if (filledIdx.length > 0 && (runtExpectedMult !== 1 || apexExpectedMult !== 1)) {
-    let minI = filledIdx[0].i;
-    let maxI = filledIdx[0].i;
-    for (const s of filledIdx) {
-      if (s.dps < slotDps[minI]) minI = s.i;
-      if (s.dps > slotDps[maxI]) maxI = s.i;
-    }
-    slotMults[minI] *= runtExpectedMult;
-    slotMults[maxI] *= apexExpectedMult;
-  }
+  // Base numbers above are intentionally left untouched; these are additive.
+  const { mults: slotMults } = getRuntApexBoosts(config.totemKeys || [], slotDps);
   const effectiveArmyDps = slotDps.reduce((total, dps, i) => total + dps * slotMults[i], 0);
   const effectiveAdjustedArmyDps = effectiveArmyDps * orboDamageMult;
   const effectiveClickDps = (effectiveAdjustedArmyDps * clickPctNum + config.clickFixed) * overchargeMultiplier * tapCritExpectedMult;
