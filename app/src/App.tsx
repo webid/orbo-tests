@@ -25,8 +25,6 @@ const TIER_COLORS: Record<string, string> = {
   voidBorn:   '#6b7280',
 };
 
-const getTierColor = (tier: string) => TIER_COLORS[tier] ?? '#444';
-
 type ArmySlotInfo = {
   creatureKey: string | null;
   level: number;
@@ -598,7 +596,7 @@ export default function App() {
                       <h3 className="text-xs font-semibold text-[#888] uppercase tracking-wider mb-3 border-b border-[#222] pb-1">{group.tier.replace(/([A-Z])/g, ' $1').trim()}</h3>
                       <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
                          {group.creatures.map(c => (
-                            <button key={c.key} onClick={() => assignCreature(c.key)} style={{ borderTop: `3px solid ${getTierColor(c.tier)}` }} className="group relative overflow-hidden bg-[#111] hover:bg-[#1a1a1a] border border-[#222] hover:border-[#444] p-3 rounded-md flex flex-col items-center text-center transition-colors">
+                            <button key={c.key} onClick={() => assignCreature(c.key)} className="group relative overflow-hidden bg-[#111] hover:bg-[#1a1a1a] border border-[#222] hover:border-[#444] p-3 rounded-md flex flex-col items-center text-center transition-colors">
                                <img
                                   src={`https://playorbo.fun/game/spawn/rarity-bgs/${c.tier}.png`}
                                   className="absolute inset-0 w-full h-full object-cover opacity-25 pointer-events-none"
@@ -608,8 +606,7 @@ export default function App() {
                                   <img src={getCreatureImageUrl(c)} alt={c.name} className="w-full h-full object-cover" />
                                </div>
                                <p className="relative z-10 font-medium text-[11px] text-[#ededed] leading-tight mb-1">{c.name}</p>
-                               <span className="relative z-10 text-[10px] text-[#666] mt-0.5">{compactNum(getCreatureMaxDps(c))} dps</span>
-                               <p className="relative z-10 text-[9px] text-[#666] capitalize">{c.tier.replace(/([A-Z])/g, ' $1').trim()}</p>
+                               <span className="relative z-10 text-[10px] text-[#ccc] mt-0.5 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">{compactNum(getCreatureMaxDps(c))} dps</span>
                             </button>
                          ))}
                       </div>
@@ -1384,7 +1381,6 @@ export default function App() {
                               setDraggedIndex(null);
                            }}
                            className={`bg-[#0a0a0a] border border-[#222] rounded-md flex flex-col relative group overflow-hidden transition-all hover:border-[#444] ${isAssigned ? 'cursor-grab active:cursor-grabbing' : ''} ${draggedIndex === idx ? 'opacity-40 border-dashed scale-95' : ''}`}
-                           style={isAssigned && c ? { borderTop: `3px solid ${getTierColor(c.tier)}` } : undefined}
                         >
                            {/* Rarity background (empty.png for vacant slots) */}
                            <img
@@ -1432,6 +1428,7 @@ export default function App() {
                                     <p className="text-[8.5px] text-[#888] font-mono mt-0.5 truncate leading-tight">
                                       {dps.toLocaleString(undefined, { maximumFractionDigits: 1 })} DPS
                                     </p>
+                                    <span className="text-[9px] uppercase tracking-wider text-[#aaa] drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] mt-0.5 truncate w-full">{c.tier.replace(/([A-Z])/g, ' $1').trim()}</span>
                                  </button>
                               </>
                            ) : (
