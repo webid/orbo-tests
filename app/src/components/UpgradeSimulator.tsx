@@ -45,25 +45,28 @@ export const UpgradeSimulator = ({ results }: { results: CalcResults }) => {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-2 max-h-[400px]">
+      {/* On large screens the two columns share a row height, so drop the
+          400px cap and let the plan stretch to fill the card (mobile keeps
+          the compact scrollable list). */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-2 max-h-[400px] lg:max-h-none">
          {results.gap <= 0 ? (
-            <div className="text-center py-10 flex flex-col items-center text-[#888]">
+            <div className="text-center py-10 flex flex-col items-center text-[#888] lg:flex-1 lg:justify-center">
                <Zap className="w-8 h-8 mb-3 opacity-50" />
                <h4 className="text-sm font-medium text-[#ededed]">Target Achieved</h4>
                <p className="text-xs mt-1">Boss defeated in {config.battleDuration}s.</p>
             </div>
          ) : results.upgradePlan.length === 0 ? (
-            <div className="text-center py-10 flex flex-col items-center text-[#888]">
+            <div className="text-center py-10 flex flex-col items-center text-[#888] lg:flex-1 lg:justify-center">
                <Skull className="w-8 h-8 mb-3 opacity-50" />
                <h4 className="text-sm font-medium text-[#ededed]">Max Level Reached</h4>
                <p className="text-xs mt-1">Short by {results.remainingGap.toLocaleString(undefined, { maximumFractionDigits: 1 })} DPS.</p>
             </div>
          ) : (
-            <div>
+            <div className="lg:h-full lg:flex lg:flex-col">
                  <p className="text-[10px] text-[#555] mb-3 px-1 leading-relaxed">
                    Each step is the <span className="text-[#888]">next best level-up</span>. Do one level at a time, the order will shift as your army improves.
                  </p>
-                <div className="space-y-3 relative before:absolute before:top-4 before:bottom-4 before:left-[13px] before:w-px before:bg-[#333] pl-9 ml-1">
+                <div className="space-y-3 relative before:absolute before:top-4 before:bottom-4 before:left-[13px] before:w-px before:bg-[#333] pl-9 ml-1 lg:flex-1 lg:flex lg:flex-col lg:justify-between lg:space-y-0 lg:gap-3">
                    {results.upgradePlan.map((step, idx) => {
                       const c = creaturesDict[step.creatureKey];
                        const nextLevel = step.details[0].level;
