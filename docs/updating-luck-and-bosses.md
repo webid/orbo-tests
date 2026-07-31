@@ -13,7 +13,7 @@ Both are derived from constants in the game's bundled JS. When the game updates 
 
 ## Where to Find the Source Values
 
-Open the game's main JS bundle and search for `luckUpgradeCosts`. The relevant block looks like:
+Open the game's config chunk (as of July 2026: `_next/static/chunks/1373-ce9979a82a0f7fcb.js`) and search for `luckUpgradeCosts`. The relevant block looks like:
 
 ```js
 luckUpgradeCosts: [60, 100, 250, ...],
@@ -29,6 +29,8 @@ baseTimerSeconds: 30,
 ```
 
 For spawn rates, search for `spawnRateMilestones` and `tierUnlockLevels`.
+
+As of the July 2026 refresh all of these constants are unchanged (`luckUpgradeCosts`, `luckCostScale` 1.18, `minDpsMilestones`, `minDpsFallbackMultiplier` 1.4, `baseTimerSeconds` 30, `floorsPerBoss` 10) — both JSONs were verified against them. Note: the game raised `luckMaxLevel` to 1000, but `spawnRateMilestones` still stop at level 99, so the tool's table intentionally stays at 99 levels.
 
 ---
 
@@ -142,6 +144,12 @@ Boss 18: round(110000 × 1.4^5) = round(591606.399…) = 591606 → × 30 = 17,7
 ### Other Boss Fields
 
 The `minDps`, `timer`, `gold`, and `rocks` fields in the JSON are not currently used by the tool's calculator — only `hp` matters. They can be left as-is or updated separately if needed.
+
+### Biomes (`biome` / `biomeName` fields)
+
+The game cycles through **60 biome entries**: 30 base biomes in order, then the same 30 reversed with an `inverted` flag (displayed as "Inverted …"). Boss N uses cycle entry N−1, so bosses 1–30 get the base list and bosses 31–60 get the reversed, inverted list. The base order (keys, from the depths biome chunk — `2953-*.js` as of July 2026): grasslands, crystalcave, mushroomgrotto, icecavern, volcanic, ancientruins, shadowdepths, goldentreasury, abyssal, celestial, prismaticreef, clockworkdepths, petrifiedforest, stormcitadel, bioluminescentabyss, forgottenlibrary, mirrorrealm, gardenofeternity, astralrift, theorigin, fracturedcosmos, solarforge, voidbloom, obsidiancathedral, aurorawastes, ashennecropolis, thedreaming, entropysend, empyrean, theabsolute.
+
+In `orbo-bosses.json`, inverted bosses keep the **base** biome key (so image URLs keep resolving) and prefix `biomeName` with `"Inverted "`.
 
 ---
 

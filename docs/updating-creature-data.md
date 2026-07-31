@@ -9,7 +9,7 @@ The root-level copy was removed — only `app/src` matters.
 
 ### 1. Paste new game data
 
-Open **`scripts/new-game-data.txt`** and replace its contents with the raw creature arrays copied from the game JS — exactly as they appear, without any cleanup:
+Find the creature arrays in the game's bundled JS (as of July 2026: `_next/static/chunks/451-0752ded5df7671f9.js`, the `let o = [...]` statement with one array per tier). Open **`scripts/new-game-data.txt`** and replace its contents with the raw creature arrays copied from the game JS — exactly as they appear, without any cleanup:
 
 ```
 [{
@@ -24,7 +24,7 @@ Open **`scripts/new-game-data.txt`** and replace its contents with the raw creat
 , a = [{ ... }]
 ```
 
-The script handles the `, varName = [...]` format automatically — all tiers are parsed and merged.
+The script handles the `, varName = [...]` format automatically — all tiers are parsed and merged. Only paste the 11 tier arrays; stop before the combined `b = [...o, ...a, ...]` array that follows them.
 
 ### 2. Run the script
 
@@ -34,31 +34,32 @@ node scripts/update-creatures.js
 
 ### 3. Review the output
 
-The script reports three things:
+The script reports:
 
 | Section | What it means |
 |---|---|
-| `New creatures` | Keys not yet in the JSON — will be generated and added |
-| `Changed creatures` | Existing creatures whose `dpsMultiplier` changed — DPS levels recalculated |
+| `New creatures` | Keys not yet in the JSON — generated and added |
+| `Changed creatures` | Existing creatures whose `dpsMultiplier` changed |
 | `Bio backfills` | Existing creatures that were missing a bio — filled in |
+| `Level-data diffs` | Creatures whose regenerated levels differ from what was stored |
 
 Example output:
 ```
 Existing creatures : 158
-Input creatures    : 172
+Input creatures    : 182
 
-── New creatures (3) ───────────────────────────────────────
-  + scarce/eagle  (mult: 1.06)
-  + mythic/zodiac-crane  (mult: 0.9)
-  + esoteric/ash-hound  (mult: 1.15)
+── New creatures ─────────────────────────────────────────────────────────
+  + voidBorn/void-hound  (mult: 1.2)
 
 ── Changed creatures ─────────────────────────────────────────────────────
-  ~ boar: mult 0.5 → 0.55  (L1 dps 4.4 → 4.84)
+  ~ abyss-walker: mult 0.5 → 1.2  (L1 dps 29553.98 → 70929.54)
 
-Multiplier updates : 1
-Bio backfills      : 0
-Total creatures    : 161
-Validation         : ✓ all creatures have 80 levels and 3 evolutions
+New creatures      : 24
+Multiplier updates : 6
+Bio backfills      : 93
+Level-data diffs   : 54 (creatures whose regenerated levels differ from stored)
+Total creatures    : 182
+Validation         : ✓ all creatures have 80 levels, 3 evolutions (21/41/61), increasing dps
 
 ✓ Written to app/src/orbo-creatures.json
 ```
@@ -71,35 +72,48 @@ After running, you can leave `new-game-data.js` as-is (the script ignores unchan
 
 ## How Values Are Calculated
 
+All 80 levels are regenerated from the exact game formulas (verified against the live bundle, July 2026). Tier index runs 0–10 in order: common, uncommon, scarce, rare, esoteric, mythic, relic, untouched, phaseBound, lightSworn, voidBorn.
+
+### Level Model
+
+As of the July 2026 refresh the live bundle confirms **80 levels, 4 stages of 20, evolutions at 21/41/61** (`maxLevel: 80`, `levelsPerStage: 20` in the config chunk). An earlier analysis claimed a move to 100 levels / 25 per stage — that was disproven against the live bundle.
+
 ### Food Costs
 
-Food costs are **identical for all creatures of the same tier** and are copied directly from the tier template. They grow ~×1.25 per level. Evolution levels (21, 41, 61) carry an extra `evolveFoodCost = foodCost × 2`.
+Food costs are identical for all creatures of the same tier:
+
+```
+foodCost(level, tier) = floor(35 × 1.25^(level−1) × 3.5^tier)
+```
+
+Evolution levels (21, 41, 61) carry an extra `evolveFoodCost = foodCost × 2`.
 
 ### DPS
 
-DPS scales linearly with `dpsMultiplier`. For a new creature `N` using tier template `T`:
+```
+tierBaseDps(tier) = round(1.82 × 3^tier) × 0.55
+bonus(level)      = 1 + (level−1) × 0.25 + evolution bonuses for completed stages
+                    (stages give +2.25 / +6.0 / +12.25, from evolveDpsMultipliers [10, 25, 50]: 0.25 × (mult − 1))
+dps(level)        = round(tierBaseDps × dpsMultiplier × bonus(level) × 100) / 100
+```
 
-```
-newDps[level] = templateDps[level] × (N.dpsMultiplier / T.baseDpsMultiplier)
-```
+**Rounding detail**: the game rounds `1.82 × 3^tier` to an integer **before** applying the global `allDps` multiplier 0.55. This is why the base DPS values below are not an exact ×3 progression (e.g. 8.80, not 9.90).
 
 ### Base DPS Reference (L1, multiplier = 1.0)
 
-| Tier | ~L1 DPS |
+| Tier | L1 DPS |
 |---|---|
 | common | 1.10 |
 | uncommon | 2.75 |
 | scarce | 8.80 |
 | rare | 26.95 |
-| esoteric | 80.86 |
+| esoteric | 80.85 |
 | mythic | 243.10 |
 | relic | 729.85 |
-| untouched | 2,189 |
-| phaseBound | 6,567 |
-| lightSworn | 19,703 |
-| voidBorn | 59,108 |
-
-Each tier is roughly **×3** the previous.
+| untouched | 2,189.00 |
+| phaseBound | 6,567.55 |
+| lightSworn | 19,702.65 |
+| voidBorn | 59,107.95 |
 
 ---
 
