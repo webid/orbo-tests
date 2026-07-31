@@ -1,0 +1,16 @@
+{
+  "maxEnergy": 50,
+  "energyPerTap": 1.5,
+  "energyRegenPerSecond": 2.5,
+  "overcharge": {
+    "maxLevel": 4,
+    "costs": [3000, 12000, 40000, 120000],
+    "multiplierPerLevel": 0.5,
+    "baseMultiplier": 1.5
+  },
+  "surge": {
+    "maxLevel": 3,
+    "costs": [500000, 1200000, 1800000],
+    "burstPercent": [40, 60, 100]
+  }
+}

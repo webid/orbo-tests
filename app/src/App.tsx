@@ -4,11 +4,28 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import creaturesData from './orbo-creatures.json';
 import bossesData from './orbo-bosses.json';
 import luckData from './orbo-luck.json';
+import ringsData from './orbo-rings.json';
+import tapConfig from './orbo-tap-config.json';
 
 const creaturesDict = creaturesData.reduce((acc, c) => {
   acc[c.key] = c;
   return acc;
 }, {} as Record<string, any>);
+
+const ringsDict = ringsData.reduce((acc, r) => {
+  acc[r.key] = r;
+  return acc;
+}, {} as Record<string, any>);
+
+const RING_RARITY_ORDER = ['common', 'uncommon', 'rare', 'epic', 'legendary'];
+
+const RING_RARITY_COLORS: Record<string, string> = {
+  common:    '#9ca3af',
+  uncommon:  '#22c55e',
+  rare:      '#3b82f6',
+  epic:      '#a855f7',
+  legendary: '#eab308',
+};
 
 const TIER_COLORS: Record<string, string> = {
   common:     '#9ca3af',
@@ -107,7 +124,12 @@ export default function App() {
         battleDuration: 30,
         maxClicks: 82,
         bossNumber: 11,
-        selectedBoss: null
+        selectedBoss: null,
+        ringKey: null,
+        overchargeLevel: 0,
+        orboDamagePct: 0,
+        attackSpeedPct: 0,
+        energyMaxPct: 0
       };
     }
     if (typeof saved.clickPercent === 'number' && saved.clickPercent <= 1) {
@@ -124,6 +146,12 @@ export default function App() {
         saved.battleDuration = match.timer;
       }
     }
+    // Backfill tap/totem modifier fields for configs saved before they existed.
+    saved.ringKey = saved.ringKey ?? null;
+    saved.overchargeLevel = saved.overchargeLevel ?? 0;
+    saved.orboDamagePct = saved.orboDamagePct ?? 0;
+    saved.attackSpeedPct = saved.attackSpeedPct ?? 0;
+    saved.energyMaxPct = saved.energyMaxPct ?? 0;
     return saved;
   });
 
@@ -149,6 +177,7 @@ export default function App() {
   const [expandedSteps, setExpandedSteps] = useState<Record<number, boolean>>({});
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [luckModalOpen, setLuckModalOpen] = useState(false);
+  const [tapModsOpen, setTapModsOpen] = useState(false);
   const [explorerBase, setExplorerBase] = useState<string | null>(null);
   const [explorerCompare, setExplorerCompare] = useState<string | null>(null);
 
@@ -267,13 +296,37 @@ export default function App() {
     const clickPctNum = (parseFloat(config.clickPercent) || 0) / 100;
     
     const targetTotalDps = config.bossEnergy / config.battleDuration;
-    
-    const requiredArmyDps = (config.bossEnergy - (config.clickFixed * config.maxClicks)) / 
-                            (config.battleDuration + (clickPctNum * config.maxClicks));
+
+    // --- Tap & totem modifiers ---
+    const ring = config.ringKey ? ringsDict[config.ringKey] : null;
+    const ringFlat = ring?.flatDamage ?? 0;
+    const ringOrboMult = ring?.orboDpsMultiplier ?? 0;
+    // Overcharge L0 = 1x (off); each level adds 0.5x to both tap damage and energy cost.
+    const overchargeMultiplier = 1 + (config.overchargeLevel || 0) * tapConfig.overcharge.multiplierPerLevel;
+    const orboDamageMult = (config.orboDamagePct || 0) / 100;
+    const speedMultiplier = 1 + (config.attackSpeedPct || 0) / 100;
+    const energyMaxMult = (config.energyMaxPct || 0) / 100;
+
+    // Energy budget caps how many taps fit in a battle: starting energy pool
+    // (boosted by totems) plus regen over the fight, divided by cost per tap
+    // (scaled up by overcharge). Default: (50 + 2.5*30) / 1.5 = 83 clicks.
+    const adjustedEnergyPerTap = tapConfig.energyPerTap * overchargeMultiplier;
+    const adjustedMaxEnergy = tapConfig.maxEnergy * (1 + energyMaxMult);
+    const energyBasedMaxClicks = Math.floor((adjustedMaxEnergy + tapConfig.energyRegenPerSecond * config.battleDuration) / adjustedEnergyPerTap);
+    const effectiveMaxClicks = Math.min(config.maxClicks, energyBasedMaxClicks);
+
+    // Solve for adjusted army DPS `D` (after orboDamageMult) in:
+    // D * speed * duration + (D * (clickPct + ringOrbo%) + clickFixed + ringFlat) * overcharge * clicks = bossEnergy
+    const clickScale = overchargeMultiplier * effectiveMaxClicks;
+    const adjustedRequiredDps = (config.bossEnergy - (config.clickFixed + ringFlat) * clickScale) /
+                                (config.battleDuration * speedMultiplier + (clickPctNum + ringOrboMult) * clickScale);
+    // Divide back out the totem damage boost to get base army DPS (comparable to slot DPS sums).
+    const requiredArmyDps = adjustedRequiredDps / (1 + orboDamageMult);
     
     const gap = requiredArmyDps - currentArmyDps;
-    const currentClickDps = (currentArmyDps * clickPctNum) + config.clickFixed;
-    const currentTotalDps = currentArmyDps + (currentClickDps * config.maxClicks / config.battleDuration);
+    const adjustedCurrentArmyDps = currentArmyDps * (1 + orboDamageMult);
+    const currentClickDps = (adjustedCurrentArmyDps * (clickPctNum + ringOrboMult) + config.clickFixed + ringFlat) * overchargeMultiplier;
+    const currentTotalDps = adjustedCurrentArmyDps * speedMultiplier + (currentClickDps * effectiveMaxClicks / config.battleDuration);
 
     let remainingGap = gap;
     let simulatedSlots = slots.map(s => ({ ...s }));
@@ -361,6 +414,8 @@ export default function App() {
       remainingGap,
       currentArmyDps,
       currentTotalDps,
+      effectiveMaxClicks,
+      overchargeMultiplier,
       upgradePlan: history,
       totalFoodCost: totalCost
     };
@@ -503,7 +558,7 @@ export default function App() {
                      setBossSearch('');
                   }} className={`group cursor-pointer bg-[#111] hover:bg-[#1a1a1a] border flex flex-col items-center justify-between text-center transition-colors shadow-sm p-4 rounded-xl h-full ${config.bossNumber === b.bossNumber ? 'border-[#888]' : 'border-[#222] hover:border-[#444]'}`}>
                      <div className="w-full h-14 flex items-center justify-center shrink-0 mb-2">
-                        <img src={`https://orbo.tnkrshd.com/bosses/${b.biome}.png`} alt={b.biomeName} onError={e => { (e.target as HTMLImageElement).style.visibility = 'hidden'; }} className="max-w-[85%] max-h-full object-contain drop-shadow-md" />
+                        <img src={`https://playorbo.fun/depths/map/biomes/${b.biome}.webp`} alt={b.biomeName} onError={e => { (e.target as HTMLImageElement).style.visibility = 'hidden'; }} className="max-w-[85%] max-h-full object-contain drop-shadow-md" />
                      </div>
                      <div className="flex flex-col items-center w-full mt-auto">
                         <p className="font-semibold text-[11px] text-[#ededed] leading-tight mb-1">{b.biomeName}</p>
@@ -1135,7 +1190,7 @@ export default function App() {
                    <button onClick={() => setBossModalOpen(true)} className="w-full bg-[#0a0a0a] border border-[#222] hover:border-[#444] rounded-md p-3 flex items-center justify-between transition-colors text-left group">
                       <div className="flex items-center">
                          <div className="w-10 h-10 rounded overflow-hidden border border-[#333] bg-[#1a1a1a] shrink-0 mr-3">
-                            <img src={config.bossNumber ? `https://orbo.tnkrshd.com/bosses/${bossesData.find(b => b.bossNumber === config.bossNumber)?.biome}.png` : 'https://orbo.tnkrshd.com/bosses/grasslands.png'} alt="" onError={e => { (e.target as HTMLImageElement).style.visibility = 'hidden'; }} className="w-full h-full object-cover scale-[1.15]" />
+                            <img src={config.bossNumber ? `https://playorbo.fun/depths/map/biomes/${bossesData.find(b => b.bossNumber === config.bossNumber)?.biome}.webp` : 'https://playorbo.fun/depths/map/biomes/grasslands.webp'} alt="" onError={e => { (e.target as HTMLImageElement).style.visibility = 'hidden'; }} className="w-full h-full object-cover scale-[1.15]" />
                          </div>
                          <div>
                             <p className="text-sm font-medium text-[#ededed] group-hover:text-white transition-colors">{config.bossNumber ? `Floor ${bossesData.find(b => b.bossNumber === config.bossNumber)?.floor} - ${bossesData.find(b => b.bossNumber === config.bossNumber)?.biomeName}` : 'Custom Boss'}</p>
@@ -1178,6 +1233,102 @@ export default function App() {
                    />
                 </div>
               </div>
+            </div>
+
+            {/* Tap & Totem Modifiers */}
+            <div className="bg-[#111] rounded-lg border border-[#222]">
+              <button onClick={() => setTapModsOpen(prev => !prev)} className="w-full p-3.5 flex items-center justify-between group">
+                <h2 className="text-xs uppercase tracking-wider font-semibold text-[#888] flex items-center">
+                  <Zap className="w-3.5 h-3.5 mr-2" />
+                  Tap &amp; Totem Modifiers
+                </h2>
+                <div className="flex items-center space-x-2">
+                  {(config.ringKey || config.overchargeLevel > 0 || config.orboDamagePct > 0 || config.attackSpeedPct > 0 || config.energyMaxPct > 0) && (
+                    <span className="text-[9px] uppercase tracking-wide font-medium px-1.5 py-0.5 rounded bg-[#222] text-emerald-500/80">Active</span>
+                  )}
+                  {tapModsOpen ? <ChevronDown className="w-4 h-4 text-[#444] group-hover:text-[#888] transition-colors" /> : <ChevronRight className="w-4 h-4 text-[#444] group-hover:text-[#888] transition-colors" />}
+                </div>
+              </button>
+              {tapModsOpen && (
+                <div className="p-5 pt-1 space-y-4 border-t border-[#222]">
+                  <div className="grid grid-cols-2 gap-4 pt-3">
+                    <div className="flex flex-col space-y-1.5">
+                      <label className="text-[10px] font-semibold uppercase tracking-wider text-[#666]">Equipped Ring</label>
+                      <select
+                        value={config.ringKey ?? ''}
+                        onChange={e => setConfig((prev: any) => ({ ...prev, ringKey: e.target.value || null }))}
+                        className="w-full bg-[#0a0a0a] border border-[#222] rounded-md py-1.5 px-2.5 font-mono text-sm text-[#ededed] focus:outline-none focus:border-[#444] transition-colors appearance-none"
+                      >
+                        <option value="">None</option>
+                        {RING_RARITY_ORDER.map(rarity => (
+                          <optgroup key={rarity} label={rarity.charAt(0).toUpperCase() + rarity.slice(1)}>
+                            {ringsData.filter(r => r.rarity === rarity).map(r => (
+                              <option key={r.key} value={r.key}>{r.name}</option>
+                            ))}
+                          </optgroup>
+                        ))}
+                      </select>
+                      {config.ringKey && ringsDict[config.ringKey] && (
+                        <p className="text-[10px] font-mono text-[#888]">
+                          <span style={{ color: RING_RARITY_COLORS[ringsDict[config.ringKey].rarity] ?? '#888' }}>{ringsDict[config.ringKey].rarity}</span>
+                          {' '}&middot; +{ringsDict[config.ringKey].flatDamage} dmg &middot; +{(ringsDict[config.ringKey].orboDpsMultiplier * 100).toLocaleString(undefined, { maximumFractionDigits: 1 })}% orbo DPS
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex flex-col space-y-1.5">
+                      <label className="text-[10px] font-semibold uppercase tracking-wider text-[#666]">Overcharge Level</label>
+                      <div className="flex items-center space-x-3 h-[34px]">
+                        <input
+                          type="range"
+                          min={0}
+                          max={tapConfig.overcharge.maxLevel}
+                          step={1}
+                          value={config.overchargeLevel}
+                          onChange={e => setConfig((prev: any) => ({ ...prev, overchargeLevel: parseInt(e.target.value) || 0 }))}
+                          className="flex-1 accent-[#ededed] cursor-pointer"
+                        />
+                        <span className="font-mono text-sm text-[#ededed] w-8 text-right">L{config.overchargeLevel}</span>
+                      </div>
+                      <p className="text-[10px] font-mono text-[#888]">
+                        {config.overchargeLevel > 0
+                          ? `${results.overchargeMultiplier}\u00d7 tap dmg \u00b7 ${(tapConfig.energyPerTap * results.overchargeMultiplier).toLocaleString(undefined, { maximumFractionDigits: 2 })} energy/tap`
+                          : 'off \u00b7 1.5 energy/tap'}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="h-px bg-[#222]" />
+                  <div className="grid grid-cols-3 gap-3">
+                    <InputRow
+                      label="Orbo Damage %"
+                      name="orboDamagePct"
+                      value={config.orboDamagePct}
+                      onChange={handleConfigChange}
+                      tooltip="Sum of totem orbo damage bonuses (e.g. a 1.1× card = 10)"
+                      tooltipAlign="left"
+                    />
+                    <InputRow
+                      label="Attack Speed %"
+                      name="attackSpeedPct"
+                      value={config.attackSpeedPct}
+                      onChange={handleConfigChange}
+                      tooltip="Sum of totem attack speed bonuses (e.g. a 1.2× card = 20)"
+                      tooltipAlign="center"
+                    />
+                    <InputRow
+                      label="Energy Max %"
+                      name="energyMaxPct"
+                      value={config.energyMaxPct}
+                      onChange={handleConfigChange}
+                      tooltip="Sum of totem max energy bonuses (e.g. a 1.2× card = 20)"
+                      tooltipAlign="right"
+                    />
+                  </div>
+                  <p className="text-[10px] font-mono text-[#666]">
+                    Effective clicks this battle: <span className="text-[#ededed]">{results.effectiveMaxClicks}</span>
+                    {results.effectiveMaxClicks < config.maxClicks && <span className="text-yellow-500/80"> (energy-limited, below your {config.maxClicks} max)</span>}
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Army Builder */}

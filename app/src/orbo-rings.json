@@ -1,0 +1,282 @@
+[
+  {
+    "key": "twig-loop",
+    "name": "Twig Loop",
+    "rarity": "common",
+    "flatDamage": 1,
+    "orboDpsMultiplier": 0
+  },
+  {
+    "key": "iron-loop",
+    "name": "Iron Loop",
+    "rarity": "common",
+    "flatDamage": 2,
+    "orboDpsMultiplier": 0
+  },
+  {
+    "key": "soot-ring",
+    "name": "Soot Ring",
+    "rarity": "common",
+    "flatDamage": 1,
+    "orboDpsMultiplier": 0
+  },
+  {
+    "key": "slag-band",
+    "name": "Slag Band",
+    "rarity": "common",
+    "flatDamage": 2,
+    "orboDpsMultiplier": 0
+  },
+  {
+    "key": "moss-ring",
+    "name": "Moss Ring",
+    "rarity": "common",
+    "flatDamage": 2,
+    "orboDpsMultiplier": 0
+  },
+  {
+    "key": "shell-band",
+    "name": "Shell Band",
+    "rarity": "common",
+    "flatDamage": 2,
+    "orboDpsMultiplier": 0
+  },
+  {
+    "key": "coral-loop",
+    "name": "Coral Loop",
+    "rarity": "common",
+    "flatDamage": 3,
+    "orboDpsMultiplier": 0
+  },
+  {
+    "key": "amber-band",
+    "name": "Amber Band",
+    "rarity": "common",
+    "flatDamage": 3,
+    "orboDpsMultiplier": 0
+  },
+  {
+    "key": "crude-band",
+    "name": "Crude Band",
+    "rarity": "common",
+    "flatDamage": 1,
+    "orboDpsMultiplier": 0
+  },
+  {
+    "key": "pebble-ring",
+    "name": "Pebble Ring",
+    "rarity": "common",
+    "flatDamage": 2,
+    "orboDpsMultiplier": 0
+  },
+  {
+    "key": "cracked-loop",
+    "name": "Cracked Loop",
+    "rarity": "common",
+    "flatDamage": 2,
+    "orboDpsMultiplier": 0
+  },
+  {
+    "key": "flint-ring",
+    "name": "Flint Ring",
+    "rarity": "common",
+    "flatDamage": 1,
+    "orboDpsMultiplier": 0
+  },
+  {
+    "key": "bone-loop",
+    "name": "Bone Loop",
+    "rarity": "common",
+    "flatDamage": 2,
+    "orboDpsMultiplier": 0
+  },
+  {
+    "key": "frost-band",
+    "name": "Frost Band",
+    "rarity": "uncommon",
+    "flatDamage": 4,
+    "orboDpsMultiplier": 0.005
+  },
+  {
+    "key": "fang-ring",
+    "name": "Fang Ring",
+    "rarity": "uncommon",
+    "flatDamage": 5,
+    "orboDpsMultiplier": 0.008
+  },
+  {
+    "key": "venom-ring",
+    "name": "Venom Ring",
+    "rarity": "uncommon",
+    "flatDamage": 4,
+    "orboDpsMultiplier": 0.01
+  },
+  {
+    "key": "storm-ring",
+    "name": "Storm Ring",
+    "rarity": "uncommon",
+    "flatDamage": 6,
+    "orboDpsMultiplier": 0.011
+  },
+  {
+    "key": "magma-band",
+    "name": "Magma Band",
+    "rarity": "uncommon",
+    "flatDamage": 7,
+    "orboDpsMultiplier": 0.015
+  },
+  {
+    "key": "copper-band",
+    "name": "Copper Band",
+    "rarity": "uncommon",
+    "flatDamage": 4,
+    "orboDpsMultiplier": 0.004
+  },
+  {
+    "key": "jade-ring",
+    "name": "Jade Ring",
+    "rarity": "uncommon",
+    "flatDamage": 4,
+    "orboDpsMultiplier": 0.006
+  },
+  {
+    "key": "rune-loop",
+    "name": "Rune Loop",
+    "rarity": "uncommon",
+    "flatDamage": 5,
+    "orboDpsMultiplier": 0.009
+  },
+  {
+    "key": "spike-band",
+    "name": "Spike Band",
+    "rarity": "uncommon",
+    "flatDamage": 6,
+    "orboDpsMultiplier": 0.012
+  },
+  {
+    "key": "phantom-band",
+    "name": "Phantom Band",
+    "rarity": "rare",
+    "flatDamage": 7,
+    "orboDpsMultiplier": 0.03
+  },
+  {
+    "key": "lunar-loop",
+    "name": "Lunar Loop",
+    "rarity": "rare",
+    "flatDamage": 5,
+    "orboDpsMultiplier": 0.035
+  },
+  {
+    "key": "rift-ring",
+    "name": "Rift Ring",
+    "rarity": "rare",
+    "flatDamage": 9,
+    "orboDpsMultiplier": 0.04
+  },
+  {
+    "key": "amp-ring",
+    "name": "Amp Ring",
+    "rarity": "rare",
+    "flatDamage": 6,
+    "orboDpsMultiplier": 0.03
+  },
+  {
+    "key": "chaos-band",
+    "name": "Chaos Band",
+    "rarity": "rare",
+    "flatDamage": 8,
+    "orboDpsMultiplier": 0.04
+  },
+  {
+    "key": "prism-ring",
+    "name": "Prism Ring",
+    "rarity": "rare",
+    "flatDamage": 4,
+    "orboDpsMultiplier": 0.04
+  },
+  {
+    "key": "echo-ring",
+    "name": "Echo Ring",
+    "rarity": "rare",
+    "flatDamage": 6,
+    "orboDpsMultiplier": 0.04
+  },
+  {
+    "key": "soul-band",
+    "name": "Soul Band",
+    "rarity": "epic",
+    "flatDamage": 0,
+    "orboDpsMultiplier": 0.09
+  },
+  {
+    "key": "oracle-ring",
+    "name": "Oracle Ring",
+    "rarity": "epic",
+    "flatDamage": 6,
+    "orboDpsMultiplier": 0.07
+  },
+  {
+    "key": "nexus-loop",
+    "name": "Nexus Loop",
+    "rarity": "epic",
+    "flatDamage": 8,
+    "orboDpsMultiplier": 0.08
+  },
+  {
+    "key": "judgement-band",
+    "name": "Judgement Band",
+    "rarity": "epic",
+    "flatDamage": 8,
+    "orboDpsMultiplier": 0.07
+  },
+  {
+    "key": "void-ring",
+    "name": "Void Ring",
+    "rarity": "epic",
+    "flatDamage": 0,
+    "orboDpsMultiplier": 0.08
+  },
+  {
+    "key": "focus-ring",
+    "name": "Focus Ring",
+    "rarity": "epic",
+    "flatDamage": 0,
+    "orboDpsMultiplier": 0.1
+  },
+  {
+    "key": "crown-loop",
+    "name": "Crown Loop",
+    "rarity": "legendary",
+    "flatDamage": 20,
+    "orboDpsMultiplier": 0.16
+  },
+  {
+    "key": "dragon-ring",
+    "name": "Dragon Ring",
+    "rarity": "legendary",
+    "flatDamage": 22,
+    "orboDpsMultiplier": 0.17
+  },
+  {
+    "key": "infinity-ring",
+    "name": "Infinity Ring",
+    "rarity": "legendary",
+    "flatDamage": 25,
+    "orboDpsMultiplier": 0.15
+  },
+  {
+    "key": "ember-ring",
+    "name": "Ember Ring",
+    "rarity": "legendary",
+    "flatDamage": 15,
+    "orboDpsMultiplier": 0.18
+  },
+  {
+    "key": "world-ring",
+    "name": "World Ring",
+    "rarity": "legendary",
+    "flatDamage": 18,
+    "orboDpsMultiplier": 0.19
+  }
+]
