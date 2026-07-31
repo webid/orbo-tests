@@ -168,8 +168,10 @@ function loadJsonSafe(rel) {
 
 const creaturesData = loadJsonSafe('app/src/orbo-creatures.json') ?? [];
 const ringsData = loadJsonSafe('app/src/orbo-rings.json') ?? [];
+const bossesData = loadJsonSafe('app/src/orbo-bosses.json') ?? [];
 const creaturesDict = Object.fromEntries(creaturesData.map((c) => [c.key, c]));
 const ringsDict = Object.fromEntries(ringsData.map((r) => [r.key, r]));
+const bossesByNumber = Object.fromEntries(bossesData.map((b) => [b.bossNumber, b]));
 
 // ---------------------------------------------------------------------------
 // Shared extraction helpers
@@ -361,15 +363,36 @@ function buildExportCode(data) {
   const orboDpsMultiplier = typeof cs.orboDpsMultiplier === 'number' ? cs.orboDpsMultiplier : 0.35;
   const flatBonus = typeof cs.flatBonus === 'number' ? cs.flatBonus : 57;
 
-  // Matches the App.tsx default config shape; boss fields keep tool defaults
-  // (boss choice is a planning input, not live account state).
+  // Resolve the player's current depth floor → target boss.
+  // Prefer depths API, fall back to overview/state.
+  const depthsFloors = data['game.depths.floors.state'];
+  const overview = data['game.player.stats.overview'];
+  const currentFloor = depthsFloors?.floor ?? overview?.floor ?? state.floor ?? null;
+  let bossNumber = 11; // fallback default
+  let bossEnergy = 2550000;
+  let battleDuration = 30;
+  if (currentFloor != null) {
+    const derived = Math.ceil(currentFloor / 10);
+    const boss = bossesByNumber[derived];
+    if (boss) {
+      bossNumber = boss.bossNumber;
+      bossEnergy = boss.hp;
+      battleDuration = boss.timer;
+      console.error(`  floor ${currentFloor} → boss ${bossNumber} (${boss.biomeName}, HP ${bossEnergy.toLocaleString('en-US')})`);
+    } else {
+      console.error(`  warning: floor ${currentFloor} → boss ${derived} not found in orbo-bosses.json, using default.`);
+    }
+  } else {
+    console.error('  warning: could not determine current floor, using default boss 11.');
+  }
+
   const config = {
     clickPercent: String(Math.round(orboDpsMultiplier * 100)),
     clickFixed: flatBonus,
-    bossEnergy: 2550000,
-    battleDuration: 30,
+    bossEnergy,
+    battleDuration,
     maxClicks: 82,
-    bossNumber: 11,
+    bossNumber,
     selectedBoss: null,
     overchargeLevel: state.overchargeLevel ?? 0,
     surgeLevel: state.surgeLevel ?? 0,
