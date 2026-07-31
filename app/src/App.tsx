@@ -5,6 +5,14 @@ import creaturesData from './orbo-creatures.json';
 import bossesData from './orbo-bosses.json';
 import luckData from './orbo-luck.json';
 import tapConfig from './orbo-tap-config.json';
+import totemsJson from './orbo-totems.json';
+
+const totemsData = totemsJson as any[];
+
+const totemsDict = totemsData.reduce((acc, t) => {
+  acc[t.key] = t;
+  return acc;
+}, {} as Record<string, any>);
 
 const creaturesDict = creaturesData.reduce((acc, c) => {
   acc[c.key] = c;
@@ -24,6 +32,86 @@ const TIER_COLORS: Record<string, string> = {
   lightSworn: '#fbbf24',
   voidBorn:   '#6b7280',
 };
+
+const TOTEM_TIER_COLORS: Record<number, string> = {
+  1: '#888',
+  2: '#6b9',
+  3: '#69f',
+  4: '#c6f',
+  5: '#fa5',
+  6: '#ff5',
+};
+
+// Lane display order inside each tier of the totem picker.
+const TOTEM_LANE_ORDER: Record<string, number> = {
+  power: 1,
+  energy: 2,
+  tap: 3,
+  economy: 4,
+  idle: 5,
+  descent: 6,
+  orb: 7,
+};
+
+// Effect metadata: label, whether the battle calc consumes it, how duplicates
+// stack ('mult' = multiply multipliers, 'add' = sum values) and display format.
+const TOTEM_EFFECT_INFO: Record<string, { label: string; battle: boolean; stack: 'mult' | 'add'; format: 'mult' | 'pct' | 'flat' | 'hours' }> = {
+  orboDamageMult:        { label: 'Orbo Damage',        battle: true,  stack: 'mult', format: 'mult' },
+  orboAttackSpeedMult:   { label: 'Attack Speed',       battle: true,  stack: 'mult', format: 'mult' },
+  energyMaxMult:         { label: 'Energy Max',         battle: true,  stack: 'mult', format: 'mult' },
+  energyRegenMult:       { label: 'Energy Regen',       battle: true,  stack: 'mult', format: 'mult' },
+  freeTapChance:         { label: 'Free Tap Chance',    battle: true,  stack: 'add',  format: 'pct' },
+  tapCritChance:         { label: 'Tap Crit Chance',    battle: false, stack: 'add',  format: 'pct' },
+  tapCritMultBonus:      { label: 'Tap Crit Mult',      battle: false, stack: 'add',  format: 'flat' },
+  apexOrboDamageMult:    { label: 'Apex Orbo Damage',   battle: false, stack: 'mult', format: 'mult' },
+  apexOrboCritChance:    { label: 'Apex Crit Chance',   battle: false, stack: 'add',  format: 'pct' },
+  apexOrboCritMult:      { label: 'Apex Crit Mult',     battle: false, stack: 'add',  format: 'flat' },
+  runtOrboDamageMult:    { label: 'Runt Orbo Damage',   battle: false, stack: 'mult', format: 'mult' },
+  runtOrboCritChance:    { label: 'Runt Crit Chance',   battle: false, stack: 'add',  format: 'pct' },
+  runtOrboCritMult:      { label: 'Runt Crit Mult',     battle: false, stack: 'add',  format: 'flat' },
+  rockCoinsMult:         { label: 'Rock Coins',         battle: false, stack: 'mult', format: 'mult' },
+  rockHpMult:            { label: 'Rock HP',            battle: false, stack: 'mult', format: 'mult' },
+  rockJackpotChance:     { label: 'Rock Jackpot',       battle: false, stack: 'add',  format: 'pct' },
+  energyPerRockBreak:    { label: 'Energy / Rock Break', battle: false, stack: 'add', format: 'flat' },
+  idleCoinsMult:         { label: 'Idle Coins',         battle: false, stack: 'mult', format: 'mult' },
+  idleCapHoursBonus:     { label: 'Idle Cap',           battle: false, stack: 'add',  format: 'hours' },
+  descendOrbsBonus:      { label: 'Descend Orbs',       battle: false, stack: 'add',  format: 'flat' },
+  descendCoinFlipPayout: { label: 'Coin Flip Payout',   battle: false, stack: 'add',  format: 'pct' },
+  doubleDescendChance:   { label: 'Double Descend',     battle: false, stack: 'add',  format: 'pct' },
+};
+
+const formatTotemEffectValue = (key: string, value: number) => {
+  const fmt = TOTEM_EFFECT_INFO[key]?.format || 'flat';
+  if (fmt === 'mult') {
+    const pct = Math.round((value - 1) * 1000) / 10;
+    return `${pct >= 0 ? '+' : ''}${pct}%`;
+  }
+  if (fmt === 'pct') return `+${Math.round(value * 1000) / 10}%`;
+  if (fmt === 'hours') return `+${value}h`;
+  return `+${value}`;
+};
+
+// One display line per card effect (handles 'rush' effects, which have no key).
+const formatTotemEffect = (e: any) => {
+  if (!e.key && e.rush) {
+    const rushLabel = e.rush === 'rockCoins' ? 'rock coins' : e.rush === 'rockHp' ? 'rock HP' : e.rush;
+    return `Rush: ${rushLabel} \u00d7${e.value} for ${e.rocks} rocks`;
+  }
+  return `${TOTEM_EFFECT_INFO[e.key]?.label || e.key} ${formatTotemEffectValue(e.key, e.value)}`;
+};
+
+// Keyed effects from the equipped totem cards. 'rush' effects are excluded —
+// they only apply during descent runs, never in boss battles.
+const getEquippedTotemEffects = (totemKeys: (string | null)[]) =>
+  (totemKeys || [])
+    .filter(Boolean)
+    .map(key => totemsDict[key as string])
+    .filter(Boolean)
+    .flatMap((t: any) => t.effects.filter((e: any) => e && e.key));
+
+// Multiplicative stack: totem values are direct multipliers (1.1, 1.5, 2.0).
+const getTotemMult = (effects: any[], effectKey: string) =>
+  effects.filter(e => e.key === effectKey).reduce((acc, e) => acc * e.value, 1);
 
 type ArmySlotInfo = {
   creatureKey: string | null;
@@ -95,8 +183,24 @@ const getCreatureImageUrl = (c: any, absoluteLevel?: number) => {
   return `https://orbo.shadow.club/orbos/${prefix}/${c.key}/${imgName}`;
 };
 
+type ConfigState = {
+  clickPercent: string;
+  clickFixed: number;
+  bossEnergy: number;
+  battleDuration: number;
+  maxClicks: number;
+  bossNumber?: number;
+  selectedBoss: string | null;
+  overchargeLevel: number;
+  totemKeys: (string | null)[];
+  // Legacy manual % fields (pre-totem-picker); kept only for old save/import compat.
+  orboDamagePct?: number;
+  attackSpeedPct?: number;
+  energyMaxPct?: number;
+};
+
 export default function App() {
-  const [config, setConfig] = useState(() => {
+  const [config, setConfig] = useState<ConfigState>(() => {
     let saved = loadState('orbo_config', null);
     if (!saved) {
       return {
@@ -108,9 +212,7 @@ export default function App() {
         bossNumber: 11,
         selectedBoss: null,
         overchargeLevel: 0,
-        orboDamagePct: 0,
-        attackSpeedPct: 0,
-        energyMaxPct: 0
+        totemKeys: [null, null, null]
       };
     }
     if (typeof saved.clickPercent === 'number' && saved.clickPercent <= 1) {
@@ -128,10 +230,15 @@ export default function App() {
       }
     }
     // Backfill tap/totem modifier fields for configs saved before they existed.
+    // Old manual % fields can't be reverse-mapped to specific cards, so configs
+    // saved before the totem picker start with empty slots.
     saved.overchargeLevel = saved.overchargeLevel ?? 0;
-    saved.orboDamagePct = saved.orboDamagePct ?? 0;
-    saved.attackSpeedPct = saved.attackSpeedPct ?? 0;
-    saved.energyMaxPct = saved.energyMaxPct ?? 0;
+    saved.totemKeys = Array.isArray(saved.totemKeys) && saved.totemKeys.length === 3
+      ? saved.totemKeys
+      : [null, null, null];
+    delete saved.orboDamagePct;
+    delete saved.attackSpeedPct;
+    delete saved.energyMaxPct;
     return saved;
   });
 
@@ -158,6 +265,7 @@ export default function App() {
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [luckModalOpen, setLuckModalOpen] = useState(false);
   const [tapModsOpen, setTapModsOpen] = useState(false);
+  const [totemPickerSlot, setTotemPickerSlot] = useState<number | null>(null);
   const [explorerBase, setExplorerBase] = useState<string | null>(null);
   const [explorerCompare, setExplorerCompare] = useState<string | null>(null);
 
@@ -218,6 +326,7 @@ export default function App() {
         setModalTarget(null);
         setSyncModalOpen(false);
         setLuckModalOpen(false);
+        setTotemPickerSlot(null);
         setExplorerBase(null);
         setExplorerCompare(null);
       }
@@ -228,7 +337,12 @@ export default function App() {
 
   const exportData = () => {
     try {
-      return btoa(encodeURIComponent(JSON.stringify({ config, slots })));
+      // Strip legacy manual % fields so exports only carry totemKeys.
+      const cleanConfig: any = { ...config };
+      delete cleanConfig.orboDamagePct;
+      delete cleanConfig.attackSpeedPct;
+      delete cleanConfig.energyMaxPct;
+      return btoa(encodeURIComponent(JSON.stringify({ config: cleanConfig, slots })));
     } catch (e) {
       return "";
     }
@@ -253,11 +367,16 @@ export default function App() {
       }
       const decoded = JSON.parse(decodedString);
       // Backfill tap/totem modifier fields for save codes exported before they existed.
+      // Old codes carried manual % fields; those can't be mapped back to specific
+      // cards, so imports without totemKeys start with empty slots.
       if (decoded.config) {
         decoded.config.overchargeLevel = decoded.config.overchargeLevel ?? 0;
-        decoded.config.orboDamagePct = decoded.config.orboDamagePct ?? 0;
-        decoded.config.attackSpeedPct = decoded.config.attackSpeedPct ?? 0;
-        decoded.config.energyMaxPct = decoded.config.energyMaxPct ?? 0;
+        decoded.config.totemKeys = Array.isArray(decoded.config.totemKeys) && decoded.config.totemKeys.length === 3
+          ? decoded.config.totemKeys
+          : [null, null, null];
+        delete decoded.config.orboDamagePct;
+        delete decoded.config.attackSpeedPct;
+        delete decoded.config.energyMaxPct;
       }
       if (decoded.config && decoded.slots) {
         setConfig(decoded.config);
@@ -289,16 +408,23 @@ export default function App() {
     // tapConfig.overcharge.baseMultiplier (1.5) documents the game's L1 value
     // but we model overcharge as a delta: 1 + level * 0.5 → L1=1.5, L4=3.0
     const overchargeMultiplier = 1 + (config.overchargeLevel || 0) * tapConfig.overcharge.multiplierPerLevel;
-    const orboDamageMult = (config.orboDamagePct || 0) / 100;
-    const speedMultiplier = 1 + (config.attackSpeedPct || 0) / 100;
-    const energyMaxMult = (config.energyMaxPct || 0) / 100;
+    // Aggregate effects from the 3 equipped totem cards. Multiplier effects
+    // stack multiplicatively; freeTapChance stacks additively.
+    const totemEffects = getEquippedTotemEffects(config.totemKeys || []);
+    const orboDamageMult = getTotemMult(totemEffects, 'orboDamageMult');
+    const speedMultiplier = getTotemMult(totemEffects, 'orboAttackSpeedMult');
+    const energyMaxMult = getTotemMult(totemEffects, 'energyMaxMult');
+    const energyRegenMult = getTotemMult(totemEffects, 'energyRegenMult');
+    const freeTapChance = totemEffects.filter((e: any) => e.key === 'freeTapChance').reduce((a: number, e: any) => a + e.value, 0);
 
     // Energy budget caps how many taps fit in a battle: starting energy pool
     // (boosted by totems) plus regen over the fight, divided by cost per tap
-    // (scaled up by overcharge). Default: (50 + 2.5*30) / 1.5 = 83 clicks.
-    const adjustedEnergyPerTap = tapConfig.energyPerTap * overchargeMultiplier;
-    const adjustedMaxEnergy = tapConfig.maxEnergy * (1 + energyMaxMult);
-    const energyBasedMaxClicks = Math.floor((adjustedMaxEnergy + tapConfig.energyRegenPerSecond * config.battleDuration) / adjustedEnergyPerTap);
+    // (scaled up by overcharge, discounted by free-tap chance).
+    // Default: (50 + 2.5*30) / 1.5 = 83 clicks.
+    const adjustedEnergyPerTap = tapConfig.energyPerTap * overchargeMultiplier * (1 - freeTapChance);
+    const adjustedMaxEnergy = tapConfig.maxEnergy * energyMaxMult;
+    const adjustedRegen = tapConfig.energyRegenPerSecond * energyRegenMult;
+    const energyBasedMaxClicks = Math.floor((adjustedMaxEnergy + adjustedRegen * config.battleDuration) / adjustedEnergyPerTap);
     const effectiveMaxClicks = Math.min(config.maxClicks, energyBasedMaxClicks);
 
     // Solve for adjusted army DPS `D` (after orboDamageMult) in:
@@ -308,10 +434,10 @@ export default function App() {
     const adjustedRequiredDps = (config.bossEnergy - config.clickFixed * clickScale) /
                                 (config.battleDuration * speedMultiplier + clickPctNum * clickScale);
     // Divide back out the totem damage boost to get base army DPS (comparable to slot DPS sums).
-    const requiredArmyDps = adjustedRequiredDps / (1 + orboDamageMult);
+    const requiredArmyDps = adjustedRequiredDps / orboDamageMult;
     
     const gap = requiredArmyDps - currentArmyDps;
-    const adjustedCurrentArmyDps = currentArmyDps * (1 + orboDamageMult);
+    const adjustedCurrentArmyDps = currentArmyDps * orboDamageMult;
     const currentClickDps = (adjustedCurrentArmyDps * clickPctNum + config.clickFixed) * overchargeMultiplier;
     const currentTotalDps = adjustedCurrentArmyDps * speedMultiplier + (currentClickDps * effectiveMaxClicks / config.battleDuration);
 
@@ -409,6 +535,19 @@ export default function App() {
   };
 
   const results = calculateRequirements();
+
+  // Aggregate totals per effect key across equipped totems, for the summary row.
+  const equippedTotemEffects = getEquippedTotemEffects(config.totemKeys || []);
+  const totemSummary = Object.entries(TOTEM_EFFECT_INFO)
+    .map(([key, info]) => {
+      const matches = equippedTotemEffects.filter((e: any) => e.key === key);
+      if (matches.length === 0) return null;
+      const total = info.stack === 'mult'
+        ? matches.reduce((a: number, e: any) => a * e.value, 1)
+        : matches.reduce((a: number, e: any) => a + e.value, 0);
+      return { key, label: info.label, battle: info.battle, text: formatTotemEffectValue(key, total) };
+    })
+    .filter((s): s is { key: string; label: string; battle: boolean; text: string } => s !== null);
 
   const handleConfigChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -559,6 +698,75 @@ export default function App() {
                       No matching bosses.
                    </div>
                 )}
+             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Totem Picker Modal */}
+      {totemPickerSlot !== null && (
+        <div onClick={() => setTotemPickerSlot(null)} className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div onClick={e => e.stopPropagation()} className="bg-[#111] rounded-lg border border-[#222] w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl">
+             <div className="p-4 border-b border-[#222] flex items-center justify-between">
+                <h2 className="text-sm font-medium flex items-center">
+                   <Sparkles className="w-4 h-4 mr-2 text-[#888]" />
+                   Select Totem — Slot {totemPickerSlot + 1}
+                </h2>
+                <button onClick={() => setTotemPickerSlot(null)} className="p-1.5 text-[#888] hover:text-[#ededed] bg-[#1a1a1a] hover:bg-[#222] rounded transition-colors">
+                   <X className="w-4 h-4" />
+                </button>
+             </div>
+             <div className="flex-1 overflow-y-auto p-4 bg-[#0a0a0a]">
+                {[1, 2, 3, 4, 5, 6].map(tier => {
+                   const cards = totemsData
+                      .filter(t => t.tier === tier)
+                      .sort((a, b) => (TOTEM_LANE_ORDER[a.lane] || 99) - (TOTEM_LANE_ORDER[b.lane] || 99));
+                   if (cards.length === 0) return null;
+                   return (
+                      <div key={tier} className={tier > 1 ? 'mt-5' : ''}>
+                         <h3 className="text-xs font-semibold uppercase tracking-wider mb-3 border-b border-[#222] pb-1" style={{ color: TOTEM_TIER_COLORS[tier] }}>
+                            Tier {tier} — <span className="capitalize">{cards[0].rarityName}</span>
+                         </h3>
+                         <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5">
+                            {cards.map((t: any) => {
+                               const equippedElsewhere = (config.totemKeys || []).some((k, i) => k === t.key && i !== totemPickerSlot);
+                               const isSelected = (config.totemKeys || [])[totemPickerSlot!] === t.key;
+                               return (
+                                  <button
+                                     key={t.key}
+                                     disabled={equippedElsewhere}
+                                     onClick={() => {
+                                        setConfig((prev: any) => {
+                                           const keys = [...(prev.totemKeys || [null, null, null])];
+                                           keys[totemPickerSlot!] = t.key;
+                                           return { ...prev, totemKeys: keys };
+                                        });
+                                        setTotemPickerSlot(null);
+                                     }}
+                                     className={`text-left bg-[#111] border p-2.5 rounded-md flex flex-col transition-colors ${equippedElsewhere ? 'opacity-40 cursor-not-allowed border-[#222]' : isSelected ? 'border-[#888] bg-[#1a1a1a]' : 'border-[#222] hover:border-[#444] hover:bg-[#1a1a1a]'}`}
+                                  >
+                                     <div className="flex items-center justify-between w-full mb-1.5">
+                                        <div className="flex items-center space-x-1.5 min-w-0">
+                                           <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: TOTEM_TIER_COLORS[t.tier] }} />
+                                           <span className="text-[11px] font-medium text-[#ededed] leading-tight truncate">{t.name}</span>
+                                        </div>
+                                        <span className="text-[8px] uppercase tracking-wide px-1.5 py-0.5 rounded-full bg-[#1a1a1a] border border-[#2a2a2a] text-[#888] shrink-0 ml-1">{t.lane}</span>
+                                     </div>
+                                     <div className="flex flex-col items-start space-y-0.5">
+                                        {t.effects.map((e: any, i: number) => (
+                                           <span key={i} className={`text-[9px] font-mono ${e.key && TOTEM_EFFECT_INFO[e.key]?.battle ? 'text-emerald-500/80' : 'text-[#666]'}`}>
+                                              {formatTotemEffect(e)}
+                                           </span>
+                                        ))}
+                                     </div>
+                                     {equippedElsewhere && <span className="text-[8px] uppercase tracking-wide text-[#555] mt-1">Equipped</span>}
+                                  </button>
+                               );
+                            })}
+                         </div>
+                      </div>
+                   );
+                })}
              </div>
           </div>
         </div>
@@ -1240,7 +1448,7 @@ export default function App() {
                   Tap &amp; Totem Bonuses
                 </h2>
                 <div className="flex items-center space-x-2">
-                  {(config.overchargeLevel > 0 || config.orboDamagePct > 0 || config.attackSpeedPct > 0 || config.energyMaxPct > 0) && (
+                  {(config.overchargeLevel > 0 || (config.totemKeys || []).some(Boolean)) && (
                     <span className="text-[9px] uppercase tracking-wide font-medium px-1.5 py-0.5 rounded bg-[#222] text-emerald-500/80">Active</span>
                   )}
                   {tapModsOpen ? <ChevronDown className="w-4 h-4 text-[#444] group-hover:text-[#888] transition-colors" /> : <ChevronRight className="w-4 h-4 text-[#444] group-hover:text-[#888] transition-colors" />}
@@ -1271,31 +1479,59 @@ export default function App() {
                     </div>
                   </div>
                   <div className="h-px bg-[#222]" />
-                  <div className="grid grid-cols-3 gap-3">
-                    <InputRow
-                      label="Orbo Damage %"
-                      name="orboDamagePct"
-                      value={config.orboDamagePct}
-                      onChange={handleConfigChange}
-                      tooltip="Sum of totem orbo damage bonuses (e.g. a 1.1× card = 10)"
-                      tooltipAlign="left"
-                    />
-                    <InputRow
-                      label="Attack Speed %"
-                      name="attackSpeedPct"
-                      value={config.attackSpeedPct}
-                      onChange={handleConfigChange}
-                      tooltip="Sum of totem attack speed bonuses (e.g. a 1.2× card = 20)"
-                      tooltipAlign="center"
-                    />
-                    <InputRow
-                      label="Energy Max %"
-                      name="energyMaxPct"
-                      value={config.energyMaxPct}
-                      onChange={handleConfigChange}
-                      tooltip="Sum of totem max energy bonuses (e.g. a 1.2× card = 20)"
-                      tooltipAlign="right"
-                    />
+                  <div className="flex flex-col space-y-1.5">
+                    <label className="text-[10px] font-semibold uppercase tracking-wider text-[#666]">Equipped Totems</label>
+                    <div className="grid grid-cols-3 gap-3">
+                      {(config.totemKeys || [null, null, null]).map((tKey, idx) => {
+                        const t = tKey ? totemsDict[tKey] : null;
+                        return (
+                          <div key={idx} className="relative group/slot">
+                            <button
+                              onClick={() => setTotemPickerSlot(idx)}
+                              className={`w-full h-full min-h-[72px] bg-[#0a0a0a] border rounded-md p-2.5 flex flex-col text-left transition-colors ${t ? 'border-[#333] hover:border-[#555]' : 'border-dashed border-[#222] hover:border-[#444]'}`}
+                            >
+                              {t ? (
+                                <>
+                                  <div className="flex items-center space-x-1.5 w-full pr-4">
+                                    <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: TOTEM_TIER_COLORS[t.tier] }} />
+                                    <span className="text-[11px] font-medium text-[#ededed] leading-tight truncate">{t.name}</span>
+                                  </div>
+                                  <span className="text-[9px] font-mono text-[#888] mt-1 leading-tight">{formatTotemEffect(t.effects[0])}</span>
+                                  {t.effects.length > 1 && <span className="text-[9px] font-mono text-[#666]">+{t.effects.length - 1} more</span>}
+                                </>
+                              ) : (
+                                <div className="flex flex-col items-center justify-center w-full flex-1 text-[#555]">
+                                  <Plus className="w-4 h-4 mb-1" />
+                                  <span className="text-[10px] uppercase tracking-wide">Empty</span>
+                                </div>
+                              )}
+                            </button>
+                            {t && (
+                              <button
+                                onClick={() => setConfig((prev: any) => {
+                                  const keys = [...(prev.totemKeys || [null, null, null])];
+                                  keys[idx] = null;
+                                  return { ...prev, totemKeys: keys };
+                                })}
+                                className="absolute top-1 right-1 bg-black/60 backdrop-blur border border-[#333] text-[#888] rounded p-0.5 hover:text-white opacity-0 group-hover/slot:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity z-10 w-4 h-4 flex justify-center items-center"
+                              >
+                                <X className="w-2.5 h-2.5" />
+                              </button>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                    {totemSummary.length > 0 && (
+                      <div className="flex flex-wrap gap-x-3 gap-y-1 pt-1 text-[10px] font-mono">
+                        {totemSummary.map(s => (
+                          <span key={s.key} className={s.battle ? 'text-emerald-500/80' : 'text-[#555]'}>
+                            {s.label} {s.text}
+                            {!s.battle && <span className="text-[#444]"> (not used in calc)</span>}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <p className="text-[10px] font-mono text-[#666]">
                     Effective clicks this battle: <span className="text-[#ededed]">{results.effectiveMaxClicks}</span>
