@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Calculator, Sword, Zap, TrendingUp, Skull, Users, Search, X, Plus, DownloadCloud, Copy, Upload, Target, ChevronRight, ChevronDown, Star, HelpCircle, Sparkles } from 'lucide-react';
+import { Calculator, Sword, Zap, TrendingUp, Skull, Users, Search, X, Plus, DownloadCloud, Copy, Upload, Target, ChevronRight, ChevronDown, Star, HelpCircle, Sparkles, Image as ImageIcon } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Bar, Legend, ComposedChart } from 'recharts';
 import creaturesData from './orbo-creatures.json';
 import bossesData from './orbo-bosses.json';
@@ -118,6 +118,28 @@ const getEquippedTotemEffects = (totemKeys: (string | null)[]) =>
 // Multiplicative stack: totem values are direct multipliers (1.1, 1.5, 2.0).
 const getTotemMult = (effects: any[], effectKey: string) =>
   effects.filter(e => e.key === effectKey).reduce((acc, e) => acc * e.value, 1);
+
+// Totem card thumbnail with the tier border art behind it. Broken images are
+// hidden via onError; the CSS background fails silently on its own.
+const TotemThumb = ({ totem, size }: { totem: any; size: number }) => (
+  <div
+    className="relative shrink-0 rounded overflow-hidden"
+    style={{
+      width: size,
+      height: size,
+      backgroundImage: `url(https://playorbo.fun/game/totems/card-bg/bord-tier-${totem.tier}-sm.png)`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+    }}
+  >
+    <img
+      src={`https://playorbo.fun/game/totems/cards/thumbs/${totem.key}.png`}
+      alt={totem.name}
+      onError={e => { (e.target as HTMLImageElement).style.visibility = 'hidden'; }}
+      className="w-full h-full object-contain"
+    />
+  </div>
+);
 
 type ArmySlotInfo = {
   creatureKey: string | null;
@@ -275,6 +297,8 @@ export default function App() {
   const [luckModalOpen, setLuckModalOpen] = useState(false);
   const [tapModsOpen, setTapModsOpen] = useState(false);
   const [totemPickerSlot, setTotemPickerSlot] = useState<number | null>(null);
+  // Show/hide totem card art (session-only preference, not part of config/export).
+  const [totemImagesOn, setTotemImagesOn] = useState(false);
   const [explorerBase, setExplorerBase] = useState<string | null>(null);
   const [explorerCompare, setExplorerCompare] = useState<string | null>(null);
 
@@ -724,9 +748,18 @@ export default function App() {
                    <Sparkles className="w-4 h-4 mr-2 text-[#888]" />
                    Select Totem — Slot {totemPickerSlot + 1}
                 </h2>
-                <button onClick={() => setTotemPickerSlot(null)} className="p-1.5 text-[#888] hover:text-[#ededed] bg-[#1a1a1a] hover:bg-[#222] rounded transition-colors">
-                   <X className="w-4 h-4" />
-                </button>
+                <div className="flex items-center space-x-2">
+                   <button
+                      onClick={() => setTotemImagesOn(prev => !prev)}
+                      title={totemImagesOn ? 'Hide card images' : 'Show card images'}
+                      className={`p-1.5 rounded transition-colors ${totemImagesOn ? 'text-[#ededed] bg-[#222] hover:bg-[#2a2a2a]' : 'text-[#888] hover:text-[#ededed] bg-[#1a1a1a] hover:bg-[#222]'}`}
+                   >
+                      <ImageIcon className="w-4 h-4" />
+                   </button>
+                   <button onClick={() => setTotemPickerSlot(null)} className="p-1.5 text-[#888] hover:text-[#ededed] bg-[#1a1a1a] hover:bg-[#222] rounded transition-colors">
+                      <X className="w-4 h-4" />
+                   </button>
+                </div>
              </div>
              <div className="flex-1 overflow-y-auto p-4 bg-[#0a0a0a]">
                 {[1, 2, 3, 4, 5, 6].map(tier => {
@@ -755,8 +788,10 @@ export default function App() {
                                         });
                                         setTotemPickerSlot(null);
                                      }}
-                                     className={`text-left bg-[#111] border p-2.5 rounded-md flex flex-col transition-colors ${equippedElsewhere ? 'opacity-40 cursor-not-allowed border-[#222]' : isSelected ? 'border-[#888] bg-[#1a1a1a]' : 'border-[#222] hover:border-[#444] hover:bg-[#1a1a1a]'}`}
+                                     className={`text-left bg-[#111] border p-2.5 rounded-md transition-colors ${totemImagesOn ? 'flex items-start space-x-2' : 'flex flex-col'} ${equippedElsewhere ? 'opacity-40 cursor-not-allowed border-[#222]' : isSelected ? 'border-[#888] bg-[#1a1a1a]' : 'border-[#222] hover:border-[#444] hover:bg-[#1a1a1a]'}`}
                                   >
+                                     {totemImagesOn && <TotemThumb totem={t} size={44} />}
+                                     <div className="flex flex-col min-w-0 flex-1">
                                      <div className="flex items-center justify-between w-full mb-1.5">
                                         <div className="flex items-center space-x-1.5 min-w-0">
                                            <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: TOTEM_TIER_COLORS[t.tier] }} />
@@ -772,6 +807,7 @@ export default function App() {
                                         ))}
                                      </div>
                                      {equippedElsewhere && <span className="text-[8px] uppercase tracking-wide text-[#555] mt-1">Equipped</span>}
+                                     </div>
                                   </button>
                                );
                             })}
@@ -1540,6 +1576,7 @@ export default function App() {
                               {t ? (
                                 <>
                                   <div className="flex items-center space-x-1.5 w-full pr-4">
+                                    {totemImagesOn && <TotemThumb totem={t} size={24} />}
                                     <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: TOTEM_TIER_COLORS[t.tier] }} />
                                     <span className="text-[11px] font-medium text-[#ededed] leading-tight truncate">{t.name}</span>
                                   </div>
