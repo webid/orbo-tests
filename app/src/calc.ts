@@ -9,12 +9,13 @@ import { getEquippedTotemEffects, getTotemMult } from './utils';
 import type { ArmySlotInfo, CalcResults, ConfigState, UpgradeHistory } from './types';
 
 export function calculateRequirements(config: ConfigState, slots: ArmySlotInfo[]): CalcResults {
-  const currentArmyDps = slots.reduce((total, slot) => {
-    if (!slot.creatureKey) return total;
+  // Base DPS per slot (0 for empty); currentArmyDps is the plain sum.
+  const slotDps = slots.map(slot => {
+    if (!slot.creatureKey) return 0;
     const c = creaturesDict[slot.creatureKey];
-    if (!c?.levels[slot.level - 1]) return total;
-    return total + c.levels[slot.level - 1].dps;
-  }, 0);
+    return c?.levels[slot.level - 1]?.dps || 0;
+  });
+  const currentArmyDps = slotDps.reduce((total, dps) => total + dps, 0);
 
   const clickPctNum = (parseFloat(config.clickPercent) || 0) / 100;
 
@@ -33,6 +34,22 @@ export function calculateRequirements(config: ConfigState, slots: ArmySlotInfo[]
   const energyMaxMult = getTotemMult(totemEffects, 'energyMaxMult');
   const energyRegenMult = getTotemMult(totemEffects, 'energyRegenMult');
   const freeTapChance = totemEffects.filter(e => e.key === 'freeTapChance').reduce((a, e) => a + e.value, 0);
+
+  // Runt/Apex/Tap-crit passives. Crit is probabilistic, so it is modeled as
+  // an expected-value multiplier: 1 + critChance * critMultBonus (the totem's
+  // crit-mult value is treated as the bonus damage multiplier applied on crit).
+  const runtDamageMult = getTotemMult(totemEffects, 'runtOrboDamageMult');
+  const runtCritChance = totemEffects.filter(e => e.key === 'runtOrboCritChance').reduce((a, e) => a + e.value, 0);
+  const runtCritMult = totemEffects.filter(e => e.key === 'runtOrboCritMult').reduce((a, e) => a + e.value, 0);
+  const apexDamageMult = getTotemMult(totemEffects, 'apexOrboDamageMult');
+  const apexCritChance = totemEffects.filter(e => e.key === 'apexOrboCritChance').reduce((a, e) => a + e.value, 0);
+  const apexCritMult = totemEffects.filter(e => e.key === 'apexOrboCritMult').reduce((a, e) => a + e.value, 0);
+  const tapCritChance = totemEffects.filter(e => e.key === 'tapCritChance').reduce((a, e) => a + e.value, 0);
+  const tapCritMultBonus = totemEffects.filter(e => e.key === 'tapCritMultBonus').reduce((a, e) => a + e.value, 0);
+
+  const runtExpectedMult = runtDamageMult * (1 + runtCritChance * runtCritMult);
+  const apexExpectedMult = apexDamageMult * (1 + apexCritChance * apexCritMult);
+  const tapCritExpectedMult = 1 + tapCritChance * tapCritMultBonus;
 
   // Energy budget caps how many taps fit in a battle: starting energy pool
   // (boosted by totems) plus regen over the fight, divided by cost per tap
@@ -57,6 +74,27 @@ export function calculateRequirements(config: ConfigState, slots: ArmySlotInfo[]
   const adjustedCurrentArmyDps = currentArmyDps * orboDamageMult;
   const currentClickDps = (adjustedCurrentArmyDps * clickPctNum + config.clickFixed) * overchargeMultiplier;
   const currentTotalDps = adjustedCurrentArmyDps * speedMultiplier + (currentClickDps * effectiveMaxClicks / config.battleDuration);
+
+  // --- Effective DPS with totem passives (runt / apex / tap crit) ---
+  // Runt boost applies to the weakest filled slot, apex boost to the
+  // strongest. With a single filled slot it counts as both. Base numbers
+  // above are intentionally left untouched; these are additive results.
+  const slotMults = slotDps.map(() => 1);
+  const filledIdx = slotDps.map((dps, i) => ({ dps, i })).filter(s => s.dps > 0);
+  if (filledIdx.length > 0 && (runtExpectedMult !== 1 || apexExpectedMult !== 1)) {
+    let minI = filledIdx[0].i;
+    let maxI = filledIdx[0].i;
+    for (const s of filledIdx) {
+      if (s.dps < slotDps[minI]) minI = s.i;
+      if (s.dps > slotDps[maxI]) maxI = s.i;
+    }
+    slotMults[minI] *= runtExpectedMult;
+    slotMults[maxI] *= apexExpectedMult;
+  }
+  const effectiveArmyDps = slotDps.reduce((total, dps, i) => total + dps * slotMults[i], 0);
+  const effectiveAdjustedArmyDps = effectiveArmyDps * orboDamageMult;
+  const effectiveClickDps = (effectiveAdjustedArmyDps * clickPctNum + config.clickFixed) * overchargeMultiplier * tapCritExpectedMult;
+  const effectiveTotalDps = effectiveAdjustedArmyDps * speedMultiplier + (effectiveClickDps * effectiveMaxClicks / config.battleDuration);
 
   let remainingGap = gap;
   const simulatedSlots = slots.map(s => ({ ...s }));
@@ -135,6 +173,9 @@ export function calculateRequirements(config: ConfigState, slots: ArmySlotInfo[]
     remainingGap,
     currentArmyDps,
     currentTotalDps,
+    effectiveArmyDps,
+    effectiveTotalDps,
+    tapCritExpectedMult,
     effectiveMaxClicks,
     overchargeMultiplier,
     upgradePlan: history,

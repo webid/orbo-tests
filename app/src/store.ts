@@ -133,12 +133,15 @@ export interface OrboStore {
   luckModalOpen: boolean;
   tapModsOpen: boolean;
   totemPickerSlot: number | null;
+  totemSearch: string;
   explorerBase: string | null;
   explorerCompare: string | null;
+  toast: string | null;
 
   // Config actions
   setConfig: (partial: Partial<ConfigState>) => void;
   setTotemImagesOn: (on: boolean) => void;
+  cycleBoss: (dir: -1 | 1) => void;
 
   // Slot actions
   setSlots: (slots: ArmySlotInfo[]) => void;
@@ -161,8 +164,10 @@ export interface OrboStore {
   setLuckModalOpen: (open: boolean) => void;
   setTapModsOpen: (fn: boolean | ((prev: boolean) => boolean)) => void;
   setTotemPickerSlot: (slot: number | null) => void;
+  setTotemSearch: (s: string) => void;
   setExplorerBase: (key: string | null) => void;
   setExplorerCompare: (key: string | null) => void;
+  setToast: (msg: string | null) => void;
   closeAllModals: () => void;
 }
 
@@ -187,12 +192,35 @@ export const useOrboStore = create<OrboStore>()(
       luckModalOpen: false,
       tapModsOpen: false,
       totemPickerSlot: null,
+      totemSearch: '',
       explorerBase: null,
       explorerCompare: null,
+      toast: null,
 
       // --- Config actions ---
       setConfig: (partial) => set(state => ({ config: { ...state.config, ...partial } })),
       setTotemImagesOn: (on) => set(state => ({ config: { ...state.config, totemImagesOn: on } })),
+
+      // Prev/next boss navigation with wrap-around (boss 1 <-> last boss).
+      // Syncs bossEnergy/battleDuration exactly like picking from the modal.
+      cycleBoss: (dir) => set(state => {
+        const sorted = [...bossesData].sort((a, b) => a.bossNumber - b.bossNumber);
+        if (sorted.length === 0) return state;
+        const idx = sorted.findIndex(b => b.bossNumber === state.config.bossNumber);
+        // Custom/unknown boss: next starts at the first, prev at the last.
+        const nextIdx = idx === -1
+          ? (dir === 1 ? 0 : sorted.length - 1)
+          : (idx + dir + sorted.length) % sorted.length;
+        const b = sorted[nextIdx];
+        return {
+          config: {
+            ...state.config,
+            bossNumber: b.bossNumber,
+            bossEnergy: b.hp,
+            battleDuration: b.timer,
+          },
+        };
+      }),
 
       // --- Slot actions ---
       setSlots: (slots) => set({ slots }),
@@ -262,14 +290,17 @@ export const useOrboStore = create<OrboStore>()(
         tapModsOpen: typeof fn === 'function' ? fn(state.tapModsOpen) : fn
       })),
       setTotemPickerSlot: (slot) => set({ totemPickerSlot: slot }),
+      setTotemSearch: (s) => set({ totemSearch: s }),
       setExplorerBase: (key) => set({ explorerBase: key }),
       setExplorerCompare: (key) => set({ explorerCompare: key }),
+      setToast: (msg) => set({ toast: msg }),
       closeAllModals: () => set({
         bossModalOpen: false,
         modalTarget: null,
         syncModalOpen: false,
         luckModalOpen: false,
         totemPickerSlot: null,
+        totemSearch: '',
         explorerBase: null,
         explorerCompare: null,
       }),

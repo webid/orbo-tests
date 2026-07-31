@@ -18,6 +18,7 @@ import { LuckTableModal } from './components/LuckTableModal';
 import { StatCard } from './components/StatCard';
 import { SyncModal } from './components/SyncModal';
 import { TapTotemPanel } from './components/TapTotemPanel';
+import { Toast } from './components/Toast';
 import { TotemPickerModal } from './components/TotemPickerModal';
 import { UpdateBanner } from './components/UpdateBanner';
 import { UpgradeSimulator } from './components/UpgradeSimulator';
@@ -104,6 +105,7 @@ export default function App() {
         </Suspense>
       )}
       <UpdateBanner />
+      <Toast />
 
       <div className={`max-w-6xl mx-auto space-y-6 ${modalTarget !== null || syncModalOpen ? 'pointer-events-none' : ''}`}>
 
@@ -151,6 +153,11 @@ export default function App() {
                  subValue={
                    <div className="flex flex-col w-full mt-1">
                       <span className="text-[#888] text-xs">Gap: {(results.targetTotalDps - results.currentTotalDps).toLocaleString(undefined, { maximumFractionDigits: 1 })} DPS</span>
+                      {results.effectiveTotalDps > results.currentTotalDps + 0.001 && (
+                        <span className="text-emerald-500/70 text-xs mt-0.5" title="Expected value incl. runt/apex damage and tap crit totem passives">
+                          w/ totem passives: {results.effectiveTotalDps.toLocaleString(undefined, { maximumFractionDigits: 1 })}
+                        </span>
+                      )}
                       <div className="flex justify-between items-center text-[10px] text-[#666] border-t border-[#222] pt-1.5 mt-1.5">
                          <span>Army: {results.currentArmyDps.toLocaleString(undefined, { maximumFractionDigits: 1 })}</span>
                          <span>Clicks: {(results.currentTotalDps - results.currentArmyDps).toLocaleString(undefined, { maximumFractionDigits: 1 })}</span>

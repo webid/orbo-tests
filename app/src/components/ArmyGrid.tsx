@@ -2,6 +2,7 @@ import { Plus, X, Search, Star, Sword } from 'lucide-react';
 import { creaturesDict } from '../data';
 import { getCreatureImageUrl } from '../utils';
 import { useOrboStore } from '../store';
+import { DpsBreakdown } from './DpsBreakdown';
 import { LevelInput } from './LevelInput';
 
 export const ArmyGrid = () => {
@@ -31,7 +32,10 @@ export const ArmyGrid = () => {
           </div>
        </div>
 
-       <div className="p-2 sm:p-3 grid grid-cols-4 gap-1.5 sm:gap-2">
+       {/* DPS contribution bar (2.2) */}
+       <DpsBreakdown />
+
+       <div className="p-2 sm:p-3 grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2">
           {slots.map((slot, idx) => {
              const isAssigned = !!slot.creatureKey;
              const c = isAssigned ? creaturesDict[slot.creatureKey!] : null;
@@ -97,11 +101,11 @@ export const ArmyGrid = () => {
                    />
                    {isAssigned ? (
                       <>
-                         <button onClick={(e) => { e.stopPropagation(); removeSlot(idx); }} className="absolute top-1 right-1 bg-black/60 backdrop-blur border border-[#333] text-[#888] rounded p-0.5 hover:text-white opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity z-10 w-4 h-4 flex justify-center items-center">
-                            <X className="w-2.5 h-2.5" />
+                         <button onClick={(e) => { e.stopPropagation(); removeSlot(idx); }} className="absolute top-1 right-1 bg-black/60 backdrop-blur border border-[#333] text-[#888] rounded p-0.5 hover:text-white opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity z-10 w-6 h-6 sm:w-4 sm:h-4 flex justify-center items-center">
+                            <X className="w-3 h-3 sm:w-2.5 sm:h-2.5" />
                          </button>
-                         <button onClick={(e) => { e.stopPropagation(); e.preventDefault(); setExplorerBase(c!.key); }} className="absolute top-1 right-6 bg-black/60 backdrop-blur border border-[#333] text-[#888] rounded p-0.5 hover:text-[#ededed] opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity z-10 w-4 h-4 flex justify-center items-center" title="View in Explorer">
-                            <Search className="w-2.5 h-2.5" />
+                         <button onClick={(e) => { e.stopPropagation(); e.preventDefault(); setExplorerBase(c!.key); }} className="absolute top-1 right-8 sm:right-6 bg-black/60 backdrop-blur border border-[#333] text-[#888] rounded p-0.5 hover:text-[#ededed] opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity z-10 w-6 h-6 sm:w-4 sm:h-4 flex justify-center items-center" title="View in Explorer">
+                            <Search className="w-3 h-3 sm:w-2.5 sm:h-2.5" />
                          </button>
                          <div className="w-full aspect-square overflow-hidden relative flex items-center justify-center p-1.5 pb-4">
                             <img src={getCreatureImageUrl(c!, slot.level)} alt={c!.name} loading="lazy" className="w-full h-full object-contain" />
@@ -109,7 +113,7 @@ export const ArmyGrid = () => {
 
                             <button
                                onClick={cycleStage}
-                               className="absolute top-1 left-1.5 flex space-x-0.5 z-10 p-0.5 hover:bg-black/50 rounded transition-colors"
+                               className="absolute top-1 left-1.5 flex space-x-0.5 z-10 p-1.5 sm:p-0.5 hover:bg-black/50 rounded transition-colors"
                                title="Cycle Stage"
                             >
                                {starsCount === 0 ? (

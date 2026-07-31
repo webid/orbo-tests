@@ -15,3 +15,18 @@ body {
   color: var(--color-text);
   font-family: ui-sans-serif, system-ui, sans-serif;
 }
+
+/* Toast entrance (bottom-center feedback messages) */
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 8px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+.toast-in {
+  animation: toast-in 0.2s ease-out;
+}

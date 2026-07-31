@@ -1,4 +1,5 @@
 import { DownloadCloud, X, Copy, Upload } from 'lucide-react';
+import { bossesData } from '../data';
 import { useOrboStore } from '../store';
 
 export const SyncModal = () => {
@@ -12,6 +13,7 @@ export const SyncModal = () => {
   const slots = useOrboStore(s => s.slots);
   const setConfig = useOrboStore(s => s.setConfig);
   const setSlots = useOrboStore(s => s.setSlots);
+  const setToast = useOrboStore(s => s.setToast);
 
   if (!syncModalOpen) return null;
 
@@ -66,6 +68,14 @@ export const SyncModal = () => {
         setSlots(decoded.slots);
         setSyncModalOpen(false);
         setSyncInput('');
+        // Feedback toast, e.g. "Imported: 8 creatures, Boss 26 (Ashen Necropolis), Luck 58"
+        const filled = decoded.slots.filter((s: any) => s && s.creatureKey).length;
+        const boss = bossesData.find(b => b.bossNumber === decoded.config.bossNumber);
+        const bossPart = boss
+          ? `Boss ${boss.bossNumber} (${boss.biomeName})`
+          : (decoded.config.bossNumber ? `Boss ${decoded.config.bossNumber}` : 'Custom boss');
+        const luckPart = decoded.config.luckLevel != null ? `, Luck ${decoded.config.luckLevel}` : '';
+        setToast(`Imported: ${filled} creature${filled === 1 ? '' : 's'}, ${bossPart}${luckPart}`);
       } else {
         alert('Invalid save code format.');
       }

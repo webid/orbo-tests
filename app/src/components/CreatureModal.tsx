@@ -62,9 +62,12 @@ export const CreatureModal = () => {
                <input
                   autoFocus
                   type="text"
-                  placeholder="Search creatures..."
+                  placeholder="Search creatures... (Enter picks the first match)"
                   value={search}
                   onChange={e => setSearch(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' && filteredCreatures.length > 0) assignCreature(filteredCreatures[0].key);
+                  }}
                   className="w-full bg-[#111] border border-[#222] rounded-md py-2 pl-9 pr-3 text-sm text-[#ededed] focus:outline-none focus:border-[#444] transition-colors"
                />
             </div>

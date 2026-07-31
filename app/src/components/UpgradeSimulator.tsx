@@ -29,6 +29,11 @@ export const UpgradeSimulator = ({ results }: { results: CalcResults }) => {
             <p className="text-lg font-mono text-[#888]">
               {results.currentArmyDps.toLocaleString(undefined, { maximumFractionDigits: 1 })}
             </p>
+            {results.effectiveArmyDps > results.currentArmyDps + 0.001 && (
+              <p className="text-[10px] font-mono text-emerald-500/70 mt-0.5" title="Expected value incl. runt (weakest) and apex (strongest) totem passives">
+                w/ passives: {results.effectiveArmyDps.toLocaleString(undefined, { maximumFractionDigits: 1 })}
+              </p>
+            )}
           </div>
         </div>
 

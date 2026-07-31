@@ -124,6 +124,11 @@ export interface CalcResults {
   remainingGap: number;
   currentArmyDps: number;
   currentTotalDps: number;
+  // Expected-value numbers including runt/apex/tap-crit totem passives.
+  // Base numbers above stay unchanged so existing displays keep their meaning.
+  effectiveArmyDps: number;
+  effectiveTotalDps: number;
+  tapCritExpectedMult: number;
   effectiveMaxClicks: number;
   overchargeMultiplier: number;
   upgradePlan: UpgradeHistory[];

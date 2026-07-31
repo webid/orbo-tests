@@ -16,6 +16,12 @@ export const BossModal = () => {
     b.biomeName.toLowerCase().includes(bossSearch.toLowerCase()) || b.floor.toString().includes(bossSearch)
   );
 
+  const selectBoss = (b: typeof bossesData[number]) => {
+    setConfig({ bossEnergy: b.hp, bossNumber: b.bossNumber, battleDuration: b.timer });
+    setBossModalOpen(false);
+    setBossSearch('');
+  };
+
   return (
     <div onClick={() => setBossModalOpen(false)} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
       <div onClick={e => e.stopPropagation()} className="bg-[#111] rounded-lg border border-[#222] w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl">
@@ -34,20 +40,19 @@ export const BossModal = () => {
                <input
                   autoFocus
                   type="text"
-                  placeholder="Search bosses or floors..."
+                  placeholder="Search bosses or floors... (Enter picks the first match)"
                   value={bossSearch}
                   onChange={e => setBossSearch(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' && filtered.length > 0) selectBoss(filtered[0]);
+                  }}
                   className="w-full bg-[#111] border border-[#222] rounded-md py-2 pl-9 pr-3 text-sm text-[#ededed] focus:outline-none focus:border-[#444] transition-colors"
                />
             </div>
          </div>
          <div className="flex-1 overflow-y-auto p-4 grid grid-cols-2 md:grid-cols-4 gap-4 bg-[#0a0a0a]">
             {filtered.map(b => (
-              <div key={b.bossNumber} onClick={() => {
-                 setConfig({ bossEnergy: b.hp, bossNumber: b.bossNumber, battleDuration: b.timer });
-                 setBossModalOpen(false);
-                 setBossSearch('');
-              }} className={`group cursor-pointer bg-[#111] hover:bg-[#1a1a1a] border flex flex-col items-center justify-between text-center transition-colors shadow-sm p-4 rounded-xl h-full ${config.bossNumber === b.bossNumber ? 'border-[#888]' : 'border-[#222] hover:border-[#444]'}`}>
+              <div key={b.bossNumber} onClick={() => selectBoss(b)} className={`group cursor-pointer bg-[#111] hover:bg-[#1a1a1a] border flex flex-col items-center justify-between text-center transition-colors shadow-sm p-4 rounded-xl h-full ${config.bossNumber === b.bossNumber ? 'border-[#888]' : 'border-[#222] hover:border-[#444]'}`}>
                  <div className="w-full h-14 flex items-center justify-center shrink-0 mb-2">
                     <img src={`https://playorbo.fun/depths/map/biomes/${b.biome}.webp`} alt={b.biomeName} loading="lazy" onError={e => { (e.target as HTMLImageElement).style.visibility = 'hidden'; }} className="max-w-[85%] max-h-full object-contain drop-shadow-md" />
                  </div>
