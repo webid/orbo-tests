@@ -245,7 +245,7 @@ export default function App() {
   const handleImport = () => {
     if (!syncInput.trim()) return;
     try {
-      let decodedString = atob(syncInput.trim());
+      let decodedString = atob(syncInput.trim().replace(/\s/g, ''));
       try {
         decodedString = decodeURIComponent(decodedString);
       } catch (e) {
