@@ -427,10 +427,37 @@ describe('dps breakdown bar', () => {
     expect(seg).toBeTruthy();
     expect(parseFloat(seg.style.width)).toBeCloseTo(expectedPct, 4);
     expect(seg.getAttribute('title')).toContain('runt');
-    expect(document.body.textContent).toContain('incl. runt/apex totem boosts');
+    // Values are on-demand only: no static legend or hint text below the bar.
+    expect(document.body.textContent).not.toContain('hover a segment');
 
     // Square corners: the track must not round its ends.
     expect(seg.parentElement!.className).not.toContain('rounded');
+  });
+
+  it('shows the exact share in the readout on hover and tap only', () => {
+    useOrboStore.getState().setSlots([
+      { creatureKey: 'weasel', level: 1 },
+      { creatureKey: 'archon', level: 1 },
+      ...Array.from({ length: 6 }, () => ({ creatureKey: null, level: 1 })),
+    ]);
+    render(<App />);
+    const seg = document.querySelector('[title^="Weasel:"]') as HTMLElement;
+    expect(seg).toBeTruthy();
+
+    // At rest: no percentages anywhere below the bar.
+    expect(screen.queryByText(/^\d+\.\d+%$/)).toBeNull();
+
+    // Hover (desktop) → readout appears; leave → it clears.
+    fireEvent.mouseOver(seg);
+    expect(screen.getByText(/^\d+\.\d+%$/)).toBeTruthy();
+    fireEvent.mouseOut(seg);
+    expect(screen.queryByText(/^\d+\.\d+%$/)).toBeNull();
+
+    // Tap toggles it (mobile path).
+    fireEvent.click(seg);
+    expect(screen.getByText(/^\d+\.\d+%$/)).toBeTruthy();
+    fireEvent.click(seg);
+    expect(screen.queryByText(/^\d+\.\d+%$/)).toBeNull();
   });
 });
 

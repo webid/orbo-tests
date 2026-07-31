@@ -15,7 +15,8 @@ interface Segment {
 // Army DPS contribution bar: one segment per filled slot, width = % of the
 // total army DPS, color = tier color. Shares use effective DPS so runt/apex
 // totem passives (weakest/strongest unit boosts) show in the segment sizes.
-// Full-width by design, so it stays readable on narrow screens.
+// Exact values stay hidden until a segment is hovered (desktop) or tapped
+// (mobile), which lights the matching unit card and fills the readout line.
 export const DpsBreakdown = () => {
   const slots = useOrboStore(s => s.slots);
   const totemKeys = useOrboStore(s => s.config.totemKeys);
@@ -55,7 +56,7 @@ export const DpsBreakdown = () => {
   }, [slots, totemKeys]);
 
   if (total <= 0) return null;
-  const boosted = segments.some(s => s.boost);
+  const active = segments.find(s => s.idx === highlightedSlot);
 
   return (
     <div className="px-2 sm:px-3 pt-2 sm:pt-2.5 pb-2.5 sm:pb-3 border-t border-[#222]">
@@ -76,24 +77,20 @@ export const DpsBreakdown = () => {
           );
         })}
       </div>
-      {/* Legend: identifies each segment without needing to hover. */}
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5">
-        {segments.map(s => {
-          const pct = (s.dps / total) * 100;
-          return (
-            <span key={s.idx} {...hoverHandlers(s.idx)} className="flex items-center text-[9px] font-mono text-[#888]">
-              <span className="w-2 h-2 rounded-full mr-1.5 shrink-0" style={{ backgroundColor: TIER_COLORS[s.tier] }} />
-              {s.name}
-              <span className="text-[#555] ml-1">{pct.toFixed(1)}%</span>
+      {/* On-demand readout: exact values for the hovered/tapped segment only.
+          Fixed height so nothing shifts when it appears. */}
+      <div className="h-4 mt-1.5 flex items-center">
+        {active && (
+          <span className="flex items-center text-[9px] font-mono text-[#888]">
+            <span className="w-2 h-2 rounded-full mr-1.5 shrink-0" style={{ backgroundColor: TIER_COLORS[active.tier] }} />
+            {active.name}
+            <span className="text-[#ededed] ml-1">{((active.dps / total) * 100).toFixed(1)}%</span>
+            <span className="text-[#555] ml-1">
+              ({active.dps.toLocaleString(undefined, { maximumFractionDigits: 1 })} DPS{active.boost ? ` · ${active.boost}` : ''})
             </span>
-          );
-        })}
+          </span>
+        )}
       </div>
-      <p className="text-[9px] font-mono text-[#555] mt-1">
-        {boosted
-          ? 'DPS share per unit incl. runt/apex totem boosts — hover a segment for exact values'
-          : 'DPS share per unit — hover a segment for exact values'}
-      </p>
     </div>
   );
 };
