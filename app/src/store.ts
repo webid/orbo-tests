@@ -137,6 +137,7 @@ export interface OrboStore {
   updateAvailable: boolean;
   expandedSteps: Record<number, boolean>;
   draggedIndex: number | null;
+  highlightedSlot: number | null;
   luckModalOpen: boolean;
   tapModsOpen: boolean;
   totemPickerSlot: number | null;
@@ -169,6 +170,7 @@ export interface OrboStore {
   setUpdateAvailable: (v: boolean) => void;
   toggleStep: (idx: number) => void;
   setDraggedIndex: (i: number | null) => void;
+  setHighlightedSlot: (i: number | null) => void;
   setLuckModalOpen: (open: boolean) => void;
   setTapModsOpen: (fn: boolean | ((prev: boolean) => boolean)) => void;
   setTotemPickerSlot: (slot: number | null) => void;
@@ -203,6 +205,7 @@ export const useOrboStore = create<OrboStore>()(
       updateAvailable: false,
       expandedSteps: {},
       draggedIndex: null,
+      highlightedSlot: null,
       luckModalOpen: false,
       tapModsOpen: false,
       totemPickerSlot: null,
@@ -300,6 +303,7 @@ export const useOrboStore = create<OrboStore>()(
         expandedSteps: { ...state.expandedSteps, [idx]: !state.expandedSteps[idx] }
       })),
       setDraggedIndex: (i) => set({ draggedIndex: i }),
+      setHighlightedSlot: (i) => set({ highlightedSlot: i }),
       setLuckModalOpen: (open) => set({ luckModalOpen: open }),
       setTapModsOpen: (fn) => set(state => ({
         tapModsOpen: typeof fn === 'function' ? fn(state.tapModsOpen) : fn

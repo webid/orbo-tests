@@ -14,6 +14,7 @@ export const ArmyGrid = () => {
   const removeSlot = useOrboStore(s => s.removeSlot);
   const draggedIndex = useOrboStore(s => s.draggedIndex);
   const setDraggedIndex = useOrboStore(s => s.setDraggedIndex);
+  const highlightedSlot = useOrboStore(s => s.highlightedSlot);
 
   return (
     <div className="bg-[#111] rounded-lg border border-[#222]">
@@ -88,7 +89,7 @@ export const ArmyGrid = () => {
                       setSlots(newSlots);
                       setDraggedIndex(null);
                    }}
-                   className={`bg-[#0a0a0a] border border-[#222] rounded-md flex flex-col relative group overflow-hidden transition-all hover:border-[#444] ${isAssigned ? 'cursor-grab active:cursor-grabbing' : ''} ${draggedIndex === idx ? 'opacity-40 border-dashed scale-95' : ''}`}
+                   className={`bg-[#0a0a0a] border ${highlightedSlot === idx ? 'border-[#666] drop-shadow-[0_0_6px_rgba(255,255,255,0.15)]' : 'border-[#222]'} rounded-md flex flex-col relative group overflow-hidden transition-all hover:border-[#444] ${isAssigned ? 'cursor-grab active:cursor-grabbing' : ''} ${draggedIndex === idx ? 'opacity-40 border-dashed scale-95' : ''}`}
                 >
                    {/* Rarity background (empty.png for vacant slots) */}
                    <img

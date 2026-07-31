@@ -27,6 +27,7 @@ const resetStore = () => {
     updateAvailable: false,
     expandedSteps: {},
     draggedIndex: null,
+    highlightedSlot: null,
     luckModalOpen: false,
     tapModsOpen: false,
     totemPickerSlot: null,
@@ -203,6 +204,43 @@ describe('preset bar', () => {
 
     expect(useOrboStore.getState().presets[0].name).toBe('Keep Me');
     expect(screen.queryByRole('textbox', { name: 'Rename preset' })).toBeNull();
+  });
+});
+
+describe('dps breakdown highlight', () => {
+  it('highlights the matching unit card while a segment is hovered', () => {
+    useOrboStore.getState().setSlots([
+      { creatureKey: 'weasel', level: 7 },
+      ...Array.from({ length: 7 }, () => ({ creatureKey: null, level: 1 })),
+    ]);
+    render(<App />);
+
+    const seg = document.querySelector('[title^="Weasel:"]') as HTMLElement;
+    expect(seg).toBeTruthy();
+
+    // React derives onMouseEnter/Leave from the bubbling mouseover/mouseout.
+    fireEvent.mouseOver(seg);
+    const armyCard = screen.getByRole('heading', { name: /army composition/i })
+      .closest('div[class*="bg-[#111]"]') as HTMLElement;
+    const card = within(armyCard).getByAltText('Weasel').closest('div.group') as HTMLElement;
+    expect(card.className).toContain('border-[#666]');
+
+    fireEvent.mouseOut(seg);
+    expect(card.className).not.toContain('border-[#666]');
+  });
+
+  it('toggles the highlight on click (tap on touch devices)', () => {
+    useOrboStore.getState().setSlots([
+      { creatureKey: 'weasel', level: 7 },
+      ...Array.from({ length: 7 }, () => ({ creatureKey: null, level: 1 })),
+    ]);
+    render(<App />);
+
+    const seg = document.querySelector('[title^="Weasel:"]') as HTMLElement;
+    fireEvent.click(seg);
+    expect(useOrboStore.getState().highlightedSlot).toBe(0);
+    fireEvent.click(seg);
+    expect(useOrboStore.getState().highlightedSlot).toBeNull();
   });
 });
 

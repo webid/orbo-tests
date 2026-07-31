@@ -15,6 +15,15 @@ interface Segment {
 // readable on narrow screens.
 export const DpsBreakdown = () => {
   const slots = useOrboStore(s => s.slots);
+  const highlightedSlot = useOrboStore(s => s.highlightedSlot);
+  const setHighlightedSlot = useOrboStore(s => s.setHighlightedSlot);
+
+  // Hover previews the link on desktop; tap toggles it on touch.
+  const hoverHandlers = (idx: number) => ({
+    onMouseEnter: () => setHighlightedSlot(idx),
+    onMouseLeave: () => setHighlightedSlot(null),
+    onClick: () => setHighlightedSlot(highlightedSlot === idx ? null : idx),
+  });
 
   const { segments, total } = useMemo(() => {
     const segments: Segment[] = [];
@@ -42,6 +51,7 @@ export const DpsBreakdown = () => {
           return (
             <div
               key={s.idx}
+              {...hoverHandlers(s.idx)}
               className="h-full transition-all duration-300 hover:opacity-75"
               style={{ width: `${pct}%`, backgroundColor: TIER_COLORS[s.tier] }}
               title={`${s.name}: ${pct.toFixed(1)}% (${s.dps.toLocaleString(undefined, { maximumFractionDigits: 1 })} DPS)`}
@@ -54,7 +64,7 @@ export const DpsBreakdown = () => {
         {segments.map(s => {
           const pct = (s.dps / total) * 100;
           return (
-            <span key={s.idx} className="flex items-center text-[9px] font-mono text-[#888]">
+            <span key={s.idx} {...hoverHandlers(s.idx)} className="flex items-center text-[9px] font-mono text-[#888]">
               <span className="w-2 h-2 rounded-full mr-1.5 shrink-0" style={{ backgroundColor: TIER_COLORS[s.tier] }} />
               {s.name}
               <span className="text-[#555] ml-1">{pct.toFixed(1)}%</span>
