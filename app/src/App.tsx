@@ -756,7 +756,7 @@ export default function App() {
                 </h2>
                 <div className="flex items-center space-x-2">
                    <button
-                      onClick={() => setTotemImagesOn(prev => !prev)}
+                      onClick={() => setTotemImagesOn(!totemImagesOn)}
                       title={totemImagesOn ? 'Hide card images' : 'Show card images'}
                       className={`p-1.5 rounded transition-colors ${totemImagesOn ? 'text-[#ededed] bg-[#222] hover:bg-[#2a2a2a]' : 'text-[#888] hover:text-[#ededed] bg-[#1a1a1a] hover:bg-[#222]'}`}
                    >
