@@ -1,8 +1,11 @@
 // ---------------------------------------------------------------------------
 // PresetBar (M3.1) — named snapshots of the full battle state.
 // Dropdown loads a preset, the pencil button opens an inline rename input
-// (Enter/blur commits, Escape cancels), Save snapshots the current
-// config+slots, Delete removes it. Max 5 presets.
+// (Enter/blur commits, Escape cancels). With a preset selected the save
+// button becomes UPDATE and overwrites that preset in place (no prompt, no
+// duplicate); without one it snapshots the current config+slots as a new
+// preset. Names are unique (trim + case-insensitive) — duplicate saves and
+// renames are refused with a toast. Delete removes it. Max 5 presets.
 // ---------------------------------------------------------------------------
 
 import { useState } from 'react';
@@ -12,6 +15,7 @@ import { useOrboStore, MAX_PRESETS } from '../store';
 export const PresetBar = () => {
   const presets = useOrboStore(s => s.presets);
   const savePreset = useOrboStore(s => s.savePreset);
+  const updatePreset = useOrboStore(s => s.updatePreset);
   const loadPreset = useOrboStore(s => s.loadPreset);
   const deletePreset = useOrboStore(s => s.deletePreset);
   const renamePreset = useOrboStore(s => s.renamePreset);
@@ -25,6 +29,12 @@ export const PresetBar = () => {
 
   const selectedPreset = presets.find(p => p.id === selectedId) ?? null;
   const atCap = presets.length >= MAX_PRESETS;
+
+  // Names are unique up to trim + case; excludeId skips the preset being
+  // renamed so keeping your own name is never a collision.
+  const nameTaken = (name: string, excludeId?: string) =>
+    presets.some(p => p.id !== excludeId &&
+      p.name.trim().toLowerCase() === name.trim().toLowerCase());
 
   const handleSelect = (id: string) => {
     setSelectedId(id);
@@ -44,18 +54,36 @@ export const PresetBar = () => {
   const commitRename = () => {
     if (selectedPreset) {
       const name = draftName.trim();
-      if (name && name !== selectedPreset.name) renamePreset(selectedPreset.id, name);
+      if (name && name !== selectedPreset.name) {
+        if (nameTaken(name, selectedPreset.id)) {
+          setToast(`Another preset is already named "${name}"`);
+        } else {
+          renamePreset(selectedPreset.id, name);
+        }
+      }
     }
     setRenaming(false);
   };
 
   const handleSave = () => {
-    const name = window.prompt('Preset name:', `Preset ${presets.length + 1}`);
-    if (name === null) return; // cancelled
+    // With a preset loaded, Save becomes an in-place update — the common
+    // "load → tweak → keep" flow never prompts and never duplicates.
+    if (selectedPreset) {
+      updatePreset(selectedPreset.id);
+      setToast(`Updated preset: ${selectedPreset.name}`);
+      return;
+    }
+    const raw = window.prompt('Preset name:', `Preset ${presets.length + 1}`);
+    if (raw === null) return; // cancelled
+    const name = raw.trim() || `Preset ${presets.length + 1}`;
+    if (nameTaken(name)) {
+      setToast(`A preset named "${name}" already exists — load it and press Update to overwrite`);
+      return;
+    }
     const id = savePreset(name);
     if (id) {
       setSelectedId(id);
-      setToast(`Saved preset: ${name.trim() || `Preset ${presets.length + 1}`}`);
+      setToast(`Saved preset: ${name}`);
     } else {
       setToast(`Preset limit reached (max ${MAX_PRESETS})`);
     }
@@ -120,12 +148,14 @@ export const PresetBar = () => {
 
       <button
         onClick={handleSave}
-        disabled={atCap}
-        title={atCap ? `Max ${MAX_PRESETS} presets` : 'Save current army & config as a preset'}
+        disabled={!selectedPreset && atCap}
+        title={selectedPreset
+          ? `Overwrite "${selectedPreset.name}" with the current army & config`
+          : atCap ? `Max ${MAX_PRESETS} presets` : 'Save current army & config as a new preset'}
         className="px-2.5 py-1.5 text-[10px] uppercase tracking-wide font-medium rounded bg-[#222] hover:bg-[#333] text-[#ededed] transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:disabled:bg-[#222] flex items-center shrink-0"
       >
         <Save className="w-3 h-3 mr-1" />
-        Save
+        {selectedPreset ? 'Update' : 'Save'}
       </button>
 
       {selectedPreset && (

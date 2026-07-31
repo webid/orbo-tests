@@ -182,6 +182,7 @@ export interface OrboStore {
 
   // Preset actions (M3)
   savePreset: (name: string) => string | null;
+  updatePreset: (id: string) => boolean;
   loadPreset: (id: string) => void;
   deletePreset: (id: string) => void;
   renamePreset: (id: string, name: string) => void;
@@ -339,6 +340,19 @@ export const useOrboStore = create<OrboStore>()(
         };
         set({ presets: [...state.presets, preset] });
         return id;
+      },
+      // Overwrites an existing preset with the current config+slots, keeping
+      // its id and name — the "load → tweak → update" flow. Returns false if
+      // the preset no longer exists.
+      updatePreset: (id) => {
+        const state = get();
+        if (!state.presets.some(p => p.id === id)) return false;
+        set({
+          presets: state.presets.map(p => p.id === id
+            ? { ...p, config: { ...state.config }, slots: state.slots.map(s => ({ ...s })) }
+            : p),
+        });
+        return true;
       },
       loadPreset: (id) => set(state => {
         const preset = state.presets.find(p => p.id === id);

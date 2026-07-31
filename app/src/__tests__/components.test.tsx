@@ -205,6 +205,58 @@ describe('preset bar', () => {
     expect(useOrboStore.getState().presets[0].name).toBe('Keep Me');
     expect(screen.queryByRole('textbox', { name: 'Rename preset' })).toBeNull();
   });
+
+  it('updates the loaded preset in place instead of creating a duplicate', () => {
+    vi.spyOn(window, 'prompt').mockReturnValue('Main Deck');
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: /save/i }));
+
+    // Tweak the config, then hit the button again — it now reads "Update"
+    // and must overwrite the same preset, not append a copy.
+    useOrboStore.getState().setConfig({ maxClicks: 1 });
+    fireEvent.click(screen.getByRole('button', { name: /update/i }));
+
+    const presets = useOrboStore.getState().presets;
+    expect(presets).toHaveLength(1);
+    expect(presets[0].name).toBe('Main Deck');
+    expect(presets[0].config.maxClicks).toBe(1);
+    expect(screen.getByText(/Updated preset: Main Deck/)).toBeTruthy();
+  });
+
+  it('refuses to create a second preset with a duplicate name', () => {
+    vi.spyOn(window, 'prompt').mockReturnValue('Main Deck');
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: /save/i }));
+
+    // Deselect, then try to save a new preset under the same name (any case).
+    const combo = screen.getByRole('combobox', { name: 'Load a preset' }) as HTMLSelectElement;
+    fireEvent.change(combo, { target: { value: '' } });
+    vi.spyOn(window, 'prompt').mockReturnValue('main deck');
+    fireEvent.click(screen.getByRole('button', { name: /save/i }));
+
+    expect(useOrboStore.getState().presets).toHaveLength(1);
+    expect(screen.getByText(/already exists/)).toBeTruthy();
+  });
+
+  it('refuses a rename that collides with another preset', () => {
+    vi.spyOn(window, 'prompt').mockReturnValue('Alpha');
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: /save/i }));
+    const combo = screen.getByRole('combobox', { name: 'Load a preset' }) as HTMLSelectElement;
+    fireEvent.change(combo, { target: { value: '' } });
+    vi.spyOn(window, 'prompt').mockReturnValue('Beta');
+    fireEvent.click(screen.getByRole('button', { name: /save/i }));
+
+    // Rename "Beta" → "alpha": case-insensitive collision with preset 1.
+    fireEvent.change(combo, { target: { value: useOrboStore.getState().presets[1].id } });
+    fireEvent.click(screen.getByRole('button', { name: 'Rename preset' }));
+    const input = screen.getByRole('textbox', { name: 'Rename preset' });
+    fireEvent.change(input, { target: { value: 'alpha' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+
+    expect(useOrboStore.getState().presets[1].name).toBe('Beta');
+    expect(screen.getByText(/already named/)).toBeTruthy();
+  });
 });
 
 describe('dps breakdown highlight', () => {
