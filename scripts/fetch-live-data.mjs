@@ -190,10 +190,6 @@ function effectsToMap(effects) {
   return {};
 }
 
-// Live aggregated totem effects are deltas relative to baseline (e.g. a 1.2x
-// totem shows up as 0.2 in game.totems.state.effects).
-const deltaToPct = (v) => (typeof v === 'number' ? Math.round(v * 1000) / 10 : 0);
-
 function findEquippedRing(inventory) {
   const items = inventory?.items ?? [];
   for (const item of items) {
@@ -344,17 +340,19 @@ function buildExportCode(data) {
     }
   }
 
-  // Totem-aggregated battle modifiers → config percentages. The live aggregate
-  // uses deltas from baseline (1.2x totem → 0.2).
-  const agg = effectsToMap(totemsState?.effects);
-  // Fall back to per-item effects (raw multipliers) if no aggregate is exposed.
-  if (!Object.keys(agg).length && totemsState) {
-    for (const t of getEquippedTotems(totemsState)) {
-      for (const e of t.effects ?? []) {
-        agg[e.key] = (agg[e.key] ?? 0) + (e.value - 1);
-      }
-    }
-  }
+  // Equipped totem cards → config.totemKeys[3]. Live items carry a slot index;
+  // place each card at its slot when the indices look sane (0- or 1-based),
+  // otherwise just fill left to right.
+  const totemKeys = [null, null, null];
+  const equippedTotems = getEquippedTotems(totemsState ?? {});
+  const slotsLookZeroBased = equippedTotems.every((t) => Number.isInteger(t.slot) && t.slot >= 0 && t.slot <= 2);
+  const slotsLookOneBased = equippedTotems.every((t) => Number.isInteger(t.slot) && t.slot >= 1 && t.slot <= 3);
+  equippedTotems.slice(0, 3).forEach((t, i) => {
+    const key = t.itemKey ?? t.key ?? null;
+    if (slotsLookZeroBased) totemKeys[t.slot] = key;
+    else if (slotsLookOneBased) totemKeys[t.slot - 1] = key;
+    else totemKeys[i] = key;
+  });
 
   // clickStats from game.player.inventory.state is already the aggregate of
   // all equipped rings — exactly what the tool's clickPercent/clickFixed
@@ -374,9 +372,8 @@ function buildExportCode(data) {
     bossNumber: 11,
     selectedBoss: null,
     overchargeLevel: state.overchargeLevel ?? 0,
-    orboDamagePct: deltaToPct(agg.orboDamageMult),
-    attackSpeedPct: deltaToPct(agg.orboAttackSpeedMult),
-    energyMaxPct: deltaToPct(agg.energyMaxMult),
+    surgeLevel: state.surgeLevel ?? 0,
+    totemKeys,
   };
 
   // Same encoding as the tool's exportData(): btoa(encodeURIComponent(JSON.stringify(...)))

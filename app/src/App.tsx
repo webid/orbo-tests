@@ -42,6 +42,15 @@ const TOTEM_TIER_COLORS: Record<number, string> = {
   6: '#ff5',
 };
 
+const TOTEM_TIER_NAMES: Record<number, string> = {
+  1: 'Weak',
+  2: 'Lesser',
+  3: 'Rare',
+  4: 'Mighty',
+  5: 'Legendary',
+  6: 'Holy',
+};
+
 // Lane display order inside each tier of the totem picker.
 const TOTEM_LANE_ORDER: Record<string, number> = {
   power: 1,
@@ -82,10 +91,7 @@ const TOTEM_EFFECT_INFO: Record<string, { label: string; battle: boolean; stack:
 
 const formatTotemEffectValue = (key: string, value: number) => {
   const fmt = TOTEM_EFFECT_INFO[key]?.format || 'flat';
-  if (fmt === 'mult') {
-    const pct = Math.round((value - 1) * 1000) / 10;
-    return `${pct >= 0 ? '+' : ''}${pct}%`;
-  }
+  if (fmt === 'mult') return `\u00d7${Math.round(value * 100) / 100}`;
   if (fmt === 'pct') return `+${Math.round(value * 1000) / 10}%`;
   if (fmt === 'hours') return `+${value}h`;
   return `+${value}`;
@@ -192,6 +198,7 @@ type ConfigState = {
   bossNumber?: number;
   selectedBoss: string | null;
   overchargeLevel: number;
+  surgeLevel: number;
   totemKeys: (string | null)[];
   // Legacy manual % fields (pre-totem-picker); kept only for old save/import compat.
   orboDamagePct?: number;
@@ -212,6 +219,7 @@ export default function App() {
         bossNumber: 11,
         selectedBoss: null,
         overchargeLevel: 0,
+        surgeLevel: 0,
         totemKeys: [null, null, null]
       };
     }
@@ -233,6 +241,7 @@ export default function App() {
     // Old manual % fields can't be reverse-mapped to specific cards, so configs
     // saved before the totem picker start with empty slots.
     saved.overchargeLevel = saved.overchargeLevel ?? 0;
+    saved.surgeLevel = saved.surgeLevel ?? 0;
     saved.totemKeys = Array.isArray(saved.totemKeys) && saved.totemKeys.length === 3
       ? saved.totemKeys
       : [null, null, null];
@@ -371,6 +380,7 @@ export default function App() {
       // cards, so imports without totemKeys start with empty slots.
       if (decoded.config) {
         decoded.config.overchargeLevel = decoded.config.overchargeLevel ?? 0;
+        decoded.config.surgeLevel = decoded.config.surgeLevel ?? 0;
         decoded.config.totemKeys = Array.isArray(decoded.config.totemKeys) && decoded.config.totemKeys.length === 3
           ? decoded.config.totemKeys
           : [null, null, null];
@@ -545,6 +555,8 @@ export default function App() {
       const total = info.stack === 'mult'
         ? matches.reduce((a: number, e: any) => a * e.value, 1)
         : matches.reduce((a: number, e: any) => a + e.value, 0);
+      // Skip effects at their neutral value (×1 multipliers, +0 additives).
+      if (info.stack === 'mult' ? Math.abs(total - 1) < 1e-9 : Math.abs(total) < 1e-9) return null;
       return { key, label: info.label, battle: info.battle, text: formatTotemEffectValue(key, total) };
     })
     .filter((s): s is { key: string; label: string; battle: boolean; text: string } => s !== null);
@@ -725,7 +737,7 @@ export default function App() {
                    return (
                       <div key={tier} className={tier > 1 ? 'mt-5' : ''}>
                          <h3 className="text-xs font-semibold uppercase tracking-wider mb-3 border-b border-[#222] pb-1" style={{ color: TOTEM_TIER_COLORS[tier] }}>
-                            Tier {tier} — <span className="capitalize">{cards[0].rarityName}</span>
+                            Tier {tier} — {TOTEM_TIER_NAMES[tier]}
                          </h3>
                          <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5">
                             {cards.map((t: any) => {
@@ -750,7 +762,7 @@ export default function App() {
                                            <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: TOTEM_TIER_COLORS[t.tier] }} />
                                            <span className="text-[11px] font-medium text-[#ededed] leading-tight truncate">{t.name}</span>
                                         </div>
-                                        <span className="text-[8px] uppercase tracking-wide px-1.5 py-0.5 rounded-full bg-[#1a1a1a] border border-[#2a2a2a] text-[#888] shrink-0 ml-1">{t.lane}</span>
+                                        <span className="text-[9px] uppercase tracking-wide px-1.5 py-0.5 rounded-full bg-[#1a1a1a] border border-[#2a2a2a] text-[#888] shrink-0 ml-1">{t.lane}</span>
                                      </div>
                                      <div className="flex flex-col items-start space-y-0.5">
                                         {t.effects.map((e: any, i: number) => (
@@ -1448,7 +1460,7 @@ export default function App() {
                   Tap &amp; Totem Bonuses
                 </h2>
                 <div className="flex items-center space-x-2">
-                  {(config.overchargeLevel > 0 || (config.totemKeys || []).some(Boolean)) && (
+                  {(config.overchargeLevel > 0 || (config.surgeLevel || 0) > 0 || (config.totemKeys || []).some(Boolean)) && (
                     <span className="text-[9px] uppercase tracking-wide font-medium px-1.5 py-0.5 rounded bg-[#222] text-emerald-500/80">Active</span>
                   )}
                   {tapModsOpen ? <ChevronDown className="w-4 h-4 text-[#444] group-hover:text-[#888] transition-colors" /> : <ChevronRight className="w-4 h-4 text-[#444] group-hover:text-[#888] transition-colors" />}
@@ -1469,12 +1481,46 @@ export default function App() {
                           onChange={e => setConfig((prev: any) => ({ ...prev, overchargeLevel: parseInt(e.target.value) || 0 }))}
                           className="flex-1 accent-[#ededed] cursor-pointer"
                         />
-                        <span className="font-mono text-sm text-[#ededed] w-8 text-right">L{config.overchargeLevel}</span>
+                        <span className="font-mono text-sm tracking-widest shrink-0">
+                          {Array.from({ length: tapConfig.overcharge.maxLevel }).map((_, i) => (
+                            <span key={i} className={i < config.overchargeLevel ? 'text-yellow-400' : 'text-[#333]'}>
+                              {i < config.overchargeLevel ? '\u25cf' : '\u25cb'}
+                            </span>
+                          ))}
+                        </span>
                       </div>
                       <p className="text-[10px] font-mono text-[#888]">
                         {config.overchargeLevel > 0
                           ? `${results.overchargeMultiplier}\u00d7 tap dmg \u00b7 ${(tapConfig.energyPerTap * results.overchargeMultiplier).toLocaleString(undefined, { maximumFractionDigits: 2 })} energy/tap`
                           : `off \u00b7 ${tapConfig.energyPerTap} energy/tap`}
+                      </p>
+                    </div>
+                    <div className="flex flex-col space-y-1.5">
+                      <label className="text-[10px] font-semibold uppercase tracking-wider text-[#666]">Surge Level</label>
+                      <div className="flex items-center space-x-3 h-[34px]">
+                        <input
+                          type="range"
+                          min={0}
+                          max={tapConfig.surge.maxLevel}
+                          step={1}
+                          value={config.surgeLevel || 0}
+                          onChange={e => setConfig((prev: any) => ({ ...prev, surgeLevel: parseInt(e.target.value) || 0 }))}
+                          className="flex-1 accent-[#ededed] cursor-pointer"
+                        />
+                        <span className="font-mono text-sm tracking-widest shrink-0">
+                          {Array.from({ length: tapConfig.surge.maxLevel }).map((_, i) => (
+                            <span key={i} className={i < (config.surgeLevel || 0) ? 'text-yellow-400' : 'text-[#333]'}>
+                              {i < (config.surgeLevel || 0) ? '\u25cf' : '\u25cb'}
+                            </span>
+                          ))}
+                        </span>
+                      </div>
+                      <p className="text-[10px] font-mono text-[#888]">
+                        {(config.surgeLevel || 0) === 0
+                          ? 'Off'
+                          : (config.surgeLevel || 0) === tapConfig.surge.maxLevel
+                            ? 'Full bar burst'
+                            : `${tapConfig.surge.burstPercent[(config.surgeLevel || 0) - 1]}% burst`}
                       </p>
                     </div>
                   </div>
@@ -1488,7 +1534,8 @@ export default function App() {
                           <div key={idx} className="relative group/slot">
                             <button
                               onClick={() => setTotemPickerSlot(idx)}
-                              className={`w-full h-full min-h-[72px] bg-[#0a0a0a] border rounded-md p-2.5 flex flex-col text-left transition-colors ${t ? 'border-[#333] hover:border-[#555]' : 'border-dashed border-[#222] hover:border-[#444]'}`}
+                              className={`w-full h-full min-h-[72px] bg-[#1a1a1a] border border-[#333] rounded-md p-2.5 flex flex-col text-left transition-colors hover:border-[#555] ${t ? 'border-l-2' : 'border-dashed'}`}
+                              style={t ? { borderLeftColor: TOTEM_TIER_COLORS[t.tier] } : undefined}
                             >
                               {t ? (
                                 <>
@@ -1502,7 +1549,7 @@ export default function App() {
                               ) : (
                                 <div className="flex flex-col items-center justify-center w-full flex-1 text-[#555]">
                                   <Plus className="w-4 h-4 mb-1" />
-                                  <span className="text-[10px] uppercase tracking-wide">Empty</span>
+                                  <span className="text-[10px] uppercase tracking-wide text-center">Empty — Tap to pick</span>
                                 </div>
                               )}
                             </button>
@@ -1523,9 +1570,10 @@ export default function App() {
                       })}
                     </div>
                     {totemSummary.length > 0 && (
-                      <div className="flex flex-wrap gap-x-3 gap-y-1 pt-1 text-[10px] font-mono">
-                        {totemSummary.map(s => (
+                      <div className="flex flex-wrap gap-y-1 pt-1 text-[10px] font-mono">
+                        {totemSummary.map((s, i) => (
                           <span key={s.key} className={s.battle ? 'text-emerald-500/80' : 'text-[#555]'}>
+                            {i > 0 && <span className="text-[#444] mx-1.5">·</span>}
                             {s.label} {s.text}
                             {!s.battle && <span className="text-[#444]"> (not used in calc)</span>}
                           </span>
