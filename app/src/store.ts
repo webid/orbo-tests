@@ -144,6 +144,7 @@ export interface OrboStore {
   slotsHistory: ArmySlotInfo[][];
   slotsRedo: ArmySlotInfo[][];
   luckModalOpen: boolean;
+  helpModalOpen: boolean;
   tapModsOpen: boolean;
   totemPickerSlot: number | null;
   totemSearch: string;
@@ -179,6 +180,7 @@ export interface OrboStore {
   setDraggedIndex: (i: number | null) => void;
   setHighlightedSlot: (i: number | null) => void;
   setLuckModalOpen: (open: boolean) => void;
+  setHelpModalOpen: (open: boolean) => void;
   setTapModsOpen: (fn: boolean | ((prev: boolean) => boolean)) => void;
   setTotemPickerSlot: (slot: number | null) => void;
   setTotemSearch: (s: string) => void;
@@ -221,6 +223,7 @@ export const useOrboStore = create<OrboStore>()(
       slotsHistory: [],
       slotsRedo: [],
       luckModalOpen: false,
+      helpModalOpen: false,
       tapModsOpen: false,
       totemPickerSlot: null,
       totemSearch: '',
@@ -346,6 +349,7 @@ export const useOrboStore = create<OrboStore>()(
       setDraggedIndex: (i) => set({ draggedIndex: i }),
       setHighlightedSlot: (i) => set({ highlightedSlot: i }),
       setLuckModalOpen: (open) => set({ luckModalOpen: open }),
+      setHelpModalOpen: (open) => set({ helpModalOpen: open }),
       setTapModsOpen: (fn) => set(state => ({
         tapModsOpen: typeof fn === 'function' ? fn(state.tapModsOpen) : fn
       })),
@@ -359,6 +363,7 @@ export const useOrboStore = create<OrboStore>()(
         modalTarget: null,
         syncModalOpen: false,
         luckModalOpen: false,
+        helpModalOpen: false,
         totemPickerSlot: null,
         totemSearch: '',
         explorerBase: null,

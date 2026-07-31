@@ -32,6 +32,7 @@ const resetStore = () => {
     slotsHistory: [],
     slotsRedo: [],
     luckModalOpen: false,
+    helpModalOpen: false,
     tapModsOpen: false,
     totemPickerSlot: null,
     totemSearch: '',
@@ -372,6 +373,32 @@ describe('army undo', () => {
     const input = document.querySelector('input[name="maxClicks"]')!;
     fireEvent.keyDown(input, { key: 'z', ctrlKey: true });
     expect(useOrboStore.getState().slots[1].creatureKey).toBeNull();
+  });
+});
+
+describe('help modal', () => {
+  it('opens from the header, shows the guide, and closes with X', () => {
+    render(<App />);
+    // Mobile icon (title row) + desktop button (action row) both exist;
+    // CSS breakpoints pick one, jsdom sees both.
+    const helpButtons = screen.getAllByRole('button', { name: 'Help' });
+    expect(helpButtons).toHaveLength(2);
+
+    fireEvent.click(helpButtons[0]);
+    expect(screen.getByText('How it works')).toBeTruthy();
+    expect(screen.getByText(/paste the data you copied in-game/)).toBeTruthy();
+    expect(screen.getByText(/Ctrl\/⌘ Z/)).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Close help' }));
+    expect(screen.queryByText('How it works')).toBeNull();
+  });
+
+  it('closes with Escape', () => {
+    render(<App />);
+    fireEvent.click(screen.getAllByRole('button', { name: 'Help' })[0]);
+    expect(screen.getByText('How it works')).toBeTruthy();
+    fireEvent.keyDown(document.body, { key: 'Escape' });
+    expect(screen.queryByText('How it works')).toBeNull();
   });
 });
 

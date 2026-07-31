@@ -5,7 +5,7 @@
 // ---------------------------------------------------------------------------
 
 import { useEffect, useMemo, lazy, Suspense } from 'react';
-import { Calculator, Search, Sparkles, DownloadCloud } from 'lucide-react';
+import { Calculator, Search, Sparkles, DownloadCloud, HelpCircle } from 'lucide-react';
 
 import { calculateRequirements } from './calc';
 import { useOrboStore, normalizeConfig } from './store';
@@ -14,6 +14,7 @@ import { ArmyGrid } from './components/ArmyGrid';
 import { BattleConfig } from './components/BattleConfig';
 import { BossModal } from './components/BossModal';
 import { CreatureModal } from './components/CreatureModal';
+import { HelpModal } from './components/HelpModal';
 import { LuckTableModal } from './components/LuckTableModal';
 import { PresetBar } from './components/PresetBar';
 import { StatCard } from './components/StatCard';
@@ -37,6 +38,7 @@ export default function App() {
   const syncModalOpen = useOrboStore(s => s.syncModalOpen);
   const setSyncModalOpen = useOrboStore(s => s.setSyncModalOpen);
   const setLuckModalOpen = useOrboStore(s => s.setLuckModalOpen);
+  const setHelpModalOpen = useOrboStore(s => s.setHelpModalOpen);
   const explorerBase = useOrboStore(s => s.explorerBase);
   const setUpdateAvailable = useOrboStore(s => s.setUpdateAvailable);
   const closeAllModals = useOrboStore(s => s.closeAllModals);
@@ -156,6 +158,7 @@ export default function App() {
       <CreatureModal />
       <SyncModal />
       <LuckTableModal />
+      <HelpModal />
       {explorerBase && (
         <Suspense fallback={null}>
           <ExplorerModal />
@@ -168,9 +171,15 @@ export default function App() {
 
         {/* Header */}
         <header className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#222] pb-5 gap-4 sm:gap-0">
-           <div className="flex items-center space-x-3">
-             <Calculator className="w-5 h-5 text-[#888]" />
-             <h1 className="text-xl font-medium tracking-tight text-[#ededed]">Orbo Command Center</h1>
+           <div className="flex items-center justify-between gap-3 w-full sm:w-auto">
+             <div className="flex items-center space-x-3">
+               <Calculator className="w-5 h-5 text-[#888]" />
+               <h1 className="text-xl font-medium tracking-tight text-[#ededed]">Orbo Command Center</h1>
+             </div>
+             {/* Help sits in the title row so it lands top-right on narrow devices */}
+             <button onClick={() => setHelpModalOpen(true)} title="Help" aria-label="Help" className="flex sm:hidden items-center justify-center w-7 h-7 shrink-0 rounded border border-[#222] bg-[#111] hover:bg-[#1a1a1a] text-[#888] hover:text-[#ededed] transition-colors shadow-sm">
+               <HelpCircle className="w-4 h-4" />
+             </button>
            </div>
 
            <div className="flex space-x-2 w-full sm:w-auto">
@@ -185,6 +194,10 @@ export default function App() {
              <button onClick={() => setSyncModalOpen(true)} className="flex-1 sm:flex-none justify-center flex items-center px-3 py-1.5 text-[10px] uppercase tracking-wider font-semibold rounded border border-[#222] bg-[#111] hover:bg-[#1a1a1a] text-[#888] hover:text-[#ededed] transition-colors shadow-sm">
                 <DownloadCloud className="w-3.5 h-3.5 mr-1.5" />
                 Sync
+             </button>
+             <button onClick={() => setHelpModalOpen(true)} title="Help" aria-label="Help" className="hidden sm:flex flex-none justify-center items-center px-3 py-1.5 text-[10px] uppercase tracking-wider font-semibold rounded border border-[#222] bg-[#111] hover:bg-[#1a1a1a] text-[#888] hover:text-[#ededed] transition-colors shadow-sm">
+                <HelpCircle className="w-3.5 h-3.5 mr-1.5" />
+                Help
              </button>
            </div>
         </header>
