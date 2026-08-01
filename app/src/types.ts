@@ -47,6 +47,9 @@ export interface Totem {
   tier: number;
   lane: string;
   effects: TotemEffect[];
+  // In-game flavor text shown on the card detail view ("It only burns
+  // while nobody's watching.").
+  blurb?: string;
 }
 
 export interface LuckRow {

@@ -11,7 +11,8 @@
         "value": 1.5
       }
     ],
-    "visual": "Rough pyrite nugget, brassy crust, one vein of real gold glowing through"
+    "visual": "Rough pyrite nugget, brassy crust, one vein of real gold glowing through",
+    "blurb": "Mostly fool's gold. The vein inside knows better."
   },
   {
     "key": "erosion-1",
@@ -25,7 +26,8 @@
         "value": 0.9
       }
     ],
-    "visual": "River-worn grey pebble with a smooth hole bored clean through, faint glow inside"
+    "visual": "River-worn grey pebble with a smooth hole bored clean through, faint glow inside",
+    "blurb": "Water spent a thousand years boring that hole. Yours now."
   },
   {
     "key": "frenzy-1",
@@ -39,7 +41,8 @@
         "value": 1.1
       }
     ],
-    "visual": "Small amber bead with a black slit pupil, mid-dart"
+    "visual": "Small amber bead with a black slit pupil, mid-dart",
+    "blurb": "It darts. The orbos dart with it."
   },
   {
     "key": "dynamo-1",
@@ -53,7 +56,8 @@
         "value": 1.2
       }
     ],
-    "visual": "Red cord tied in a sailor's wind-knot, faint static arcing between the loops"
+    "visual": "Red cord tied in a sailor's wind-knot, faint static arcing between the loops",
+    "blurb": "A sailor tied the wind in here and never came back."
   },
   {
     "key": "battery-1",
@@ -67,7 +71,8 @@
         "value": 1.2
       }
     ],
-    "visual": "Corked glass vial holding a miniature thundercloud and rain"
+    "visual": "Corked glass vial holding a miniature thundercloud and rain",
+    "blurb": "One small storm, corked. Shake gently."
   },
   {
     "key": "idle-cache-1",
@@ -81,7 +86,8 @@
         "value": 1.2
       }
     ],
-    "visual": "Melted candle stub with a pale cold ghost-flame, spectral wisps"
+    "visual": "Melted candle stub with a pale cold ghost-flame, spectral wisps",
+    "blurb": "It only burns while nobody's watching."
   },
   {
     "key": "reservoir-1",
@@ -95,7 +101,8 @@
         "value": 1
       }
     ],
-    "visual": "Dented iron thimble slowly filling with glowing pale mist"
+    "visual": "Dented iron thimble slowly filling with glowing pale mist",
+    "blurb": "Fills with pale mist while you're away."
   },
   {
     "key": "wardens-tithe-1",
@@ -109,7 +116,8 @@
         "value": 3
       }
     ],
-    "visual": "Milky moonstone pebble with a violet crescent glowing inside"
+    "visual": "Milky moonstone pebble with a violet crescent glowing inside",
+    "blurb": "The deep accepts one currency: moonlight."
   },
   {
     "key": "descent-rush-1",
@@ -124,7 +132,8 @@
         "value": 2
       }
     ],
-    "visual": "A single scorched feather sealed mid-fall in a small charm"
+    "visual": "A single scorched feather sealed mid-fall in a small charm",
+    "blurb": "Still falling. Take it with you."
   },
   {
     "key": "prospector-2",
@@ -138,7 +147,8 @@
         "value": 2
       }
     ],
-    "visual": "Gilded scarab beetle, wings ajar, tiny gearwork beneath"
+    "visual": "Gilded scarab beetle, wings ajar, tiny gearwork beneath",
+    "blurb": "It crawls toward buried gold. Keep up."
   },
   {
     "key": "erosion-2",
@@ -152,7 +162,8 @@
         "value": 0.8
       }
     ],
-    "visual": "Deeply dished whetstone on a cord, edges eroded thin"
+    "visual": "Deeply dished whetstone on a cord, edges eroded thin",
+    "blurb": "It wore itself hollow. Now it starts on the walls."
   },
   {
     "key": "frenzy-2",
@@ -166,7 +177,8 @@
         "value": 1.2
       }
     ],
-    "visual": "A wolf fang wrapped in unravelling silver wire"
+    "visual": "A wolf fang wrapped in unravelling silver wire",
+    "blurb": "The wire's coming loose. So are the orbos."
   },
   {
     "key": "fault-line-1",
@@ -180,7 +192,8 @@
         "value": 0.25
       }
     ],
-    "visual": "A cut gem with a single glinting fracture through the middle"
+    "visual": "A cut gem with a single glinting fracture through the middle",
+    "blurb": "Every rock has a flaw. This one shows you where."
   },
   {
     "key": "spark-pebble-1",
@@ -194,7 +207,8 @@
         "value": 24
       }
     ],
-    "visual": "A scorched flint striker throwing tiny lightning bolts instead of sparks"
+    "visual": "A scorched flint striker throwing tiny lightning bolts instead of sparks",
+    "blurb": "Strike stone, get lightning. Fair trade."
   },
   {
     "key": "orb-compass-1",
@@ -208,7 +222,8 @@
         "value": 5
       }
     ],
-    "visual": "Pocket sundial casting an impossible violet moon-shadow"
+    "visual": "Pocket sundial casting an impossible violet moon-shadow",
+    "blurb": "It casts a moon-shadow. The shadow points down."
   },
   {
     "key": "gilded-boot-1",
@@ -226,7 +241,8 @@
         "value": 4
       }
     ],
-    "visual": "A solid-gold obol stamped with a violet crescent, beaded with water"
+    "visual": "A solid-gold obol stamped with a violet crescent, beaded with water",
+    "blurb": "Fare for the crossing. It comes back damp."
   },
   {
     "key": "dynamo-2",
@@ -244,7 +260,8 @@
         "value": 0.06
       }
     ],
-    "visual": "Red cord, two wind-knots, one loop slipping open with a crackle"
+    "visual": "Red cord, two wind-knots, one loop slipping open with a crackle",
+    "blurb": "One loop keeps slipping. The wind works for free."
   },
   {
     "key": "apex-strike-1",
@@ -258,7 +275,8 @@
         "value": 1.3
       }
     ],
-    "visual": "A snapped iron bit-ring, teeth-marks bitten clean through one side, faint ember glow in the dents"
+    "visual": "A snapped iron bit-ring, teeth-marks bitten clean through one side, faint ember glow in the dents",
+    "blurb": "Chewed through by something that led the pack. It still leads."
   },
   {
     "key": "jackpot-geode-1",
@@ -276,7 +294,8 @@
         "value": 5
       }
     ],
-    "visual": "Anatomical heart-shaped geode split open to solid gold crystal"
+    "visual": "Anatomical heart-shaped geode split open to solid gold crystal",
+    "blurb": "Crack one open. Sometimes it's a vault."
   },
   {
     "key": "shatterpoint-1",
@@ -294,7 +313,8 @@
         "value": 1.1
       }
     ],
-    "visual": "A single grey basilisk scale, mirror-polished, its reflections turning to stone"
+    "visual": "A single grey basilisk scale, mirror-polished, its reflections turning to stone",
+    "blurb": "Whatever it reflects simply stops."
   },
   {
     "key": "gamblers-flip-1",
@@ -308,7 +328,8 @@
         "value": 0.2
       }
     ],
-    "visual": "Ghost-silver coin spinning mid-fall, both faces showing tails"
+    "visual": "Ghost-silver coin spinning mid-fall, both faces showing tails",
+    "blurb": "Someone filed one face down. Nobody agrees which."
   },
   {
     "key": "orb-vein-1",
@@ -322,7 +343,8 @@
         "value": 20
       }
     ],
-    "visual": "A pearl with a miniature violet tide swelling inside"
+    "visual": "A pearl with a miniature violet tide swelling inside",
+    "blurb": "The tide inside follows a moon nobody's found."
   },
   {
     "key": "avalanche-1",
@@ -341,7 +363,8 @@
         "value": 10
       }
     ],
-    "visual": "A meteoric stone wreathed in dust and cracks, faint violet halo"
+    "visual": "A meteoric stone wreathed in dust and cracks, faint violet halo",
+    "blurb": "Where it lands, the floor remembers."
   },
   {
     "key": "prospector-3",
@@ -359,7 +382,8 @@
         "value": 1.2
       }
     ],
-    "visual": "A golden serpent-slit gem, storm-light flickering in the pupil"
+    "visual": "A golden serpent-slit gem, storm-light flickering in the pupil",
+    "blurb": "Gold blinks back. Storms flicker behind the slit."
   },
   {
     "key": "runt-strike-1",
@@ -373,7 +397,8 @@
         "value": 2
       }
     ],
-    "visual": "A short broken tusk, tip chipped away, bound in frayed cord and worn smooth by a small grip"
+    "visual": "A short broken tusk, tip chipped away, bound in frayed cord and worn smooth by a small grip",
+    "blurb": "The smallest one kept it. The smallest one kept going."
   },
   {
     "key": "runt-crit-1",
@@ -391,7 +416,8 @@
         "value": 2
       }
     ],
-    "visual": "A single oversized fang hung on a fraying cord, hairline crack down its length, tip glowing white-hot"
+    "visual": "A single oversized fang hung on a fraying cord, hairline crack down its length, tip glowing white-hot",
+    "blurb": "It waits. Then it doesn't."
   },
   {
     "key": "idle-cache-2",
@@ -405,7 +431,8 @@
         "value": 1.5
       }
     ],
-    "visual": "A shuttered iron lantern burning low, its light pooling into loose coins beneath"
+    "visual": "A shuttered iron lantern burning low, its light pooling into loose coins beneath",
+    "blurb": "It works the night shift. It does not mention what it digs up."
   },
   {
     "key": "reservoir-2",
@@ -419,7 +446,8 @@
         "value": 6
       }
     ],
-    "visual": "A squat glass flask far deeper inside than out, slowly filling with pale mist"
+    "visual": "A squat glass flask far deeper inside than out, slowly filling with pale mist",
+    "blurb": "Bottomless, allegedly. Nobody has waited long enough to check."
   },
   {
     "key": "freefall-1",
@@ -437,7 +465,8 @@
         "value": 30
       }
     ],
-    "visual": "A broken god-sized manacle, its chain hanging taut straight down"
+    "visual": "A broken god-sized manacle, its chain hanging taut straight down",
+    "blurb": "Whatever wore it fell. The chain points the way."
   },
   {
     "key": "deepdelver-1",
@@ -455,7 +484,8 @@
         "value": 0.9
       }
     ],
-    "visual": "A key cut from a fault line, teeth like eroding cliff faces"
+    "visual": "A key cut from a fault line, teeth like eroding cliff faces",
+    "blurb": "Every fault in the world was cut to fit it."
   },
   {
     "key": "fault-line-2",
@@ -477,7 +507,8 @@
         "value": 2
       }
     ],
-    "visual": "Cut gem, fracture forked into a lightning shape, arcing faintly"
+    "visual": "Cut gem, fracture forked into a lightning shape, arcing faintly",
+    "blurb": "The flaw forked. Now it looks like lightning."
   },
   {
     "key": "descent-rush-2",
@@ -496,7 +527,8 @@
         "value": 0.5
       }
     ],
-    "visual": "A ring of slow meteors orbiting nothing, trailing gold dust"
+    "visual": "A ring of slow meteors orbiting nothing, trailing gold dust",
+    "blurb": "Meteors on a slow orbit, shedding gold on the way down."
   },
   {
     "key": "dynamo-3",
@@ -514,7 +546,8 @@
         "value": 2
       }
     ],
-    "visual": "A braided cord of storm, three knots, one ghost-pale thread woven through"
+    "visual": "A braided cord of storm, three knots, one ghost-pale thread woven through",
+    "blurb": "One tempest, three knots, one thread you didn't tie."
   },
   {
     "key": "apex-tempo-1",
@@ -528,7 +561,8 @@
         "value": 2.2
       }
     ],
-    "visual": "A heavy brass metronome, arm blurred mid-swing, its weight cast as a crowned head"
+    "visual": "A heavy brass metronome, arm blurred mid-swing, its weight cast as a crowned head",
+    "blurb": "It only keeps time for whoever is winning."
   },
   {
     "key": "reservoir-3",
@@ -542,7 +576,8 @@
         "value": 22
       }
     ],
-    "visual": "A stone cistern mouth seen from above, star-flecked water rising impossibly high"
+    "visual": "A stone cistern mouth seen from above, star-flecked water rising impossibly high",
+    "blurb": "A whole reservoir, folded small. It keeps everything you did not collect."
   },
   {
     "key": "warlord-1",
@@ -560,7 +595,8 @@
         "value": 2
       }
     ],
-    "visual": "Blackened antler crown, ember-lit tips dipped in gold"
+    "visual": "Blackened antler crown, ember-lit tips dipped in gold",
+    "blurb": "The tips are dipped in gold. The rest is war."
   },
   {
     "key": "goldrush-1",
@@ -582,7 +618,8 @@
         "value": 50
       }
     ],
-    "visual": "A chalice overflowing molten gold that falls through the floor"
+    "visual": "A chalice overflowing molten gold that falls through the floor",
+    "blurb": "It pours more than it holds. The floor can't hold it either."
   },
   {
     "key": "rally-1",
@@ -600,7 +637,8 @@
         "value": 0.4
       }
     ],
-    "visual": "A bell of raw meteoric iron mid-ring, its peal visible as weather"
+    "visual": "A bell of raw meteoric iron mid-ring, its peal visible as weather",
+    "blurb": "It rings on its own. Your arm stops aching."
   },
   {
     "key": "stampede-1",
@@ -618,7 +656,8 @@
         "value": 0.4
       }
     ],
-    "visual": "A caged cyclone with a glowing eye, bars straining open"
+    "visual": "A caged cyclone with a glowing eye, bars straining open",
+    "blurb": "Every landing, the cage flies open. It shuts again."
   },
   {
     "key": "runt-tempo-1",
@@ -632,7 +671,8 @@
         "value": 3
       }
     ],
-    "visual": "A dented tin lantern flaring far brighter than its size, held at the rear of a long dark tunnel"
+    "visual": "A dented tin lantern flaring far brighter than its size, held at the rear of a long dark tunnel",
+    "blurb": "Handed to whoever walks at the back. It burns hardest there."
   },
   {
     "key": "apex-crit-1",
@@ -650,7 +690,8 @@
         "value": 6.85
       }
     ],
-    "visual": "A black whetstone throwing a fan of gold sparks, one enormous blade edge hovering just above it"
+    "visual": "A black whetstone throwing a fan of gold sparks, one enormous blade edge hovering just above it",
+    "blurb": "It only sharpens what is already sharpest."
   },
   {
     "key": "idle-cache-3",
@@ -668,7 +709,8 @@
         "value": 6
       }
     ],
-    "visual": "A vast banked furnace glowing molten through its seams, gold slag pooling at its feet"
+    "visual": "A vast banked furnace glowing molten through its seams, gold slag pooling at its feet",
+    "blurb": "It only ever roars when the room is empty."
   },
   {
     "key": "god-worldender-1",
@@ -690,7 +732,8 @@
         "value": 0.8
       }
     ],
-    "visual": "An obsidian domino frozen mid-tip, its shadow a falling city skyline"
+    "visual": "An obsidian domino frozen mid-tip, its shadow a falling city skyline",
+    "blurb": "It's been mid-tip forever. Look at its shadow."
   },
   {
     "key": "god-midas-1",
@@ -708,7 +751,8 @@
         "value": 4
       }
     ],
-    "visual": "A single enormous golden tear, the world reflected in it turning gold"
+    "visual": "A single enormous golden tear, the world reflected in it turning gold",
+    "blurb": "Everything reflected in it appreciates."
   },
   {
     "key": "god-cataclysm-1",
@@ -730,6 +774,7 @@
         "value": 100
       }
     ],
-    "visual": "An ornate gold locket open on a tiny black hole, violet accretion ring, chain straining toward it"
+    "visual": "An ornate gold locket open on a tiny black hole, violet accretion ring, chain straining toward it",
+    "blurb": "The deep opens ahead of it, out of respect."
   }
 ]

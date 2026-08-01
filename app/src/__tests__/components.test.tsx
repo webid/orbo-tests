@@ -36,6 +36,7 @@ const resetStore = () => {
     tapModsOpen: false,
     totemPickerSlot: null,
     totemSearch: '',
+    totemListMode: false,
     explorerBase: null,
     explorerCompare: null,
     toast: null,
@@ -568,6 +569,45 @@ describe('totem picker duplicate restriction', () => {
 
     fireEvent.keyDown(screen.getByPlaceholderText(/Search totems/), { key: 'Enter' });
     expect(useOrboStore.getState().config.totemKeys).toEqual([second.key, null, first.key]);
+  });
+});
+
+describe('totem picker list mode', () => {
+  const pickerPanel = () =>
+    screen.getByText(/Select Totem — Slot/).closest('.max-w-3xl') as HTMLElement;
+
+  it('toggles to a list view with larger art and blurbs, and still picks', () => {
+    const card = totemsData.find(t => t.blurb)!;
+    useOrboStore.getState().setTotemPickerSlot(0);
+    render(<App />);
+
+    // Grid mode is the default: flavor text is not rendered anywhere.
+    expect(document.body.textContent).not.toContain(card.blurb!);
+
+    fireEvent.click(screen.getByTitle('List view — names, lore and effects'));
+
+    const panel = pickerPanel();
+    expect(within(panel).getByText(`“${card.blurb}”`)).toBeTruthy();
+    const thumb = within(panel).getByAltText(card.name).parentElement as HTMLElement;
+    expect(thumb.style.width).toBe('72px'); // larger than the 44px grid thumbs
+
+    // Clicking a row equips the card, same as grid mode.
+    const row = within(panel).getByText(card.name).closest('button') as HTMLButtonElement;
+    fireEvent.click(row);
+    expect(useOrboStore.getState().config.totemKeys).toEqual([card.key, null, null]);
+  });
+
+  it('renders a pure text list when card images are hidden', () => {
+    const card = totemsData.find(t => t.blurb)!;
+    useOrboStore.getState().setConfig({ totemImagesOn: false });
+    useOrboStore.setState({ totemListMode: true });
+    useOrboStore.getState().setTotemPickerSlot(0);
+    render(<App />);
+
+    const panel = pickerPanel();
+    expect(panel.querySelector('img')).toBeNull();
+    expect(within(panel).getByText(`“${card.blurb}”`)).toBeTruthy();
+    expect(within(panel).getByText(card.name)).toBeTruthy();
   });
 });
 

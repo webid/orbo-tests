@@ -1,4 +1,4 @@
-import { Search, Sparkles, X, Image as ImageIcon } from 'lucide-react';
+import { Search, Sparkles, X, Image as ImageIcon, List, LayoutGrid } from 'lucide-react';
 import { TOTEM_EFFECT_INFO, TOTEM_LANE_ORDER, TOTEM_TIER_COLORS, TOTEM_TIER_NAMES, totemsData, totemsDict } from '../data';
 import { formatTotemEffect } from '../utils';
 import { useOrboStore } from '../store';
@@ -39,6 +39,8 @@ export const TotemPickerModal = () => {
   const setTotemImagesOn = useOrboStore(s => s.setTotemImagesOn);
   const totemSearch = useOrboStore(s => s.totemSearch);
   const setTotemSearch = useOrboStore(s => s.setTotemSearch);
+  const totemListMode = useOrboStore(s => s.totemListMode);
+  const setTotemListMode = useOrboStore(s => s.setTotemListMode);
 
   const totemImagesOn = config.totemImagesOn !== false;
 
@@ -119,6 +121,13 @@ export const TotemPickerModal = () => {
             </h2>
             <div className="flex items-center space-x-2">
                <button
+                  onClick={() => setTotemListMode(!totemListMode)}
+                  title={totemListMode ? 'Grid view — compact cards' : 'List view — names, lore and effects'}
+                  className={`p-1.5 rounded transition-colors ${totemListMode ? 'text-[#ededed] bg-[#222] hover:bg-[#2a2a2a]' : 'text-[#888] hover:text-[#ededed] bg-[#1a1a1a] hover:bg-[#222]'}`}
+               >
+                  {totemListMode ? <LayoutGrid className="w-4 h-4" /> : <List className="w-4 h-4" />}
+               </button>
+               <button
                   onClick={() => setTotemImagesOn(!totemImagesOn)}
                   title={totemImagesOn ? 'Hide card images' : 'Show card images'}
                   className={`p-1.5 rounded transition-colors ${totemImagesOn ? 'text-[#ededed] bg-[#222] hover:bg-[#2a2a2a]' : 'text-[#888] hover:text-[#ededed] bg-[#1a1a1a] hover:bg-[#222]'}`}
@@ -157,6 +166,62 @@ export const TotemPickerModal = () => {
                      <h3 className="text-xs font-semibold uppercase tracking-wider mb-3 border-b border-[#222] pb-1" style={{ color: TOTEM_TIER_COLORS[tier] }}>
                         Tier {tier} — {TOTEM_TIER_NAMES[tier]}
                      </h3>
+                     {totemListMode ? (
+                        // List view: full-width rows with larger art, the in-game
+                        // flavor text and every effect — easy to read and copy
+                        // (e.g. for translating the card catalog).
+                        <div className="flex flex-col gap-2.5">
+                           {cards.map(t => {
+                              const isSelected = (config.totemKeys || [])[totemPickerSlot] === t.key;
+                              const equippedElsewhere = isEquippedElsewhere(t.key);
+                              const deltas = getDeltas(t);
+                              return (
+                                 <button
+                                    key={t.key}
+                                    disabled={equippedElsewhere}
+                                    onClick={() => selectTotem(t.key)}
+                                    className={`w-full text-left bg-[#111] border p-3 rounded-md transition-colors ${equippedElsewhere ? 'opacity-40 cursor-not-allowed border-[#222]' : isSelected ? 'border-[#888] bg-[#1a1a1a]' : 'border-[#222] hover:border-[#444] hover:bg-[#1a1a1a]'}`}
+                                 >
+                                    <div className="flex items-start space-x-3">
+                                       {totemImagesOn && <TotemThumb totem={t} size={72} />}
+                                       <div className="flex flex-col min-w-0 flex-1">
+                                          <div className="flex items-center justify-between w-full">
+                                             <div className="flex items-center space-x-1.5 min-w-0">
+                                                <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: TOTEM_TIER_COLORS[t.tier] }} />
+                                                <span className="text-[13px] font-medium text-[#ededed] leading-tight">{t.name}</span>
+                                             </div>
+                                             <span className="text-[9px] uppercase tracking-wide px-1.5 py-0.5 rounded-full bg-[#1a1a1a] border border-[#2a2a2a] text-[#888] shrink-0 ml-1">{t.lane}</span>
+                                          </div>
+                                          {t.blurb && (
+                                             <p className="text-[11px] italic text-[#888] leading-relaxed mt-1">“{t.blurb}”</p>
+                                          )}
+                                          <div className="flex flex-col items-start space-y-0.5 mt-1.5">
+                                             {t.effects.map((e, i) => (
+                                                <span key={i} className={`text-[10px] font-mono ${e.key && TOTEM_EFFECT_INFO[e.key]?.battle ? 'text-emerald-500/80' : 'text-[#666]'}`}>
+                                                   {formatTotemEffect(e)}
+                                                </span>
+                                             ))}
+                                          </div>
+                                          {(deltas.length > 0 || equippedElsewhere) && (
+                                             <div className="flex flex-wrap items-center gap-1 mt-1.5">
+                                                {deltas.map(d => (
+                                                   <span
+                                                      key={d.key}
+                                                      className={`text-[8px] font-mono px-1 py-px rounded border ${d.up ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400' : 'bg-red-500/10 border-red-500/25 text-red-400'}`}
+                                                   >
+                                                      {d.text}
+                                                   </span>
+                                                ))}
+                                                {equippedElsewhere && <span className="text-[8px] uppercase tracking-wide text-[#555]">Equipped</span>}
+                                             </div>
+                                          )}
+                                       </div>
+                                    </div>
+                                 </button>
+                              );
+                           })}
+                        </div>
+                     ) : (
                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5">
                         {cards.map(t => {
                            const isSelected = (config.totemKeys || [])[totemPickerSlot] === t.key;
@@ -204,6 +269,7 @@ export const TotemPickerModal = () => {
                            );
                         })}
                      </div>
+                     )}
                   </div>
                );
             })}
