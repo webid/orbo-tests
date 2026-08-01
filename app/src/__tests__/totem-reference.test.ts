@@ -34,4 +34,12 @@ describe('generated totem reference page', () => {
       expect(html).toContain(`Tier ${tier} \u2014 ${TOTEM_TIER_NAMES[tier]}`);
     }
   });
+
+  it('gives every effect line a non-empty plain-language explanation', () => {
+    const totalEffects = totemsData.reduce((n, t) => n + t.effects.length, 0);
+    const count = (needle: string) => html.split(needle).length - 1;
+    expect(count('class="raw"'), 'raw effect lines').toBe(totalEffects);
+    expect(count('class="explain"'), 'explanation lines').toBe(totalEffects);
+    expect(html, 'empty explanation').not.toContain('class="explain"></span>');
+  });
 });

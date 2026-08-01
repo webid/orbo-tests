@@ -61,6 +61,53 @@ const formatEffect = (e) => {
   return `${EFFECT_INFO[e.key]?.label || e.key} ${formatValue(e.key, e.value)}`;
 };
 
+// --- plain-language meaning of each effect ---------------------------------
+// Adapted from the game's own card-detail descriptions (playorbo.fun bundle,
+// chunk 4922) into beginner-friendly sentences — e.g. "Idle Coins \u00d71.2"
+// becomes "Earn 20% more coins while idle." Kept in this script (not data.ts)
+// because it is only used on the generated reference page.
+const multPct = (v) => Math.round((v - 1) * 1000) / 10; // 1.2 -> 20
+const pct = (v) => Math.round(v * 1000) / 10; // 0.06 -> 6
+
+const EXPLAIN = {
+  orboDamageMult:        (e) => `All your orbos deal ${multPct(e.value)}% more damage.`,
+  orboAttackSpeedMult:   (e) => `All your orbos attack ${multPct(e.value)}% faster.`,
+  energyMaxMult:         (e) => `Your energy bar holds ${multPct(e.value)}% more energy.`,
+  energyRegenMult:       (e) => `Energy refills ${multPct(e.value)}% faster.`,
+  freeTapChance:         (e) => `${pct(e.value)}% of taps cost no energy.`,
+  tapCritChance:         (e) => `${pct(e.value)}% of taps crit for \u00d72 damage.`,
+  tapCritMultBonus:      (e) => `Tap crits deal an extra +${e.value}\u00d7 damage.`,
+  apexOrboDamageMult:    (e) => `Your strongest orbo (apex) deals ${multPct(e.value)}% more damage.`,
+  apexOrboCritChance:    (e) => `${pct(e.value)}% of your strongest orbo's hits crit.`,
+  apexOrboCritMult:      (e) => `Your strongest orbo's crits deal \u00d7${e.value} damage.`,
+  runtOrboDamageMult:    (e) => `Your weakest orbo (runt) deals ${multPct(e.value)}% more damage.`,
+  runtOrboCritChance:    (e) => `${pct(e.value)}% of your weakest orbo's hits crit.`,
+  runtOrboCritMult:      (e) => `Your weakest orbo's crits deal \u00d7${e.value} damage.`,
+  rockCoinsMult:         (e) => `Rocks give ${multPct(e.value)}% more coins.`,
+  rockHpMult:            (e) => multPct(e.value) < 0
+    ? `Rocks have ${-multPct(e.value)}% less HP, so they break faster.`
+    : `Rocks have ${multPct(e.value)}% more HP.`,
+  rockJackpotChance:     (e) => `${pct(e.value)}% of rocks drop a jackpot worth \u00d710 coins.`,
+  energyPerRockBreak:    (e) => `Gain ${e.value} energy every time a rock breaks.`,
+  idleCoinsMult:         (e) => `Earn ${multPct(e.value)}% more coins while idle.`,
+  idleCapHoursBonus:     (e) => `Idle coins can pile up for ${e.value} extra ${e.value === 1 ? 'hour' : 'hours'}.`,
+  descendOrbsBonus:      (e) => `Gain ${e.value} bonus ${e.value === 1 ? 'orb' : 'orbs'} when you descend.`,
+  descendCoinFlipPayout: (e) => `On descend: 50% chance to gain ${pct(e.value)}% of your next luck upgrade.`,
+  doubleDescendChance:   (e) => `${pct(e.value)}% chance that descending drops you 2 floors instead of 1.`,
+};
+
+const explainEffect = (e) => {
+  if (!e.key && e.rush) {
+    const v = `\u00d7${e.value}`;
+    const scope = `the first ${e.rocks} rocks after you descend`;
+    if (e.rush === 'rockCoins') return `Rush: ${scope} give ${v} coins.`;
+    if (e.rush === 'rockHp') return `Rush: ${scope} have ${v} HP (break faster).`;
+    if (e.rush === 'orboAttackSpeed') return `Rush: orbos attack ${v} faster for ${scope}.`;
+    return `Rush: ${v} ${e.rush} for ${scope}.`;
+  }
+  return EXPLAIN[e.key]?.(e) || '';
+};
+
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 // --- page -------------------------------------------------------------------
@@ -75,7 +122,7 @@ const card = (t) => `      <article class="card">
         <div class="body">
           <h3><span class="dot" style="background:${TIER_COLORS[t.tier]}"></span>${esc(t.name)} <span class="lane">${esc(t.lane)}</span></h3>
 ${t.blurb ? `          <p class="blurb">\u201c${esc(t.blurb)}\u201d</p>\n` : ''}          <ul class="effects">
-${t.effects.map(e => `            <li>${esc(formatEffect(e))}</li>`).join('\n')}
+${t.effects.map(e => `            <li><span class="raw">${esc(formatEffect(e))}</span><span class="explain">${esc(explainEffect(e))}</span></li>`).join('\n')}
           </ul>
         </div>
       </article>`;
@@ -116,7 +163,10 @@ const html = `<!doctype html>
     .lane { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: #888; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 999px; padding: 2px 8px; }
     .blurb { color: #888; font-style: italic; margin: 6px 0 0; }
     .effects { margin: 8px 0 0; padding: 0; list-style: none; }
-    .effects li { font-size: 13px; font-family: ui-monospace, monospace; color: #7ee2a8; opacity: 0.85; }
+    .effects li { display: flex; flex-direction: column; gap: 1px; margin-bottom: 7px; }
+    .effects li:last-child { margin-bottom: 0; }
+    .effects .raw { font-size: 13px; font-family: ui-monospace, monospace; color: #7ee2a8; opacity: 0.85; }
+    .effects .explain { font-size: 12.5px; color: #999; }
   </style>
 </head>
 <body>

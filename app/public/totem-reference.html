@@ -23,7 +23,10 @@
     .lane { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: #888; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 999px; padding: 2px 8px; }
     .blurb { color: #888; font-style: italic; margin: 6px 0 0; }
     .effects { margin: 8px 0 0; padding: 0; list-style: none; }
-    .effects li { font-size: 13px; font-family: ui-monospace, monospace; color: #7ee2a8; opacity: 0.85; }
+    .effects li { display: flex; flex-direction: column; gap: 1px; margin-bottom: 7px; }
+    .effects li:last-child { margin-bottom: 0; }
+    .effects .raw { font-size: 13px; font-family: ui-monospace, monospace; color: #7ee2a8; opacity: 0.85; }
+    .effects .explain { font-size: 12.5px; color: #999; }
   </style>
 </head>
 <body>
@@ -40,7 +43,7 @@
           <h3><span class="dot" style="background:#888"></span>Rat's Eye <span class="lane">power</span></h3>
           <p class="blurb">“It darts. The orbos dart with it.”</p>
           <ul class="effects">
-            <li>Attack Speed ×1.1</li>
+            <li><span class="raw">Attack Speed ×1.1</span><span class="explain">All your orbos attack 10% faster.</span></li>
           </ul>
         </div>
       </article>
@@ -52,7 +55,7 @@
           <h3><span class="dot" style="background:#888"></span>Storm Knot <span class="lane">energy</span></h3>
           <p class="blurb">“A sailor tied the wind in here and never came back.”</p>
           <ul class="effects">
-            <li>Energy Regen ×1.2</li>
+            <li><span class="raw">Energy Regen ×1.2</span><span class="explain">Energy refills 20% faster.</span></li>
           </ul>
         </div>
       </article>
@@ -64,7 +67,7 @@
           <h3><span class="dot" style="background:#888"></span>Vial of Rain <span class="lane">energy</span></h3>
           <p class="blurb">“One small storm, corked. Shake gently.”</p>
           <ul class="effects">
-            <li>Energy Max ×1.2</li>
+            <li><span class="raw">Energy Max ×1.2</span><span class="explain">Your energy bar holds 20% more energy.</span></li>
           </ul>
         </div>
       </article>
@@ -76,7 +79,7 @@
           <h3><span class="dot" style="background:#888"></span>Fool's Gold Nugget <span class="lane">economy</span></h3>
           <p class="blurb">“Mostly fool's gold. The vein inside knows better.”</p>
           <ul class="effects">
-            <li>Rock Coins ×1.5</li>
+            <li><span class="raw">Rock Coins ×1.5</span><span class="explain">Rocks give 50% more coins.</span></li>
           </ul>
         </div>
       </article>
@@ -88,7 +91,7 @@
           <h3><span class="dot" style="background:#888"></span>Ghost Candle <span class="lane">idle</span></h3>
           <p class="blurb">“It only burns while nobody's watching.”</p>
           <ul class="effects">
-            <li>Idle Coins ×1.2</li>
+            <li><span class="raw">Idle Coins ×1.2</span><span class="explain">Earn 20% more coins while idle.</span></li>
           </ul>
         </div>
       </article>
@@ -100,7 +103,7 @@
           <h3><span class="dot" style="background:#888"></span>Ghost Thimble <span class="lane">idle</span></h3>
           <p class="blurb">“Fills with pale mist while you're away.”</p>
           <ul class="effects">
-            <li>Idle Cap +1h</li>
+            <li><span class="raw">Idle Cap +1h</span><span class="explain">Idle coins can pile up for 1 extra hour.</span></li>
           </ul>
         </div>
       </article>
@@ -112,7 +115,7 @@
           <h3><span class="dot" style="background:#888"></span>Hagstone <span class="lane">descent</span></h3>
           <p class="blurb">“Water spent a thousand years boring that hole. Yours now.”</p>
           <ul class="effects">
-            <li>Rock HP ×0.9</li>
+            <li><span class="raw">Rock HP ×0.9</span><span class="explain">Rocks have 10% less HP, so they break faster.</span></li>
           </ul>
         </div>
       </article>
@@ -124,7 +127,7 @@
           <h3><span class="dot" style="background:#888"></span>Fallen Feather <span class="lane">descent</span></h3>
           <p class="blurb">“Still falling. Take it with you.”</p>
           <ul class="effects">
-            <li>Rush: rock coins ×2 for 8 rocks</li>
+            <li><span class="raw">Rush: rock coins ×2 for 8 rocks</span><span class="explain">Rush: the first 8 rocks after you descend give ×2 coins.</span></li>
           </ul>
         </div>
       </article>
@@ -136,7 +139,7 @@
           <h3><span class="dot" style="background:#888"></span>Moonstone <span class="lane">orb</span></h3>
           <p class="blurb">“The deep accepts one currency: moonlight.”</p>
           <ul class="effects">
-            <li>Descend Orbs +3</li>
+            <li><span class="raw">Descend Orbs +3</span><span class="explain">Gain 3 bonus orbs when you descend.</span></li>
           </ul>
         </div>
       </article>
@@ -151,7 +154,7 @@
           <h3><span class="dot" style="background:#6b9"></span>Wolf Fang Pendant <span class="lane">power</span></h3>
           <p class="blurb">“The wire's coming loose. So are the orbos.”</p>
           <ul class="effects">
-            <li>Attack Speed ×1.2</li>
+            <li><span class="raw">Attack Speed ×1.2</span><span class="explain">All your orbos attack 20% faster.</span></li>
           </ul>
         </div>
       </article>
@@ -163,7 +166,7 @@
           <h3><span class="dot" style="background:#6b9"></span>Alpha's Bit <span class="lane">power</span></h3>
           <p class="blurb">“Chewed through by something that led the pack. It still leads.”</p>
           <ul class="effects">
-            <li>Apex Orbo Damage ×1.3</li>
+            <li><span class="raw">Apex Orbo Damage ×1.3</span><span class="explain">Your strongest orbo (apex) deals 30% more damage.</span></li>
           </ul>
         </div>
       </article>
@@ -175,7 +178,7 @@
           <h3><span class="dot" style="background:#6b9"></span>Thunderflint <span class="lane">energy</span></h3>
           <p class="blurb">“Strike stone, get lightning. Fair trade.”</p>
           <ul class="effects">
-            <li>Energy / Rock Break +24</li>
+            <li><span class="raw">Energy / Rock Break +24</span><span class="explain">Gain 24 energy every time a rock breaks.</span></li>
           </ul>
         </div>
       </article>
@@ -187,8 +190,8 @@
           <h3><span class="dot" style="background:#6b9"></span>Thunder Hitch <span class="lane">energy</span></h3>
           <p class="blurb">“One loop keeps slipping. The wind works for free.”</p>
           <ul class="effects">
-            <li>Energy Regen ×1.35</li>
-            <li>Free Tap Chance +6%</li>
+            <li><span class="raw">Energy Regen ×1.35</span><span class="explain">Energy refills 35% faster.</span></li>
+            <li><span class="raw">Free Tap Chance +6%</span><span class="explain">6% of taps cost no energy.</span></li>
           </ul>
         </div>
       </article>
@@ -200,7 +203,7 @@
           <h3><span class="dot" style="background:#6b9"></span>Flawstone <span class="lane">tap</span></h3>
           <p class="blurb">“Every rock has a flaw. This one shows you where.”</p>
           <ul class="effects">
-            <li>Tap Crit Chance +25%</li>
+            <li><span class="raw">Tap Crit Chance +25%</span><span class="explain">25% of taps crit for ×2 damage.</span></li>
           </ul>
         </div>
       </article>
@@ -212,7 +215,7 @@
           <h3><span class="dot" style="background:#6b9"></span>Golden Scarab <span class="lane">economy</span></h3>
           <p class="blurb">“It crawls toward buried gold. Keep up.”</p>
           <ul class="effects">
-            <li>Rock Coins ×2</li>
+            <li><span class="raw">Rock Coins ×2</span><span class="explain">Rocks give 100% more coins.</span></li>
           </ul>
         </div>
       </article>
@@ -224,8 +227,8 @@
           <h3><span class="dot" style="background:#6b9"></span>Ferryman's Token <span class="lane">economy</span></h3>
           <p class="blurb">“Fare for the crossing. It comes back damp.”</p>
           <ul class="effects">
-            <li>Rock Coins ×1.25</li>
-            <li>Descend Orbs +4</li>
+            <li><span class="raw">Rock Coins ×1.25</span><span class="explain">Rocks give 25% more coins.</span></li>
+            <li><span class="raw">Descend Orbs +4</span><span class="explain">Gain 4 bonus orbs when you descend.</span></li>
           </ul>
         </div>
       </article>
@@ -237,7 +240,7 @@
           <h3><span class="dot" style="background:#6b9"></span>Whetstone Charm <span class="lane">descent</span></h3>
           <p class="blurb">“It wore itself hollow. Now it starts on the walls.”</p>
           <ul class="effects">
-            <li>Rock HP ×0.8</li>
+            <li><span class="raw">Rock HP ×0.8</span><span class="explain">Rocks have 20% less HP, so they break faster.</span></li>
           </ul>
         </div>
       </article>
@@ -249,7 +252,7 @@
           <h3><span class="dot" style="background:#6b9"></span>Moondial <span class="lane">orb</span></h3>
           <p class="blurb">“It casts a moon-shadow. The shadow points down.”</p>
           <ul class="effects">
-            <li>Descend Orbs +5</li>
+            <li><span class="raw">Descend Orbs +5</span><span class="explain">Gain 5 bonus orbs when you descend.</span></li>
           </ul>
         </div>
       </article>
@@ -264,8 +267,8 @@
           <h3><span class="dot" style="background:#69f"></span>Basilisk Scale <span class="lane">power</span></h3>
           <p class="blurb">“Whatever it reflects simply stops.”</p>
           <ul class="effects">
-            <li>Orbo Damage ×1.1</li>
-            <li>Attack Speed ×1.1</li>
+            <li><span class="raw">Orbo Damage ×1.1</span><span class="explain">All your orbos deal 10% more damage.</span></li>
+            <li><span class="raw">Attack Speed ×1.1</span><span class="explain">All your orbos attack 10% faster.</span></li>
           </ul>
         </div>
       </article>
@@ -277,7 +280,7 @@
           <h3><span class="dot" style="background:#69f"></span>The Chipped Tusk <span class="lane">power</span></h3>
           <p class="blurb">“The smallest one kept it. The smallest one kept going.”</p>
           <ul class="effects">
-            <li>Runt Orbo Damage ×2</li>
+            <li><span class="raw">Runt Orbo Damage ×2</span><span class="explain">Your weakest orbo (runt) deals 100% more damage.</span></li>
           </ul>
         </div>
       </article>
@@ -289,8 +292,8 @@
           <h3><span class="dot" style="background:#69f"></span>The Loose Tooth <span class="lane">power</span></h3>
           <p class="blurb">“It waits. Then it doesn't.”</p>
           <ul class="effects">
-            <li>Runt Crit Chance +10%</li>
-            <li>Runt Crit Mult +2</li>
+            <li><span class="raw">Runt Crit Chance +10%</span><span class="explain">10% of your weakest orbo's hits crit.</span></li>
+            <li><span class="raw">Runt Crit Mult +2</span><span class="explain">Your weakest orbo's crits deal ×2 damage.</span></li>
           </ul>
         </div>
       </article>
@@ -302,8 +305,8 @@
           <h3><span class="dot" style="background:#69f"></span>Geode Heart <span class="lane">economy</span></h3>
           <p class="blurb">“Crack one open. Sometimes it's a vault.”</p>
           <ul class="effects">
-            <li>Rock Jackpot +10%</li>
-            <li>Descend Orbs +5</li>
+            <li><span class="raw">Rock Jackpot +10%</span><span class="explain">10% of rocks drop a jackpot worth ×10 coins.</span></li>
+            <li><span class="raw">Descend Orbs +5</span><span class="explain">Gain 5 bonus orbs when you descend.</span></li>
           </ul>
         </div>
       </article>
@@ -315,8 +318,8 @@
           <h3><span class="dot" style="background:#69f"></span>Serpent's Eye <span class="lane">economy</span></h3>
           <p class="blurb">“Gold blinks back. Storms flicker behind the slit.”</p>
           <ul class="effects">
-            <li>Rock Coins ×1.6</li>
-            <li>Attack Speed ×1.2</li>
+            <li><span class="raw">Rock Coins ×1.6</span><span class="explain">Rocks give 60% more coins.</span></li>
+            <li><span class="raw">Attack Speed ×1.2</span><span class="explain">All your orbos attack 20% faster.</span></li>
           </ul>
         </div>
       </article>
@@ -328,7 +331,7 @@
           <h3><span class="dot" style="background:#69f"></span>Lantern of the Long Night <span class="lane">idle</span></h3>
           <p class="blurb">“It works the night shift. It does not mention what it digs up.”</p>
           <ul class="effects">
-            <li>Idle Coins ×1.5</li>
+            <li><span class="raw">Idle Coins ×1.5</span><span class="explain">Earn 50% more coins while idle.</span></li>
           </ul>
         </div>
       </article>
@@ -340,7 +343,7 @@
           <h3><span class="dot" style="background:#69f"></span>Deepwater Flask <span class="lane">idle</span></h3>
           <p class="blurb">“Bottomless, allegedly. Nobody has waited long enough to check.”</p>
           <ul class="effects">
-            <li>Idle Cap +6h</li>
+            <li><span class="raw">Idle Cap +6h</span><span class="explain">Idle coins can pile up for 6 extra hours.</span></li>
           </ul>
         </div>
       </article>
@@ -352,7 +355,7 @@
           <h3><span class="dot" style="background:#69f"></span>Twin-Tailed Obol <span class="lane">descent</span></h3>
           <p class="blurb">“Someone filed one face down. Nobody agrees which.”</p>
           <ul class="effects">
-            <li>Coin Flip Payout +20%</li>
+            <li><span class="raw">Coin Flip Payout +20%</span><span class="explain">On descend: 50% chance to gain 20% of your next luck upgrade.</span></li>
           </ul>
         </div>
       </article>
@@ -364,8 +367,8 @@
           <h3><span class="dot" style="background:#69f"></span>Thunderstone <span class="lane">descent</span></h3>
           <p class="blurb">“Where it lands, the floor remembers.”</p>
           <ul class="effects">
-            <li>Rush: rock HP ×0.85 for 8 rocks</li>
-            <li>Descend Orbs +10</li>
+            <li><span class="raw">Rush: rock HP ×0.85 for 8 rocks</span><span class="explain">Rush: the first 8 rocks after you descend have ×0.85 HP (break faster).</span></li>
+            <li><span class="raw">Descend Orbs +10</span><span class="explain">Gain 10 bonus orbs when you descend.</span></li>
           </ul>
         </div>
       </article>
@@ -377,7 +380,7 @@
           <h3><span class="dot" style="background:#69f"></span>Moontide Pearl <span class="lane">orb</span></h3>
           <p class="blurb">“The tide inside follows a moon nobody's found.”</p>
           <ul class="effects">
-            <li>Descend Orbs +20</li>
+            <li><span class="raw">Descend Orbs +20</span><span class="explain">Gain 20 bonus orbs when you descend.</span></li>
           </ul>
         </div>
       </article>
@@ -392,8 +395,8 @@
           <h3><span class="dot" style="background:#c6f"></span>Tectonic Key <span class="lane">power</span></h3>
           <p class="blurb">“Every fault in the world was cut to fit it.”</p>
           <ul class="effects">
-            <li>Attack Speed ×1.4</li>
-            <li>Rock HP ×0.9</li>
+            <li><span class="raw">Attack Speed ×1.4</span><span class="explain">All your orbos attack 40% faster.</span></li>
+            <li><span class="raw">Rock HP ×0.9</span><span class="explain">Rocks have 10% less HP, so they break faster.</span></li>
           </ul>
         </div>
       </article>
@@ -405,7 +408,7 @@
           <h3><span class="dot" style="background:#c6f"></span>The Lead Metronome <span class="lane">power</span></h3>
           <p class="blurb">“It only keeps time for whoever is winning.”</p>
           <ul class="effects">
-            <li>Apex Orbo Damage ×2.2</li>
+            <li><span class="raw">Apex Orbo Damage ×2.2</span><span class="explain">Your strongest orbo (apex) deals 120% more damage.</span></li>
           </ul>
         </div>
       </article>
@@ -417,8 +420,8 @@
           <h3><span class="dot" style="background:#c6f"></span>Tempest Wreath <span class="lane">energy</span></h3>
           <p class="blurb">“One tempest, three knots, one thread you didn't tie.”</p>
           <ul class="effects">
-            <li>Energy Regen ×2.5</li>
-            <li>Idle Coins ×2</li>
+            <li><span class="raw">Energy Regen ×2.5</span><span class="explain">Energy refills 150% faster.</span></li>
+            <li><span class="raw">Idle Coins ×2</span><span class="explain">Earn 100% more coins while idle.</span></li>
           </ul>
         </div>
       </article>
@@ -430,9 +433,9 @@
           <h3><span class="dot" style="background:#c6f"></span>Flawstone <span class="lane">tap</span></h3>
           <p class="blurb">“The flaw forked. Now it looks like lightning.”</p>
           <ul class="effects">
-            <li>Tap Crit Chance +10%</li>
-            <li>Tap Crit Mult +2</li>
-            <li>Energy Max ×2</li>
+            <li><span class="raw">Tap Crit Chance +10%</span><span class="explain">10% of taps crit for ×2 damage.</span></li>
+            <li><span class="raw">Tap Crit Mult +2</span><span class="explain">Tap crits deal an extra +2× damage.</span></li>
+            <li><span class="raw">Energy Max ×2</span><span class="explain">Your energy bar holds 100% more energy.</span></li>
           </ul>
         </div>
       </article>
@@ -444,8 +447,8 @@
           <h3><span class="dot" style="background:#c6f"></span>Halo of the Fallen Star <span class="lane">economy</span></h3>
           <p class="blurb">“Meteors on a slow orbit, shedding gold on the way down.”</p>
           <ul class="effects">
-            <li>Rush: rock coins ×4 for 8 rocks</li>
-            <li>Double Descend +50%</li>
+            <li><span class="raw">Rush: rock coins ×4 for 8 rocks</span><span class="explain">Rush: the first 8 rocks after you descend give ×4 coins.</span></li>
+            <li><span class="raw">Double Descend +50%</span><span class="explain">50% chance that descending drops you 2 floors instead of 1.</span></li>
           </ul>
         </div>
       </article>
@@ -457,7 +460,7 @@
           <h3><span class="dot" style="background:#c6f"></span>The Drowned Cistern <span class="lane">idle</span></h3>
           <p class="blurb">“A whole reservoir, folded small. It keeps everything you did not collect.”</p>
           <ul class="effects">
-            <li>Idle Cap +22h</li>
+            <li><span class="raw">Idle Cap +22h</span><span class="explain">Idle coins can pile up for 22 extra hours.</span></li>
           </ul>
         </div>
       </article>
@@ -469,8 +472,8 @@
           <h3><span class="dot" style="background:#c6f"></span>Shackle of the Bound God <span class="lane">descent</span></h3>
           <p class="blurb">“Whatever wore it fell. The chain points the way.”</p>
           <ul class="effects">
-            <li>Double Descend +70%</li>
-            <li>Descend Orbs +30</li>
+            <li><span class="raw">Double Descend +70%</span><span class="explain">70% chance that descending drops you 2 floors instead of 1.</span></li>
+            <li><span class="raw">Descend Orbs +30</span><span class="explain">Gain 30 bonus orbs when you descend.</span></li>
           </ul>
         </div>
       </article>
@@ -485,8 +488,8 @@
           <h3><span class="dot" style="background:#fa5"></span>Crown of Antlers <span class="lane">power</span></h3>
           <p class="blurb">“The tips are dipped in gold. The rest is war.”</p>
           <ul class="effects">
-            <li>Attack Speed ×1.6</li>
-            <li>Rock Coins ×2</li>
+            <li><span class="raw">Attack Speed ×1.6</span><span class="explain">All your orbos attack 60% faster.</span></li>
+            <li><span class="raw">Rock Coins ×2</span><span class="explain">Rocks give 100% more coins.</span></li>
           </ul>
         </div>
       </article>
@@ -498,8 +501,8 @@
           <h3><span class="dot" style="background:#fa5"></span>Stormheart <span class="lane">power</span></h3>
           <p class="blurb">“Every landing, the cage flies open. It shuts again.”</p>
           <ul class="effects">
-            <li>Attack Speed ×1.5</li>
-            <li>Coin Flip Payout +40%</li>
+            <li><span class="raw">Attack Speed ×1.5</span><span class="explain">All your orbos attack 50% faster.</span></li>
+            <li><span class="raw">Coin Flip Payout +40%</span><span class="explain">On descend: 50% chance to gain 40% of your next luck upgrade.</span></li>
           </ul>
         </div>
       </article>
@@ -511,7 +514,7 @@
           <h3><span class="dot" style="background:#fa5"></span>The Last Lantern <span class="lane">power</span></h3>
           <p class="blurb">“Handed to whoever walks at the back. It burns hardest there.”</p>
           <ul class="effects">
-            <li>Runt Orbo Damage ×3</li>
+            <li><span class="raw">Runt Orbo Damage ×3</span><span class="explain">Your weakest orbo (runt) deals 200% more damage.</span></li>
           </ul>
         </div>
       </article>
@@ -523,8 +526,8 @@
           <h3><span class="dot" style="background:#fa5"></span>The Headsman's Whetstone <span class="lane">power</span></h3>
           <p class="blurb">“It only sharpens what is already sharpest.”</p>
           <ul class="effects">
-            <li>Apex Crit Chance +5%</li>
-            <li>Apex Crit Mult +6.85</li>
+            <li><span class="raw">Apex Crit Chance +5%</span><span class="explain">5% of your strongest orbo's hits crit.</span></li>
+            <li><span class="raw">Apex Crit Mult +6.85</span><span class="explain">Your strongest orbo's crits deal ×6.85 damage.</span></li>
           </ul>
         </div>
       </article>
@@ -536,8 +539,8 @@
           <h3><span class="dot" style="background:#fa5"></span>The First Bell <span class="lane">tap</span></h3>
           <p class="blurb">“It rings on its own. Your arm stops aching.”</p>
           <ul class="effects">
-            <li>Energy Regen ×3</li>
-            <li>Free Tap Chance +40%</li>
+            <li><span class="raw">Energy Regen ×3</span><span class="explain">Energy refills 200% faster.</span></li>
+            <li><span class="raw">Free Tap Chance +40%</span><span class="explain">40% of taps cost no energy.</span></li>
           </ul>
         </div>
       </article>
@@ -549,9 +552,9 @@
           <h3><span class="dot" style="background:#fa5"></span>Grail of Overflow <span class="lane">economy</span></h3>
           <p class="blurb">“It pours more than it holds. The floor can't hold it either.”</p>
           <ul class="effects">
-            <li>Rock Coins ×2</li>
-            <li>Double Descend +95%</li>
-            <li>Descend Orbs +50</li>
+            <li><span class="raw">Rock Coins ×2</span><span class="explain">Rocks give 100% more coins.</span></li>
+            <li><span class="raw">Double Descend +95%</span><span class="explain">95% chance that descending drops you 2 floors instead of 1.</span></li>
+            <li><span class="raw">Descend Orbs +50</span><span class="explain">Gain 50 bonus orbs when you descend.</span></li>
           </ul>
         </div>
       </article>
@@ -563,8 +566,8 @@
           <h3><span class="dot" style="background:#fa5"></span>The Sleeping Furnace <span class="lane">idle</span></h3>
           <p class="blurb">“It only ever roars when the room is empty.”</p>
           <ul class="effects">
-            <li>Idle Coins ×1.5</li>
-            <li>Idle Cap +6h</li>
+            <li><span class="raw">Idle Coins ×1.5</span><span class="explain">Earn 50% more coins while idle.</span></li>
+            <li><span class="raw">Idle Cap +6h</span><span class="explain">Idle coins can pile up for 6 extra hours.</span></li>
           </ul>
         </div>
       </article>
@@ -579,9 +582,9 @@
           <h3><span class="dot" style="background:#ff5"></span>The Last Domino <span class="lane">power</span></h3>
           <p class="blurb">“It's been mid-tip forever. Look at its shadow.”</p>
           <ul class="effects">
-            <li>Attack Speed ×3</li>
-            <li>Orbo Damage ×1.5</li>
-            <li>Rock HP ×0.8</li>
+            <li><span class="raw">Attack Speed ×3</span><span class="explain">All your orbos attack 200% faster.</span></li>
+            <li><span class="raw">Orbo Damage ×1.5</span><span class="explain">All your orbos deal 50% more damage.</span></li>
+            <li><span class="raw">Rock HP ×0.8</span><span class="explain">Rocks have 20% less HP, so they break faster.</span></li>
           </ul>
         </div>
       </article>
@@ -593,8 +596,8 @@
           <h3><span class="dot" style="background:#ff5"></span>The Weep of Midas <span class="lane">economy</span></h3>
           <p class="blurb">“Everything reflected in it appreciates.”</p>
           <ul class="effects">
-            <li>Rock Coins ×2</li>
-            <li>Idle Coins ×4</li>
+            <li><span class="raw">Rock Coins ×2</span><span class="explain">Rocks give 100% more coins.</span></li>
+            <li><span class="raw">Idle Coins ×4</span><span class="explain">Earn 300% more coins while idle.</span></li>
           </ul>
         </div>
       </article>
@@ -606,9 +609,9 @@
           <h3><span class="dot" style="background:#ff5"></span>The Pocket Singularity <span class="lane">descent</span></h3>
           <p class="blurb">“The deep opens ahead of it, out of respect.”</p>
           <ul class="effects">
-            <li>Orbo Damage ×2</li>
-            <li>Rock HP ×0.6</li>
-            <li>Descend Orbs +100</li>
+            <li><span class="raw">Orbo Damage ×2</span><span class="explain">All your orbos deal 100% more damage.</span></li>
+            <li><span class="raw">Rock HP ×0.6</span><span class="explain">Rocks have 40% less HP, so they break faster.</span></li>
+            <li><span class="raw">Descend Orbs +100</span><span class="explain">Gain 100 bonus orbs when you descend.</span></li>
           </ul>
         </div>
       </article>
