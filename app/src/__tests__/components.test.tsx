@@ -104,6 +104,26 @@ describe('luck table trimming', () => {
     // Current level is marked with a ◂ marker.
     expect(within(rows[2]).getAllByText(/58 ◂/).length).toBeGreaterThan(0);
   });
+
+  it('shows upgrade times between Cumulative and Common, with the 48h cap', () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: /luck/i }));
+
+    const rows = screen.getAllByRole('row');
+    const headers = within(rows[0]).getAllByRole('columnheader').map(h => h.textContent);
+    expect(headers.indexOf('Time')).toBe(headers.indexOf('Cumulative') + 1);
+    expect(headers.indexOf('Common')).toBe(headers.indexOf('Time') + 1);
+
+    const timeIdx = headers.indexOf('Time');
+    const cell = (row: HTMLElement) => within(row).getAllByRole('cell')[timeIdx].textContent;
+    // Levels 1–3 are instant (free-skip), milestones and the cap are exact.
+    expect(cell(rows[1])).toBe('—');   // level 1
+    expect(cell(rows[3])).toBe('—');   // level 3
+    expect(cell(rows[4])).toBe('2m');  // level 4: round(60×5^⅓) = 103s
+    expect(cell(rows[6])).toBe('5m');  // level 6: 300s milestone
+    expect(cell(rows[21])).toBe('1h'); // level 21: 3600s milestone
+    expect(cell(rows[rows.length - 1])).toBe('48h'); // level 99 cap
+  });
 });
 
 describe('Sync import flow', () => {

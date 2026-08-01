@@ -1,7 +1,20 @@
 import { X, Sparkles } from 'lucide-react';
+import type { ReactNode } from 'react';
 import { luckData, TIER_COLORS } from '../data';
 import { compactNum } from '../utils';
 import { useOrboStore } from '../store';
+
+// Compact upgrade-time display: "45s" / "8m" / "1h 15m" / "48h" (the game
+// caps luck upgrade timers at 48h; 0 = instant/free-skip early levels).
+const fmtDuration = (secs: number): ReactNode => {
+  if (!secs) return <span className="text-[#444]">—</span>;
+  if (secs < 60) return `${secs}s`;
+  const mins = Math.round(secs / 60);
+  if (mins < 60) return `${mins}m`;
+  if (mins >= 24 * 60) return `${Math.round(mins / 60)}h`;
+  const h = Math.floor(mins / 60), m = mins % 60;
+  return m ? `${h}h ${m}m` : `${h}h`;
+};
 
 export const LuckTableModal = () => {
   const luckModalOpen = useOrboStore(s => s.luckModalOpen);
@@ -45,18 +58,19 @@ export const LuckTableModal = () => {
         {/* Description */}
         <div className="px-4 py-2.5 border-b border-[#222] bg-[#0d0d0d] shrink-0">
           <p className="text-[11px] text-[#666] leading-relaxed">
-            Upgrade luck with gold to increase spawn rates for rarer creatures. <span className="text-[#444]">Cost</span> is the gold required to reach that level. <span className="text-[#444]">Cumulative</span> is the total gold spent from level 1.
+            Upgrade luck with gold to increase spawn rates for rarer creatures. <span className="text-[#444]">Cost</span> is the gold required to reach that level. <span className="text-[#444]">Cumulative</span> is the total gold spent from level 1. <span className="text-[#444]">Time</span> is how long that upgrade takes — instant through level 3, capped at 48h.
           </p>
         </div>
 
         {/* Table */}
-        <div className="flex-1 overflow-auto">
+        <div className="flex-1 overflow-auto scrollbar-slim">
           <table className="w-full text-[11px] border-collapse">
             <thead className="sticky top-0 z-10">
               <tr className="bg-[#111] border-b border-[#333]">
                 <th className="sticky left-0 z-20 bg-[#111] text-left px-3 py-2.5 font-semibold text-[#666] uppercase tracking-wider whitespace-nowrap w-10">Lv</th>
                 <th className="text-right px-3 py-2.5 font-semibold text-[#666] uppercase tracking-wider whitespace-nowrap">Cost</th>
                 <th className="text-right px-3 py-2.5 font-semibold text-[#555] uppercase tracking-wider whitespace-nowrap">Cumulative</th>
+                <th className="text-right px-3 py-2.5 font-semibold text-[#555] uppercase tracking-wider whitespace-nowrap" title="Time the upgrade to this level takes">Time</th>
                 <th className="text-right px-3 py-2.5 font-semibold uppercase tracking-wider whitespace-nowrap" style={{ color: TIER_COLORS.common }}>Common</th>
                 <th className="text-right px-3 py-2.5 font-semibold uppercase tracking-wider whitespace-nowrap" style={{ color: TIER_COLORS.uncommon }}>Uncommon</th>
                 <th className="text-right px-3 py-2.5 font-semibold uppercase tracking-wider whitespace-nowrap" style={{ color: TIER_COLORS.scarce }}>Scarce</th>
@@ -67,7 +81,7 @@ export const LuckTableModal = () => {
                 <th className="text-right px-3 py-2.5 font-semibold uppercase tracking-wider whitespace-nowrap" style={{ color: TIER_COLORS.untouched }}>Untouched</th>
                 <th className="text-right px-3 py-2.5 font-semibold uppercase tracking-wider whitespace-nowrap" style={{ color: TIER_COLORS.phaseBound }}>Phase Bound</th>
                 <th className="text-right px-3 py-2.5 font-semibold uppercase tracking-wider whitespace-nowrap" style={{ color: TIER_COLORS.lightSworn }}>Light Sworn</th>
-                <th className="text-right px-3 py-2.5 font-semibold uppercase tracking-wider whitespace-nowrap" style={{ color: TIER_COLORS.voidBorn }}>Void Born</th>
+                <th className="text-right pl-3 pr-6 py-2.5 font-semibold uppercase tracking-wider whitespace-nowrap" style={{ color: TIER_COLORS.voidBorn }}>Void Born</th>
               </tr>
             </thead>
             <tbody>
@@ -95,6 +109,7 @@ export const LuckTableModal = () => {
                         {row.cost === 0 ? <span className="text-[#444]">—</span> : compactNum(row.cost, 2)}
                       </td>
                       <td className="px-3 py-2 font-mono text-right text-[#555] whitespace-nowrap">{compactNum(cumulative, 2)}</td>
+                      <td className="px-3 py-2 font-mono text-right text-[#555] whitespace-nowrap">{fmtDuration(row.upgradeSeconds)}</td>
                       <td className="px-3 py-2 font-mono text-right" style={{ color: TIER_COLORS.common }}>{fmt(r.common)}</td>
                       <td className="px-3 py-2 font-mono text-right" style={{ color: TIER_COLORS.uncommon }}>{fmt(r.uncommon)}</td>
                       <td className="px-3 py-2 font-mono text-right" style={{ color: TIER_COLORS.scarce }}>{fmt(r.scarce)}</td>
@@ -105,7 +120,7 @@ export const LuckTableModal = () => {
                       <td className="px-3 py-2 font-mono text-right" style={{ color: TIER_COLORS.untouched }}>{fmt(r.untouched)}</td>
                       <td className="px-3 py-2 font-mono text-right" style={{ color: TIER_COLORS.phaseBound }}>{fmt(r.phaseBound)}</td>
                       <td className="px-3 py-2 font-mono text-right" style={{ color: TIER_COLORS.lightSworn }}>{fmt(r.lightSworn)}</td>
-                      <td className="px-3 py-2 font-mono text-right" style={{ color: TIER_COLORS.voidBorn }}>{fmt(r.voidBorn)}</td>
+                      <td className="pl-3 pr-6 py-2 font-mono text-right" style={{ color: TIER_COLORS.voidBorn }}>{fmt(r.voidBorn)}</td>
                     </tr>
                   );
                 });

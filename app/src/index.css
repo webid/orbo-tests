@@ -30,3 +30,24 @@ body {
 .toast-in {
   animation: toast-in 0.2s ease-out;
 }
+
+/* Slim, unobtrusive scrollbars for wide tables (e.g. the Luck Table), so
+   the last column doesn't get crowded out by chunky default scrollbars. */
+.scrollbar-slim {
+  scrollbar-width: thin;
+  scrollbar-color: #333 #0a0a0a;
+}
+.scrollbar-slim::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.scrollbar-slim::-webkit-scrollbar-track {
+  background: #0a0a0a;
+}
+.scrollbar-slim::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 4px;
+}
+.scrollbar-slim::-webkit-scrollbar-thumb:hover {
+  background: #444;
+}

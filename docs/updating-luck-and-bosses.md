@@ -4,7 +4,7 @@ Two JSON files hold the data used by the tool's luck table and boss calculator:
 
 | File | Contents |
 |---|---|
-| `app/src/orbo-luck.json` | Cost and spawn-rate table for luck levels 1–99 |
+| `app/src/orbo-luck.json` | Cost, upgrade time and spawn-rate table for luck levels 1–99 |
 | `app/src/orbo-bosses.json` | HP (and other fields) for every boss |
 
 Both are derived from constants in the game's bundled JS. When the game updates these constants, the JSONs need regenerating.
@@ -29,6 +29,8 @@ baseTimerSeconds: 30,
 ```
 
 For spawn rates, search for `spawnRateMilestones` and `tierUnlockLevels`.
+
+For upgrade times, search for `luckTimerMilestones`, `luckTimerMax` and `luckFreeSkipLevel`.
 
 As of the July 2026 refresh all of these constants are unchanged (`luckUpgradeCosts`, `luckCostScale` 1.18, `minDpsMilestones`, `minDpsFallbackMultiplier` 1.4, `baseTimerSeconds` 30, `floorsPerBoss` 10) — both JSONs were verified against them. Note: the game raised `luckMaxLevel` to 1000, but `spawnRateMilestones` still stop at level 99, so the tool's table intentionally stays at 99 levels.
 
@@ -109,6 +111,34 @@ def spawn_rates(level):
 
 ---
 
+## Luck Upgrade Times (`orbo-luck.json` — `upgradeSeconds` field)
+
+### Formula
+
+Upgrades from levels ≤ `luckFreeSkipLevel` (currently **2**) are instant (`upgradeSeconds: 0` for rows 1–3, since a row shows the upgrade that *reaches* that level). Above that, the time for an upgrade **from** level `cur` is **geometrically interpolated** between `luckTimerMilestones` brackets and capped at `luckTimerMax`:
+
+```python
+def upgrade_seconds(cur):
+    if cur <= free_skip_level: return 0          # rows 1-3
+    keys = sorted(luckTimerMilestones)
+    if cur <= keys[0]:  return milestones[keys[0]]
+    if cur >= keys[-1]: return min(milestones[keys[-1]], timer_max)
+    lo, hi = bracket(cur, keys)                   # lo <= cur < hi
+    p, g = milestones[lo], milestones[hi]
+    k = (cur - lo) / (hi - lo)
+    return min(round(p * (g / p) ** k), timer_max)  # geometric, NOT linear
+```
+
+Current constants (July 2026): `luckTimerMilestones` = {1: 20, 2: 60, 5: 300, 8: 480, 9: 900, 10: 1200, 20: 3600, 25: 10800, 30: 32400, 35: 72000, 40: 129600, 45: 172800, 50: 172800, 55: 172800, 80: 172800, 99: 172800}, `luckTimerMax` = 172800 (48h), `luckFreeSkipLevel` = 2. The timer plateaus at 48h from the level-45 milestone onward.
+
+### What to Check When Updating
+
+1. Has `luckTimerMilestones` changed? (new milestones or values)
+2. Have `luckTimerMax` or `luckFreeSkipLevel` changed?
+3. Spot-check an in-game upgrade's wait time against the table.
+
+---
+
 ## Boss HP (`orbo-bosses.json` — `hp` field)
 
 ### Formula
@@ -176,6 +206,23 @@ for e in levels:
     e['cost'] = 0 if l == 1 else int(costs[l-2]) if l <= 32 else round(75e6 * scale**(l-32))
 with open('app/src/orbo-luck.json','w') as f: json.dump(levels, f, indent=2)
 print('Done')
+"
+```
+
+### Luck upgrade times
+
+```bash
+node -e "
+const fs = require('fs');
+const M = {1:20,2:60,5:300,8:480,9:900,10:1200,20:3600,25:10800,30:32400,35:72e3,40:129600,45:172800,50:172800,55:172800,80:172800,99:172800};
+const MAX = 172800, FREE = 2, keys = Object.keys(M).map(Number).sort((a,b)=>a-b);
+const t = c => { if (c <= keys[0]) return M[keys[0]]; if (c >= keys.at(-1)) return Math.min(M[keys.at(-1)], MAX);
+  let lo, hi; for (let i=0;i<keys.length-1;i++) if (c>=keys[i]&&c<keys[i+1]) { lo=keys[i]; hi=keys[i+1]; break; }
+  return Math.min(Math.round(M[lo]*(M[hi]/M[lo])**((c-lo)/(hi-lo))), MAX); };
+const p = 'app/src/orbo-luck.json', rows = JSON.parse(fs.readFileSync(p));
+fs.writeFileSync(p, JSON.stringify(rows.map(r => ({ level: r.level, cost: r.cost,
+  upgradeSeconds: r.level-1 <= FREE ? 0 : t(r.level-1), spawnRates: r.spawnRates })), null, 2));
+console.log('Done');
 "
 ```
 

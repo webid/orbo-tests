@@ -52,6 +52,7 @@ export interface Totem {
 export interface LuckRow {
   level: number;
   cost: number;
+  upgradeSeconds: number;
   spawnRates: Record<TierKey, number>;
 }
 
