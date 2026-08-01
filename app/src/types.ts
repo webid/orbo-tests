@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-// Shared type definitions for the Orbo Command Center
+// Shared type definitions for the Orbo Grove
 // ---------------------------------------------------------------------------
 
 export type TierKey =

@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-// Orbo Command Center — thin orchestrator.
+// Orbo Grove — thin orchestrator.
 // State lives in the Zustand store (./store), game data in ./data,
 // the battle math in ./calc, and all UI in ./components.
 // ---------------------------------------------------------------------------
@@ -174,7 +174,7 @@ export default function App() {
            <div className="flex items-center justify-between gap-3 w-full sm:w-auto">
              <div className="flex items-center space-x-3">
                <Calculator className="w-5 h-5 text-[#888]" />
-               <h1 className="text-xl font-medium tracking-tight text-[#ededed]">Orbo Command Center</h1>
+               <h1 className="text-xl font-medium tracking-tight text-[#ededed]">Orbo Grove</h1>
              </div>
              {/* Help sits in the title row so it lands top-right on narrow devices */}
              <button onClick={() => setHelpModalOpen(true)} title="Help" aria-label="Help" className="flex sm:hidden items-center justify-center w-7 h-7 shrink-0 rounded border border-[#222] bg-[#111] hover:bg-[#1a1a1a] text-[#888] hover:text-[#ededed] transition-colors shadow-sm">

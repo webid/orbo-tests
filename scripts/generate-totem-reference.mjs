@@ -96,7 +96,7 @@ const html = `<!doctype html>
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Orbo Totem Reference \u2014 Orbo Command Center</title>
+  <title>Orbo Totem Reference \u2014 Orbo Grove</title>
   <meta name="description" content="Complete list of all ${totems.length} Orbo totem cards: names, categories, lore and effects." />
   <style>
     :root { color-scheme: dark; }
@@ -122,7 +122,7 @@ const html = `<!doctype html>
 <body>
   <main>
     <h1>Orbo Totem Reference</h1>
-    <p class="intro">All ${totems.length} totem cards \u2014 name, category, lore and effects. <a href="./">Back to Orbo Command Center</a></p>
+    <p class="intro">All ${totems.length} totem cards \u2014 name, category, lore and effects. <a href="./">Back to Orbo Grove</a></p>
 ${sections}  </main>
 </body>
 </html>

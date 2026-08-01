@@ -51,9 +51,9 @@ afterEach(() => {
 });
 
 describe('App shell', () => {
-  it('renders the command center with config, presets and army sections', () => {
+  it('renders the grove with config, presets and army sections', () => {
     render(<App />);
-    expect(screen.getByText('Orbo Command Center')).toBeTruthy();
+    expect(screen.getByText('Orbo Grove')).toBeTruthy();
     expect(screen.getByRole('heading', { name: /battle config/i })).toBeTruthy();
     expect(screen.getByRole('heading', { name: /^deck$/i })).toBeTruthy();
     expect(screen.getByRole('combobox', { name: 'Load a preset' })).toBeTruthy();
