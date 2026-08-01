@@ -1,4 +1,4 @@
-import { Search, Sparkles, X, Image as ImageIcon, List, LayoutGrid } from 'lucide-react';
+import { Search, Sparkles, X, Image as ImageIcon, List, LayoutGrid, ExternalLink } from 'lucide-react';
 import { TOTEM_EFFECT_INFO, TOTEM_LANE_ORDER, TOTEM_TIER_COLORS, TOTEM_TIER_NAMES, totemsData, totemsDict } from '../data';
 import { formatTotemEffect } from '../utils';
 import { useOrboStore } from '../store';
@@ -120,6 +120,15 @@ export const TotemPickerModal = () => {
                {currentTotem && <span className="ml-2 text-[10px] font-normal text-[#666]">(current: {currentTotem.name})</span>}
             </h2>
             <div className="flex items-center space-x-2">
+               <a
+                  href={`${import.meta.env.BASE_URL}totem-reference.html`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Open the full totem reference (plain page, translation-friendly)"
+                  className="p-1.5 rounded transition-colors text-[#888] hover:text-[#ededed] bg-[#1a1a1a] hover:bg-[#222]"
+               >
+                  <ExternalLink className="w-4 h-4" />
+               </a>
                <button
                   onClick={() => setTotemListMode(!totemListMode)}
                   title={totemListMode ? 'Grid view — compact cards' : 'List view — names, lore and effects'}

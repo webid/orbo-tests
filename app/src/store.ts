@@ -185,6 +185,7 @@ export interface OrboStore {
   setTapModsOpen: (fn: boolean | ((prev: boolean) => boolean)) => void;
   setTotemPickerSlot: (slot: number | null) => void;
   setTotemSearch: (s: string) => void;
+  setTotemListMode: (v: boolean) => void;
   setExplorerBase: (key: string | null) => void;
   setExplorerCompare: (key: string | null) => void;
   setToast: (msg: string | null) => void;
@@ -357,7 +358,7 @@ export const useOrboStore = create<OrboStore>()(
       })),
       setTotemPickerSlot: (slot) => set({ totemPickerSlot: slot }),
       setTotemSearch: (s) => set({ totemSearch: s }),
-            setTotemListMode: (v) => set({ totemListMode: v }),
+      setTotemListMode: (v) => set({ totemListMode: v }),
       setExplorerBase: (key) => set({ explorerBase: key }),
       setExplorerCompare: (key) => set({ explorerCompare: key }),
       setToast: (msg) => set({ toast: msg }),

@@ -609,6 +609,16 @@ describe('totem picker list mode', () => {
     expect(within(panel).getByText(`“${card.blurb}”`)).toBeTruthy();
     expect(within(panel).getByText(card.name)).toBeTruthy();
   });
+
+  it('links to the static totem reference page from the picker header', () => {
+    useOrboStore.getState().setTotemPickerSlot(0);
+    render(<App />);
+
+    const link = screen.getByTitle('Open the full totem reference (plain page, translation-friendly)') as HTMLAnchorElement;
+    expect(link.tagName).toBe('A');
+    expect(link.getAttribute('href')).toBe(`${import.meta.env.BASE_URL}totem-reference.html`);
+    expect(link.getAttribute('target')).toBe('_blank');
+  });
 });
 
 // --- helpers ---------------------------------------------------------------
