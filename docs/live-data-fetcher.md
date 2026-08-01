@@ -11,7 +11,8 @@ No dependencies — plain Node 18+ (built-in `fetch`).
 
 ## Token setup
 
-The script needs a bearer token. It looks for `OPEC_TOKEN` (preferred) or `RUBIS_TOKEN` in:
+The script needs a bearer token. By default it uses `OPEC_TOKEN` (falling back to `RUBIS_TOKEN`),
+looking in:
 
 1. `../orbo-bot-go/.env` (sibling repo, relative to this repo's root)
 2. `.env` in this repo's root
@@ -25,7 +26,12 @@ fresh one from Telegram.
 node scripts/fetch-live-data.mjs --summary       # default: human-readable state overview
 node scripts/fetch-live-data.mjs --export-army   # save code for the battle calculator
 node scripts/fetch-live-data.mjs --json          # raw API responses (debugging)
+node scripts/fetch-live-data.mjs --export-army --rubis   # same, but for the RUBIS_TOKEN account
 ```
+
+Any mode can be combined with `--rubis` (or `--token rubis` / `--token opec`) to pick the
+account explicitly. An explicit choice **never falls back** to the other token — if
+`RUBIS_TOKEN` is missing, the script errors instead of silently exporting the opec account.
 
 - `--summary` prints player level/floor/luck, army composition with per-creature DPS (resolved
   against `app/src/orbo-creatures.json`), equipped ring and its stats, equipped totems and

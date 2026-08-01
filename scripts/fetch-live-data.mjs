@@ -4,14 +4,19 @@
  *
  * Usage:
  *   node scripts/fetch-live-data.mjs [--summary | --export-army | --json]
+ *                                    [--rubis | --token <opec|rubis>]
  *
  * Modes:
  *   --summary      (default) human-readable overview of the live account state
  *   --export-army  emit a base64 save code importable by the battle calculator
  *   --json         dump all raw API responses as one JSON object
  *
- * Token: reads OPEC_TOKEN (preferred) or RUBIS_TOKEN from
- *   ../orbo-bot-go/.env (sibling repo) or a local .env in the repo root.
+ * Account: uses OPEC_TOKEN by default (falls back to RUBIS_TOKEN). Pass
+ *   --rubis (or --token rubis) to fetch the RUBIS_TOKEN account instead —
+ *   an explicit choice never falls back, so you can't export the wrong account.
+ *
+ * Token: read from ../orbo-bot-go/.env (sibling repo) or a local .env in the
+ *   repo root.
  *
  * Read-only: only GETs query procedures. Never calls game.executeActions
  * or any other mutation endpoint.
@@ -56,7 +61,13 @@ function parseEnvFile(filePath) {
   return out;
 }
 
-function loadToken() {
+const TOKEN_KEYS = { opec: 'OPEC_TOKEN', rubis: 'RUBIS_TOKEN' };
+
+// account: 'opec' | 'rubis' | null. null = default behavior (prefer
+// OPEC_TOKEN, fall back to RUBIS_TOKEN). An explicit account never falls
+// back — exporting the wrong account would silently produce a wrong save code.
+function loadToken(account) {
+  const wanted = account ? [TOKEN_KEYS[account]] : [TOKEN_KEYS.opec, TOKEN_KEYS.rubis];
   const candidates = [
     path.resolve(REPO_ROOT, '..', 'orbo-bot-go', '.env'),
     path.resolve(REPO_ROOT, '.env'),
@@ -64,11 +75,16 @@ function loadToken() {
   for (const file of candidates) {
     const env = parseEnvFile(file);
     if (!env) continue;
-    const token = env.OPEC_TOKEN || env.RUBIS_TOKEN;
-    if (token) return { token, source: file };
+    for (const key of wanted) {
+      if (env[key]) {
+        return { token: env[key], source: file, account: key === TOKEN_KEYS.rubis ? 'rubis' : 'opec' };
+      }
+    }
   }
-  console.error('Error: no API token found.');
-  console.error('Looked for OPEC_TOKEN / RUBIS_TOKEN in:');
+  console.error(account
+    ? `Error: ${TOKEN_KEYS[account]} not found (--${account} was requested, no fallback).`
+    : 'Error: no API token found.');
+  console.error(`Looked for ${wanted.join(' / ')} in:`);
   for (const file of candidates) console.error(`  - ${file}`);
   console.error('Add a line like `OPEC_TOKEN=<your bearer token>` to one of those files.');
   process.exit(1);
@@ -410,12 +426,22 @@ function buildExportCode(data) {
 // main
 // ---------------------------------------------------------------------------
 
+function parseAccount(args) {
+  const i = args.indexOf('--token');
+  const val = i !== -1 ? (args[i + 1] ?? '').toLowerCase() : null;
+  if (val && !Object.keys(TOKEN_KEYS).includes(val)) {
+    console.error(`Error: --token expects one of: ${Object.keys(TOKEN_KEYS).join(' | ')} (got "${args[i + 1] ?? ''}")`);
+    process.exit(1);
+  }
+  return args.includes('--rubis') ? 'rubis' : val; // null → default (opec, then rubis)
+}
+
 async function main() {
   const args = process.argv.slice(2);
   const mode = args.includes('--export-army') ? 'export-army' : args.includes('--json') ? 'json' : 'summary';
 
-  const { token, source } = loadToken();
-  console.error(`Using token from ${source}`);
+  const { token, source, account } = loadToken(parseAccount(args));
+  console.error(`Using ${account} token from ${source}`);
 
   const { data, failed } = await fetchAll(token);
   if (failed.length) {
