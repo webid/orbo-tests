@@ -410,6 +410,11 @@ describe('help modal', () => {
     expect(screen.getByText(/mirror your account/)).toBeTruthy();
     expect(screen.getByText(/Ctrl\/⌘ Z/)).toBeTruthy();
 
+    // The Tools section links to the static totem reference page.
+    const refLink = screen.getByText('full totem reference').closest('a') as HTMLAnchorElement;
+    expect(refLink.getAttribute('href')).toBe(`${import.meta.env.BASE_URL}totem-reference.html`);
+    expect(refLink.getAttribute('target')).toBe('_blank');
+
     fireEvent.click(screen.getByRole('button', { name: 'Close help' }));
     expect(screen.queryByText('How it works')).toBeNull();
   });

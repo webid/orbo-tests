@@ -106,6 +106,17 @@ export const HelpModal = () => {
               <span>the best next level-ups for your deck, in order, with their food cost.</span>
               <b className="text-[#ededed] whitespace-nowrap">Luck</b>
               <span>spawn rates and gold cost for every luck level.</span>
+              <b className="text-[#ededed] whitespace-nowrap">Totems</b>
+              <span>
+                grid or list view with every card's lore and effects — or open the{' '}
+                <a
+                  href={`${import.meta.env.BASE_URL}totem-reference.html`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#ededed] underline decoration-[#444] underline-offset-2 hover:decoration-[#888] transition-colors"
+                >full totem reference</a>{' '}
+                (plain page, easy to translate).
+              </span>
               <b className="text-[#ededed] whitespace-nowrap">Presets</b>
               <span>save and load deck + settings. Save turns into Update while a preset is loaded, so you always overwrite the right one.</span>
               <b className="text-[#ededed] whitespace-nowrap">Sync</b>
