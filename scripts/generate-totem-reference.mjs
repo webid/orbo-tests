@@ -108,7 +108,7 @@ const html = `<!doctype html>
     .intro a { color: #888; }
     h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1px solid #222; padding-bottom: 6px; margin: 32px 0 12px; }
     .card { display: flex; gap: 14px; align-items: flex-start; background: #111; border: 1px solid #222; border-radius: 8px; padding: 12px 14px; margin-bottom: 10px; }
-    .art { flex: 0 0 56px; width: 56px; height: 56px; border-radius: 6px; border: 1px solid #333; background: #161616; overflow: hidden; }
+    .art { flex: 0 0 88px; width: 88px; height: 88px; border-radius: 6px; border: 1px solid #333; background: #161616; overflow: hidden; }
     .art img { width: 100%; height: 100%; object-fit: contain; }
     .body { min-width: 0; }
     h3 { font-size: 15px; margin: 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -122,7 +122,7 @@ const html = `<!doctype html>
 <body>
   <main>
     <h1>Orbo Totem Reference</h1>
-    <p class="intro">All ${totems.length} totem cards \u2014 name, category, lore and effects. <a href="./">Back to the calculator</a></p>
+    <p class="intro">All ${totems.length} totem cards \u2014 name, category, lore and effects. <a href="./">Back to Orbo Command Center</a></p>
 ${sections}  </main>
 </body>
 </html>
