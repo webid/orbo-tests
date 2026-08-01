@@ -66,9 +66,15 @@ export const TotemPickerModal = () => {
     t.lane.toLowerCase().includes(q) ||
     t.effects.some(e => !!e.key && (TOTEM_EFFECT_INFO[e.key]?.label || '').toLowerCase().includes(q));
 
+  // The game lets you own duplicate cards but only one of each can be
+  // equipped across the three slots, so cards used in another slot are
+  // disabled here (and skipped by the Enter-to-pick shortcut).
+  const isEquippedElsewhere = (key: string) =>
+    (config.totemKeys || []).some((k, i) => k === key && i !== totemPickerSlot);
+
   // Enter selects the first search result (tier order, then lane order).
   const firstFiltered = totemsData
-    .filter(matchesSearch)
+    .filter(t => matchesSearch(t) && !isEquippedElsewhere(t.key))
     .sort((a, b) => a.tier - b.tier || (TOTEM_LANE_ORDER[a.lane] || 99) - (TOTEM_LANE_ORDER[b.lane] || 99))[0];
 
   // Battle-relevant deltas of a candidate card vs the totem in this slot.
@@ -154,12 +160,14 @@ export const TotemPickerModal = () => {
                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5">
                         {cards.map(t => {
                            const isSelected = (config.totemKeys || [])[totemPickerSlot] === t.key;
+                           const equippedElsewhere = isEquippedElsewhere(t.key);
                            const deltas = getDeltas(t);
                            return (
                               <button
                                  key={t.key}
+                                 disabled={equippedElsewhere}
                                  onClick={() => selectTotem(t.key)}
-                                 className={`text-left bg-[#111] border p-2.5 rounded-md transition-colors ${totemImagesOn ? 'flex items-start space-x-2' : 'flex flex-col'} ${isSelected ? 'border-[#888] bg-[#1a1a1a]' : 'border-[#222] hover:border-[#444] hover:bg-[#1a1a1a]'}`}
+                                 className={`text-left bg-[#111] border p-2.5 rounded-md transition-colors ${totemImagesOn ? 'flex items-start space-x-2' : 'flex flex-col'} ${equippedElsewhere ? 'opacity-40 cursor-not-allowed border-[#222]' : isSelected ? 'border-[#888] bg-[#1a1a1a]' : 'border-[#222] hover:border-[#444] hover:bg-[#1a1a1a]'}`}
                               >
                                  {totemImagesOn && <TotemThumb totem={t} size={44} />}
                                  <div className="flex flex-col min-w-0 flex-1">
@@ -189,6 +197,7 @@ export const TotemPickerModal = () => {
                                        ))}
                                     </div>
                                  )}
+                                 {equippedElsewhere && <span className="text-[8px] uppercase tracking-wide text-[#555] mt-1">Equipped</span>}
 
                                  </div>
                               </button>

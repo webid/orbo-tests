@@ -9,7 +9,7 @@ import { act, cleanup, fireEvent, render, screen, within } from '@testing-librar
 
 import App from '../App';
 import { normalizeConfig, useOrboStore } from '../store';
-import { bossesData, creaturesDict, luckData, totemsData } from '../data';
+import { bossesData, creaturesDict, luckData, totemsData, TOTEM_LANE_ORDER } from '../data';
 import { getEquippedTotemEffects, getTotemMult } from '../utils';
 
 const resetStore = () => {
@@ -495,6 +495,59 @@ describe('dps breakdown highlight', () => {
     expect(useOrboStore.getState().highlightedSlot).toBe(0);
     fireEvent.click(seg);
     expect(useOrboStore.getState().highlightedSlot).toBeNull();
+  });
+});
+
+describe('totem picker duplicate restriction', () => {
+  const pickerPanel = () =>
+    screen.getByText(/Select Totem — Slot/).closest('.max-w-3xl') as HTMLElement;
+
+  it('disables a card equipped in another slot and keeps others selectable', () => {
+    const [a, b] = totemsData;
+    useOrboStore.getState().setConfig({ totemKeys: [a.key, null, null] });
+    useOrboStore.getState().setTotemPickerSlot(1);
+    render(<App />);
+
+    const panel = pickerPanel();
+    const dupBtn = within(panel).getByText(a.name).closest('button') as HTMLButtonElement;
+    expect(dupBtn.disabled).toBe(true);
+    expect(dupBtn.className).toContain('opacity-40');
+    expect(within(dupBtn).getByText('Equipped')).toBeTruthy();
+
+    // Clicking a disabled button is a no-op: slot 2 stays empty.
+    fireEvent.click(dupBtn);
+    expect(useOrboStore.getState().config.totemKeys).toEqual([a.key, null, null]);
+
+    // A card that isn't equipped anywhere is still selectable.
+    const freeBtn = within(panel).getByText(b.name).closest('button') as HTMLButtonElement;
+    expect(freeBtn.disabled).toBe(false);
+    fireEvent.click(freeBtn);
+    expect(useOrboStore.getState().config.totemKeys).toEqual([a.key, b.key, null]);
+  });
+
+  it('keeps the card selectable in the slot where it is equipped', () => {
+    const [a] = totemsData;
+    useOrboStore.getState().setConfig({ totemKeys: [null, a.key, null] });
+    useOrboStore.getState().setTotemPickerSlot(1);
+    render(<App />);
+
+    const btn = within(pickerPanel()).getByText(a.name).closest('button') as HTMLButtonElement;
+    expect(btn.disabled).toBe(false);
+    expect(btn.className).toContain('border-[#888]'); // selected style, not dimmed
+    expect(within(btn).queryByText('Equipped')).toBeNull();
+  });
+
+  it('skips equipped-elsewhere cards in the Enter-to-pick shortcut', () => {
+    const sorted = [...totemsData].sort(
+      (x, y) => x.tier - y.tier || (TOTEM_LANE_ORDER[x.lane] || 99) - (TOTEM_LANE_ORDER[y.lane] || 99)
+    );
+    const [first, second] = sorted;
+    useOrboStore.getState().setConfig({ totemKeys: [null, null, first.key] });
+    useOrboStore.getState().setTotemPickerSlot(0);
+    render(<App />);
+
+    fireEvent.keyDown(screen.getByPlaceholderText(/Search totems/), { key: 'Enter' });
+    expect(useOrboStore.getState().config.totemKeys).toEqual([second.key, null, first.key]);
   });
 });
 
